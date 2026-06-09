@@ -2544,7 +2544,7 @@
                     <div class="col-xl-4 col-md-6">
                         <div class="cards-ss cards-ss--lg">
                             <div class="cards-ss__img-wrapper">
-                                <img src="src/images/banner/banner-sm-03.png " alt="banner" />
+                                <img src="{{ asset('images/banner/banner-sm-03.png') }}" alt="banner">
                                 <div class="cards-ss__content text-center">
                                     <h6 class="font-body--md-500">BEST DEALS</h6>
                                     <h2 class="font-title--lg">Sale of the Month</h2>
@@ -2567,7 +2567,7 @@
                     <div class="col-xl-4 col-md-6">
                         <div class="cards-ss cards-ss--lg">
                             <div class="cards-ss__img-wrapper">
-                                <img src="src/images/banner/banner-sm-01.png " alt="banner" />
+                                <img src="{{ asset('images/banner/banner-sm-01.png') }}" alt="banner">
                                 <div class="cards-ss__content text-center">
                                     <h6 class="font-body--md-500">85% Fat Free</h6>
                                     <h2 class="font-title--lg">Low-Fat Meat</h2>
@@ -2590,7 +2590,7 @@
                     <div class="col-xl-4 col-md-6">
                         <div class="cards-ss cards-ss--lg cards-ss--darktext">
                             <div class="cards-ss__img-wrapper">
-                                <img src="{{ asset('images/banner/  ') }}" alt="banner">
+                                <img src="{{ asset('images/banner/banner-sm-02.png') }}" alt="banner">
                                 <div class="cards-ss__content text-center">
                                     <h6 class="font-body--md-500">Summer Sale</h6>
                                     <h2 class="font-title--lg">100% Fresh Fruit</h2>
@@ -3643,7 +3643,7 @@
                     <div class="cards-md deals-products__wrapper-item deals-products__wrapper-item--eleven">
                         <div class="cards-md__img-wrapper">
                             <a href="product-details.html">
-                                <img src="src/images/products/img-11.png" alt="products" />
+                                <img src="{{ asset('images/products/img-11.png') }}" alt="products">
                             </a>
                             <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                             <div class="cards-md__favs-list">
@@ -3740,7 +3740,7 @@
                     <div class="cards-md deals-products__wrapper-item deals-products__wrapper-item--twelve">
                         <div class="cards-md__img-wrapper">
                             <a href="product-details.html">
-                                <img src="src/images/products/img-14.png" alt="products" />
+                                <img src="{{ asset('images/products/img-14.png') }}" alt="products">
                             </a>
                             <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                             <div class="cards-md__favs-list">
@@ -4443,7 +4443,7 @@
         <section class="banner-sale section--lg pb-0">
             <div class="container">
                 <div class="banner-sale__img-wrapper">
-                    <img src="src/images/banner/banner-lg-16.jpg" alt="banner" />
+                    <img src="{{ asset('images/banner/banner-lg-16.jpg') }}" alt="banner">
 
                     <div class="banner-sale__text-content">
                         <h5>Summber Sale</h5>
@@ -4684,7 +4684,7 @@
                             <div class="cards-md w-100">
                                 <div class="cards-md__img-wrapper">
                                     <a href="product-details.html">
-                                        <img src="src/images/products/img-03.png" alt="products" />
+                                        <img src="{{ asset('images/products/img-03.png') }}" alt="products">
                                     </a>
                                     <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                     <div class="cards-md__favs-list">
@@ -5096,7 +5096,7 @@
                         <div class="swiper-slide">
                             <div class="cards-blog">
                                 <div class="cards-blog__img-wrapper">
-                                    <img src="src/images/blogs/blog-01.png" alt="img-01" />
+                                    <img src="{{ asset('images/blogs/blog-01.png') }}" alt="img-01">
                                     <div class="date">
                                         <h3 class="font-body--xxl-500">18</h3>
                                         <span class="font-body--sm-500">Nov</span>
@@ -5167,7 +5167,7 @@
                         <div class="swiper-slide">
                             <div class="cards-blog">
                                 <div class="cards-blog__img-wrapper">
-                                    <img src="src/images/blogs/blog-02.png" alt="img-01" />
+                                    <img src="{{ asset('images/blogs/blog-02.png') }}" alt="img-01">
                                     <div class="date">
                                         <h3 class="font-body--xxl-500">18</h3>
                                         <span class="font-body--sm-500">Nov</span>
@@ -5238,7 +5238,7 @@
                         <div class="swiper-slide">
                             <div class="cards-blog">
                                 <div class="cards-blog__img-wrapper">
-                                    <img src="src/images/blogs/blog-03.png" alt="img-01" />
+                                    <img src="{{ asset('images/blogs/blog-03.png') }}" alt="img-01">
                                     <div class="date">
                                         <h3 class="font-body--xxl-500">18</h3>
                                         <span class="font-body--sm-500">Nov</span>
@@ -6230,7 +6230,7 @@
                     <div class="col-xl-2 col-sm-3 col-4">
                         <a href="#" class="cards-ig w-100">
                             <div class="cards-ig__img">
-                                <img src="src/images/instagram/img-01.jpg" alt="ig" />
+                                <img src="{{ asset('images/instagram/img-01.jpg') }}" alt="ig">
                                 <div class="cards-ig__overlay">
                                     <span>
                                         <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -6264,7 +6264,7 @@
                     <div class="col-xl-2 col-sm-3 col-4">
                         <a href="#" class="cards-ig w-100">
                             <div class="cards-ig__img">
-                                <img src="src/images/instagram/img-03.png" alt="ig" />
+                                <img src="{{ asset('images/instagram/img-03.png') }}" alt="ig">
                                 <div class="cards-ig__overlay">
                                     <span>
                                         <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -6410,7 +6410,7 @@
                         <div class="col-lg-4">
                             <div class="footer__brand-info">
                                 <div class="footer__brand-info-logo">
-                                    <img src="src/images/logo-nl-white.png" alt="logo" />
+                                    <img src="{{ asset('images/logo-nl-white.png') }}" alt="logo">
                                 </div>
                                 <p class="font-body--md-400">
                                     Morbi cursus porttitor enim lobortis molestie. Duis gravida turpis dui, eget bibendum magna congue nec.
@@ -6743,7 +6743,7 @@
                                                     </svg>
                                                 </span>
                                                 <h6>farmarys</h6> -->
-                                                <img src="./src/images/brand-icon/brand-img.png" alt="">
+                                                <img src="{{ asset('images/brand-icon/brand-img.png') }}" alt="">
                                             </div>
                                         </div>
                                         <div class="social-site">
