@@ -52,8 +52,8 @@ if (document.getElementById('countdownTwo')) {
 if (document.getElementById('countdown')) {
   $('#countdown').syotimer({
     year: 2023,
-    month: 09,
-    day: 06,
+    month: 9,
+    day: 6,
     hour: 20,
     minute: 30,
   });
