@@ -268,7 +268,7 @@
             </a>
             <ul class="header__navigation-drop-menu">
                 <li class="header__navigation-drop-menu-link">
-                    <a href="user-dashboard.html">User Dashboard </a>
+                    <a href="{{ route('user-dashboard') }}">User Dashboard </a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
                     <a href="order-history.html">Order History </a>
