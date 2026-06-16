@@ -268,37 +268,37 @@
             </a>
             <ul class="header__navigation-drop-menu">
                 <li class="header__navigation-drop-menu-link">
-                    <a href="{{ route('user-dashboard') }}">User Dashboard </a>
+                    <a href="{{route('user-dashboard') }}">User Dashboard </a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="order-history.html">Order History </a>
+                    <a href="{{route('order-history')}}">Order History </a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="order-details.html">Order Details </a>
+                    <a href="{{route('order-details')}}">Order Details </a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="account-setting.html">Account Settings </a>
+                    <a href="{{route('account-setting')}}">Account Settings </a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="product-details.html">Product Details</a>
+                    <a href="{{route('product-details')}}">Product Details</a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="wishlist.html"> Wishlist</a>
+                    <a href="{{route('wishlist')}}"> Wishlist</a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="shopping-cart.html"> Shopping Cart</a>
+                    <a href="{{route('shopping-cart')}}"> Shopping Cart</a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="sign-in.html"> Sign in</a>
+                    <a href="{{route('sign-in')}}"> Sign in</a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="create-account.html"> Create Account</a>
+                    <a href="{{route('create-account')}}"> Create Account</a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="faq.html"> faq</a>
+                    <a href="{{route('faq')}}"> faq</a>
                 </li>
                 <li class="header__navigation-drop-menu-link">
-                    <a href="404.html"> Error 404</a>
+                    <a href="{{route('404')}}"> Error 404</a>
                 </li>
             </ul>
         </li>

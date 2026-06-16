@@ -51,5 +51,22 @@ Route::get('/shopping-cart', function () {
     return view('shopping-cart');
 })->name('shopping-cart');
 
+Route::get('/sign-in', function () {
+    return view('sign-in');
+})->name('sign-in');
+
+Route::get('/create-account', function () {
+    return view('create-account');
+})->name('create-account');
+
+Route::get('/faq', function () {
+    return view('faq');
+})->name('faq');
+
+Route::get('/404', function () {
+    return view('404');
+})->name('404');
+
+
 
 //Route::get('/try', [TrialController::class, 'index']);

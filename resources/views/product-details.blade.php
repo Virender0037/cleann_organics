@@ -483,7 +483,7 @@
                                 </div>
                                 <div class="col-lg-5 order-lg-0 order-1">
                                     <div class="products-video">
-                                        <img src="src/images/members/img-10.png" alt="img-src" />
+                                        <img src="{{ asset('images/members/img-10.png') }}" alt="img-src" />
                                         <a href="https://youtu.be/JkaxUblCGz0" class="play-icon venobox" data-autoplay="true" data-vbtype="video">
                                             <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M0 0V18L14 9L0 0Z" fill="currentColor" />
@@ -570,7 +570,7 @@
                                             <div class="products-tab__feedback-content-top">
                                                 <div class="user-details">
                                                     <div class="user-details__img">
-                                                        <img src="src/images/user/img-02.png" alt="user-img" />
+                                                        <img src="{{ asset('images/user/img-02.png') }}" alt="user-img" />
                                                     </div>
                                                     <div class="user-details__info">
                                                         <h2 class="user-name">Jane Cooper</h2>
@@ -640,7 +640,7 @@
                                             <div class="products-tab__feedback-content-top">
                                                 <div class="user-details">
                                                     <div class="user-details__img">
-                                                        <img src="src/images/user/img-01.png" alt="user-img" />
+                                                        <img src="{{ asset('images/user/img-01.png') }}" alt="user-img" />
                                                     </div>
                                                     <div class="user-details__info">
                                                         <h2 class="user-name">Kristin Watson</h2>
@@ -711,7 +711,7 @@
                                             <div class="products-tab__feedback-content-top">
                                                 <div class="user-details">
                                                     <div class="user-details__img">
-                                                        <img src="src/images/user/img-03.png" alt="user-img" />
+                                                        <img src="{{ asset('images/user/img-03.png') }}" alt="user-img" />
                                                     </div>
                                                     <div class="user-details__info">
                                                         <h2 class="user-name">Jacob Jones</h2>
@@ -781,7 +781,7 @@
                                             <div class="products-tab__feedback-content-top">
                                                 <div class="user-details">
                                                     <div class="user-details__img">
-                                                        <img src="src/images/user/img-04.png" alt="user-img" />
+                                                        <img src="{{ asset('images/user/img-04.png') }}" alt="user-img" />
                                                     </div>
                                                     <div class="user-details__info">
                                                         <h2 class="user-name">Ralph Edwards</h2>
@@ -857,7 +857,7 @@
                                 </div>
                                 <div class="col-lg-5 order-lg-0 order-1">
                                     <div class="products-video">
-                                        <img src="src/images/members/img-10.png" alt="img-src" />
+                                        <img src="{{ asset('images/members/img-10.png') }}" alt="img-src" />
                                         <a href="https://youtu.be/JkaxUblCGz0" class="play-icon venobox" data-autoplay="true" data-vbtype="video">
                                             <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M0 0V18L14 9L0 0Z" fill="currentColor" />
@@ -953,8 +953,8 @@
                         <div class="swiper-slide">
                             <div class="cards-md cards-md--four w-100">
                                 <div class="cards-md__img-wrapper">
-                                    <a href="product-details.html">
-                                        <img src="src/images/products/img-02.png" alt="products" />
+                                    <a href="{{route('product-details')}}">
+                                        <img src="{{ asset('images/members/img-02.png') }}" alt="products" />
                                     </a>
                                     <span class="tag danger font-body--md-400">sale 50%</span>
                                     <div class="cards-md__favs-list">
@@ -984,7 +984,7 @@
                                     </div>
                                 </div>
                                 <div class="cards-md__info d-flex justify-content-between align-items-center">
-                                    <a href="product-details.html" class="cards-md__info-left">
+                                    <a href="{{route('product-details')}}" class="cards-md__info-left">
                                         <h6 class="font-body--md-400">Orange</h6>
                                         <div class="cards-md__info-price">
                                             <span class="font-body--lg-500">$14.99</span>
@@ -1052,8 +1052,8 @@
                         <div class="swiper-slide">
                             <div class="cards-md cards-md--four w-100">
                                 <div class="cards-md__img-wrapper">
-                                    <a href="product-details.html">
-                                        <img src="src/images/products/img-01.png" alt="products" />
+                                    <a href="{{route('product-details')}}">
+                                        <img src="{{ asset('images/members/img-01.png') }}" alt="products" />
                                     </a>
                                     <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                     <div class="cards-md__favs-list">
@@ -1083,7 +1083,7 @@
                                     </div>
                                 </div>
                                 <div class="cards-md__info d-flex justify-content-between align-items-center">
-                                    <a href="product-details.html" class="cards-md__info-left">
+                                    <a href="{{route('product-details')}}" class="cards-md__info-left">
                                         <h6 class="font-body--md-400">Green Apple</h6>
                                         <div class="cards-md__info-price">
                                             <span class="font-body--lg-500">$14.99</span>
@@ -1151,8 +1151,8 @@
                         <div class="swiper-slide">
                             <div class="cards-md cards-md--four w-100">
                                 <div class="cards-md__img-wrapper">
-                                    <a href="product-details.html">
-                                        <img src="src/images/products/img-03.png" alt="products" />
+                                    <a href="{{route('product-details')}}">
+                                        <img src="{{ asset('images/members/img-03.png') }}" alt="products" />
                                     </a>
                                     <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                     <div class="cards-md__favs-list">
@@ -1182,7 +1182,7 @@
                                     </div>
                                 </div>
                                 <div class="cards-md__info d-flex justify-content-between align-items-center">
-                                    <a href="product-details.html" class="cards-md__info-left">
+                                    <a href="{{route('product-details')}}" class="cards-md__info-left">
                                         <h6 class="font-body--md-400">Chinese cabbage</h6>
                                         <div class="cards-md__info-price">
                                             <span class="font-body--lg-500">$14.99</span>
@@ -1250,8 +1250,8 @@
                         <div class="swiper-slide">
                             <div class="cards-md cards-md--four w-100">
                                 <div class="cards-md__img-wrapper">
-                                    <a href="product-details.html">
-                                        <img src="src/images/products/img-04.png" alt="products" />
+                                    <a href="{{route('product-details')}}">
+                                        <img src="{{ asset('images/members/img-04.png') }}" alt="products" />
                                     </a>
                                     <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                     <div class="cards-md__favs-list">
@@ -1281,7 +1281,7 @@
                                     </div>
                                 </div>
                                 <div class="cards-md__info d-flex justify-content-between align-items-center">
-                                    <a href="product-details.html" class="cards-md__info-left">
+                                    <a href="{{route('product-details')}}" class="cards-md__info-left">
                                         <h6 class="font-body--md-400">Green Lettuce</h6>
                                         <div class="cards-md__info-price">
                                             <span class="font-body--lg-500">$14.99</span>
@@ -1349,8 +1349,8 @@
                         <div class="swiper-slide">
                             <div class="cards-md cards-md--four w-100">
                                 <div class="cards-md__img-wrapper">
-                                    <a href="product-details.html">
-                                        <img src="src/images/products/img-05.png" alt="products" />
+                                    <a href="{{route('product-details')}}">
+                                        <img src="{{ asset('images/members/img-05.png') }}" alt="products" />
                                     </a>
                                     <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                     <div class="cards-md__favs-list">
@@ -1380,7 +1380,7 @@
                                     </div>
                                 </div>
                                 <div class="cards-md__info d-flex justify-content-between align-items-center">
-                                    <a href="product-details.html" class="cards-md__info-left">
+                                    <a href="{{route('product-details')}}" class="cards-md__info-left">
                                         <h6 class="font-body--md-400">Eggplant</h6>
                                         <div class="cards-md__info-price">
                                             <span class="font-body--lg-500">$14.99</span>
@@ -1448,8 +1448,8 @@
                         <div class="swiper-slide">
                             <div class="cards-md cards-md--four w-100">
                                 <div class="cards-md__img-wrapper">
-                                    <a href="product-details.html">
-                                        <img src="src/images/products/img-06.png" alt="products" />
+                                    <a href="{{route('product-details')}}">
+                                        <img src="{{ asset('images/members/img-06.png') }}" alt="products" />
                                     </a>
                                     <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                     <div class="cards-md__favs-list">
@@ -1479,7 +1479,7 @@
                                     </div>
                                 </div>
                                 <div class="cards-md__info d-flex justify-content-between align-items-center">
-                                    <a href="product-details.html" class="cards-md__info-left">
+                                    <a href="{{route('product-details')}}" class="cards-md__info-left">
                                         <h6 class="font-body--md-400">Big Potatoes</h6>
                                         <div class="cards-md__info-price">
                                             <span class="font-body--lg-500">$14.99</span>

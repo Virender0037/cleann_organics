@@ -32,7 +32,7 @@
               </a>
             </li>
             <li class="active">
-              <a href="user-dashboard.html">Order Details</a>
+              <a href="{{ route('user-dashboard')}}">Order Details</a>
             </li>
           </ul>
         </div>
@@ -51,7 +51,7 @@
               </h2>
               <ul class="dashboard__nav-item">
                 <li class="dashboard__nav-item-link">
-                  <a href="user-dashboard.html" class="font-body--lg-400">
+                  <a href="{{route('user-dashboard')}}" class="font-body--lg-400">
                     <span class="icon">
                       <svg
                         width="24"
@@ -71,7 +71,7 @@
                 </li>
                 <!-- Order History -->
                 <li class="dashboard__nav-item-link active">
-                  <a href="order-history.html" class="font-body--lg-400">
+                  <a href="{{route('order-history')}}" class="font-body--lg-400">
                     <span class="icon">
                       <svg
                         width="16"
@@ -91,7 +91,7 @@
                 </li>
                 <!-- Wishlist -->
                 <li class="dashboard__nav-item-link">
-                  <a href="wishlist.html" class="font-body--lg-400">
+                  <a href="{{route('wishlist')}}" class="font-body--lg-400">
                     <span class="icon">
                       <svg
                         width="24"
@@ -112,7 +112,7 @@
                 </li>
                 <!-- Shopping Cart  -->
                 <li class="dashboard__nav-item-link">
-                  <a href="shopping-cart.html" class="font-body--lg-400">
+                  <a href="{{route('shopping-cart')}}" class="font-body--lg-400">
                     <span class="icon">
                       <svg
                         width="24"
@@ -136,7 +136,7 @@
                 </li>
                 <!--  Settings   -->
                 <li class="dashboard__nav-item-link">
-                  <a href="account-setting.html" class="font-body--lg-400">
+                  <a href="{{route('account-setting')}}" class="font-body--lg-400">
                     <span class="icon">
                       <svg
                         width="24"
@@ -217,7 +217,7 @@
               <div class="dashboard__order-history">
                 <div class="dashboard__order-history-title">
                   <h2 class="font-body--xxl-500">Order Details</h2>
-                  <a href="order-history.html">back to list</a>
+                  <a href="{{route('order-history')}}">back to list</a>
                 </div>
 
                 <div class="dashboard__details-content">
