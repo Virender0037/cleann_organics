@@ -67,6 +67,10 @@ Route::get('/404', function () {
     return view('404');
 })->name('404');
 
+Route::get('/shop', function () {
+    return view('shop');
+})->name('shop');
+
 
 
 //Route::get('/try', [TrialController::class, 'index']);

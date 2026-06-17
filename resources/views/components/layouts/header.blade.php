@@ -211,51 +211,14 @@
 <div class="header__bottom-content">
     <ul class="header__navigation-menu">
         <!-- Homepages -->
-        <li class="header__navigation-menu-link active">
-            <a href="#">
-                Home
-                <span class="drop-icon">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.33332 5.66667L7.99999 10.3333L12.6667 5.66667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </span>
-            </a>
-            <ul class="header__navigation-drop-menu">
-                <li class="header__navigation-drop-menu-link active">
-                    <a href="{{ route('home') }}">Home</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="home-02.html">Homepage 02</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="home-03.html">Homepage 03</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="home-04.html">Homepage 04</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="home-05.html">Homepage 05</a>
-                </li>
-            </ul>
+        <li class="header__navigation-menu-link">
+            <a href="{{ route('home') }}">Home </a>
         </li>
         <!-- Shopepages -->
         <li class="header__navigation-menu-link">
-            <a href="#">
+            <a href="{{ route('shop') }}">
                 Shop
-                <span class="drop-icon">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.33332 5.66667L7.99999 10.3333L12.6667 5.66667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </span>
             </a>
-            <ul class="header__navigation-drop-menu">
-                <li class="header__navigation-drop-menu-link">
-                    <a href="shop-01.html">Shop 01</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="shop-02.html">Shop 02</a>
-                </li>
-            </ul>
         </li>
         <li class="header__navigation-menu-link">
             <a href="#">
