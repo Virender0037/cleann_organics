@@ -466,7 +466,7 @@
                                 <!-- banner  -->
                                 <div class="shop-item">
                                     <div class="shop-img-banner">
-                                        <img src="src/images/banner/banner-sm-19.jpg" alt="banner-sm" />
+                                        <img src="{{ asset('images/banner/banner-sm-19.jpg') }}" alt="banner-sm" />
                                         <div class="text-content">
                                             <h5><span>79%</span> Discount</h5>
                                             <p>on Your Fast Order</p>
@@ -487,7 +487,7 @@
                                     <h2 class="font-body--xxl-500" style="margin-bottom: 12px;">Sale Products</h2>
                                     <a href="product-details.html" class="shop-sale-product-item">
                                         <div class="product-img">
-                                            <img src="src/images/products/img-01.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-01.png') }}" alt="products" />
                                         </div>
                                         <div class="product-info">
                                             <h5 class="font-body--md-400">Red Capsicum</h5>
@@ -541,7 +541,7 @@
                                     </a>
                                     <a href="product-details.html" class="shop-sale-product-item">
                                         <div class="product-img">
-                                            <img src="src/images/products/img-02.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-02.png') }}" alt="products" />
                                         </div>
                                         <div class="product-info">
                                             <h5 class="font-body--md-400">Red Capsicum</h5>
@@ -595,7 +595,7 @@
                                     </a>
                                     <a href="product-details.html" class="shop-sale-product-item">
                                         <div class="product-img">
-                                            <img src="src/images/products/img-03.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-03.png') }}" alt="products" />
                                         </div>
                                         <div class="product-info">
                                             <h5 class="font-body--md-400">Red Capsicum</h5>
@@ -658,7 +658,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-02.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-02.png') }}" alt="products" />
                                         </a>
                                         <span class="tag danger font-body--md-400">sale 50%</span>
                                         <div class="cards-md__favs-list">
@@ -757,7 +757,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-01.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-01.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -856,7 +856,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-03.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-03.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -955,7 +955,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-04.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-04.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -1054,7 +1054,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-05.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-05.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -1153,7 +1153,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-06.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-07.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -1252,7 +1252,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-07.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-07.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -1351,7 +1351,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-08.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-08.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -1450,7 +1450,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-09.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-09.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -1549,7 +1549,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-10.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-10.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -1649,7 +1649,7 @@
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
                                         <a href="product-details.html">
-                                            <img src="src/images/products/img-05.png" alt="products" />
+                                            <img src="{{ asset('images/products/img-05.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
@@ -1747,8 +1747,8 @@
                             <div class="col-xl-4 col-md-6">
                                 <div class="cards-md cards-md--four w-100">
                                     <div class="cards-md__img-wrapper">
-                                        <a href="product-details.html">
-                                            <img src="src/images/products/img-06.png" alt="products" />
+                                        <a href="product-details.html"> 
+                                            <img src="{{ asset('images/products/img-06.png') }}" alt="products" />
                                         </a>
                                         <!-- <span class="tag danger font-body--md-400">sale 50%</span> -->
                                         <div class="cards-md__favs-list">
