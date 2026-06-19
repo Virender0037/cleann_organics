@@ -2017,25 +2017,25 @@
                                             <div class="gallery-items">
                                               <div class="swiper-container gallery-items-slider swiper-container-initialized swiper-container-vertical swiper-container-pointer-events">
                                                 <div class="swiper-wrapper" id="swiper-wrapper-107ed06721010fb13b8" aria-live="polite" style="transition-duration: 0ms; transform: translate3d(0px, -420px, 0px);"><div class="gallery-item swiper-slide swiper-slide-duplicate swiper-slide-duplicate-active" data-swiper-slide-index="0" role="group" aria-label="1 / 12" style="height: 105px;">
-                                                    <img src="src/images/product-details/img-01.png" alt="Slide 01">
+                                                    <img src="{{ asset('images/product-details/img-01.png') }}" alt="Slide 01">
                                                   </div><div class="gallery-item swiper-slide swiper-slide-duplicate swiper-slide-duplicate-next" data-swiper-slide-index="1" role="group" aria-label="2 / 12" style="height: 105px;">
-                                                    <img src="src/images/product-details/img-02.png" alt="Slide 02">
+                                                    <img src="{{ asset('images/product-details/img-02.png') }}" alt="Slide 02">
                                                   </div><div class="gallery-item swiper-slide swiper-slide-duplicate" data-swiper-slide-index="2" role="group" aria-label="3 / 12" style="height: 105px;">
-                                                    <img src="src/images/product-details/img-03.png" alt="Slide 03">
+                                                    <img src="{{ asset('images/product-details/img-03.png') }}" alt="Slide 03">
                                                   </div><div class="gallery-item swiper-slide swiper-slide-duplicate swiper-slide-prev" data-swiper-slide-index="3" role="group" aria-label="4 / 12" style="height: 105px;">
-                                                    <img src="src/images/product-details/img-04.png" alt="Slide 04">
+                                                    <img src="{{ asset('images/product-details/img-04.png') }}" alt="Slide 04">
                                                   </div>
                                                   <div class="gallery-item swiper-slide swiper-slide-active" data-swiper-slide-index="0" role="group" aria-label="5 / 12" style="height: 105px;">
-                                                    <img src="src/images/product-details/img-01.png" alt="Slide 01">
+                                                    <img src="{{ asset('images/product-details/img-01.png') }}" alt="Slide 01">
                                                   </div>
                                                   <div class="gallery-item swiper-slide swiper-slide-next" data-swiper-slide-index="1" role="group" aria-label="6 / 12" style="height: 105px;">
-                                                    <img src="src/images/product-details/img-02.png" alt="Slide 02">
+                                                    <img src="{{ asset('images/product-details/img-02.png') }}" alt="Slide 02">
                                                   </div>
                                                   <div class="gallery-item swiper-slide" data-swiper-slide-index="2" role="group" aria-label="7 / 12" style="height: 105px;">
-                                                    <img src="src/images/product-details/img-03.png" alt="Slide 03">
+                                                    <img src="{{ asset('images/product-details/img-03.png') }}" alt="Slide 03">
                                                   </div>
                                                   <div class="gallery-item swiper-slide swiper-slide-duplicate-prev" data-swiper-slide-index="3" role="group" aria-label="8 / 12" style="height: 105px;">
-                                                    <img src="src/images/product-details/img-04.png" alt="Slide 04">
+                                                    <img src="{{ asset('images/product-details/img-04.png') }}" alt="Slide 04">
                                                   </div>
                                                 <div class="gallery-item swiper-slide swiper-slide-duplicate swiper-slide-duplicate-active" data-swiper-slide-index="0" role="group" aria-label="9 / 12" style="height: 105px;">
                                                     <img src="src/images/product-details/img-01.png" alt="Slide 01">
@@ -2064,7 +2064,7 @@
                                             </div>
                               
                                             <div class="gallery-main-image products__gallery-img--lg">
-                                              <img class="product-main-image" src="src/images/product-details/img-01.png" alt="Slide 01">
+                                              <img class="product-main-image" src="{{ asset('images/product-details/img-01.png') }}" alt="Slide 01">
                                             </div>
                                           </div>
                                     </div>
@@ -2165,7 +2165,7 @@
                                                             </svg>
                                                         </span>
                                                         <h6>farmarys</h6> -->
-                                                        <img src="./src/images/brand-icon/brand-img.png" alt="">
+                                                        <img src="{{ asset('images/brand-icon/brand-img.png') }}" alt="">
                                                     </div>
                                                 </div>
                                                 <div class="social-site">
