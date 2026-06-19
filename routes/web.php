@@ -85,4 +85,8 @@ Route::get('/shop', function () {
     return view('shop');
 })->name('shop');
 
+Route::get('/admin', function () {
+    return view('admin-dist.pages.login');
+})->name('admin');
+
 require __DIR__.'/auth.php';
