@@ -8,30 +8,31 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('product_images', function (Blueprint $table) {
+        Schema::create('product_variant_images', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('product_id')
+            $table->foreignId('product_variant_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
             $table->string('image');
 
-            $table->boolean('is_primary')
-                ->default(false);
+            $table->boolean('is_primary')->default(false);
 
-            $table->unsignedTinyInteger('sort_order')
-                ->default(0);
+            $table->unsignedTinyInteger('sort_order')->default(0);
+
+            $table->unique(['product_variant_id', 'sort_order']);
 
             $table->timestamps();
 
-            $table->index('product_id');
+            $table->index('product_variant_id');
             $table->index('is_primary');
+            $table->index('sort_order');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('product_images');
+        Schema::dropIfExists('product_variant_images');
     }
 };

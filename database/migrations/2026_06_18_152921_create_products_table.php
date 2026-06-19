@@ -13,7 +13,7 @@ return new class extends Migration
 
             $table->foreignId('category_id')
                 ->constrained()
-                ->cascadeOnDelete();
+                ->restrictOnDelete();
 
             $table->foreignId('tax_rate_id')
                 ->nullable()
@@ -22,61 +22,40 @@ return new class extends Migration
 
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('sku')->unique()->nullable();
 
-            $table->string('short_description')->nullable();
+            $table->text('short_description')->nullable();
             $table->longText('description')->nullable();
 
             $table->string('brand')->nullable();
 
-            // Product unit and variant-like details
-            $table->enum('unit', ['kg', 'gram', 'litre', 'piece', 'pack'])->nullable();
-            $table->decimal('weight', 10, 2)->nullable();
-            $table->string('color')->nullable();
-            $table->string('pack_quantity')->nullable();
-
-            // Tiered pricing
-            $table->boolean('enable_tiered_pricing')->default(false);
-
-            $table->unsignedInteger('single_quantity')->nullable();
-            $table->decimal('single_price', 10, 2)->nullable();
-
-            $table->unsignedInteger('standard_quantity')->nullable();
-            $table->decimal('standard_price', 10, 2)->nullable();
-
-            $table->unsignedInteger('discount_quantity')->nullable();
-            $table->decimal('discount_price', 10, 2)->nullable();
-
-            // Inventory
-            $table->unsignedInteger('stock_quantity')->default(0);
-            $table->unsignedInteger('low_stock_quantity')->default(5);
-            $table->enum('stock_status', ['in_stock', 'out_of_stock'])->default('in_stock');
-
-            // Return settings
             $table->boolean('is_returnable')->default(false);
             $table->unsignedTinyInteger('return_days')->default(7);
 
-            // Product display flags
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_latest')->default(false);
             $table->boolean('is_best_seller')->default(false);
+            $table->unsignedInteger('view_count')->default(0);
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->decimal('average_rating', 3, 2)->default(0);
+            $table->unsignedInteger('review_count')->default(0);
 
             $table->enum('status', ['active', 'inactive', 'draft'])->default('draft');
 
-            // SEO
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
             $table->text('meta_keywords')->nullable();
+            $table->string('canonical_url')->nullable();
 
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index('category_id');
             $table->index('tax_rate_id');
             $table->index('status');
-            $table->index('stock_status');
             $table->index('is_featured');
             $table->index('is_latest');
             $table->index('is_best_seller');
+            $table->index('sort_order');
         });
     }
 

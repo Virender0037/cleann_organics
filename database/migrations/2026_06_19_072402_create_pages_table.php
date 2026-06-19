@@ -8,34 +8,38 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('pages', function (Blueprint $table) {
             $table->id();
 
-            $table->string('name');
+            $table->string('title');
             $table->string('slug')->unique();
 
-            $table->string('image')->nullable();
+            $table->longText('content')->nullable();
 
-            $table->text('description')->nullable();
+            $table->string('featured_image')->nullable();
 
-            $table->enum('status', ['active', 'inactive'])
-                ->default('active');
+            $table->unsignedInteger('sort_order')->default(0);
+
+            $table->enum('status', [
+                'active',
+                'inactive'
+            ])->default('active');
 
             // SEO
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();
-            $table->text('meta_keywords')->nullable();
+            $table->string('canonical_url')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
 
             $table->index('status');
-            $table->index('slug');
+            $table->index('sort_order');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('pages');
     }
 };

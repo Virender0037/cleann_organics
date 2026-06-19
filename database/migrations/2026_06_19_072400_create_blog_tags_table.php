@@ -8,20 +8,26 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('tags', function (Blueprint $table) {
+        Schema::create('blog_tags', function (Blueprint $table) {
             $table->id();
 
             $table->string('name');
             $table->string('slug')->unique();
 
-            $table->timestamps();
+            $table->enum('status', [
+                'active',
+                'inactive'
+            ])->default('active');
 
-            $table->index('slug');
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->index('status');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('tags');
+        Schema::dropIfExists('blog_tags');
     }
 };
