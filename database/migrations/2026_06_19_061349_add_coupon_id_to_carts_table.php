@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('carts', function (Blueprint $table) {
-              $table->foreignId('coupon_id')
-                ->nullable()
-                ->after('user_id')
-                ->constrained()
-                ->nullOnDelete();
-        });
+        if (!Schema::hasColumn('carts', 'coupon_id')) {
+            Schema::table('carts', function (Blueprint $table) {
+                $table->foreignId('coupon_id')
+                    ->nullable()
+                    ->after('user_id')
+                    ->constrained()
+                    ->nullOnDelete();
+            });
+        }
     }
 
     /**
@@ -25,8 +27,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('carts', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasColumn('carts', 'coupon_id')) {
+            Schema::table('carts', function (Blueprint $table) {
+                $table->dropForeign(['coupon_id']);
+                $table->dropColumn('coupon_id');
+            });
+        }
     }
 };

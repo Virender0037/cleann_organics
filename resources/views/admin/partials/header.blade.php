@@ -19,17 +19,17 @@
     <meta name="author" content="Codedthemes" />
 
     <!-- [Favicon] icon -->
-    <link rel="icon" href="../assets/images/favicon.svg" type="image/x-icon" />
- <!-- [Font] Family -->
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-<!-- [phosphor Icons] https://phosphoricons.com/ -->
-<link rel="stylesheet" href="{{ asset('fonts/phosphor/regular/style.css') }}" />
-<!-- [Tabler Icons] https://tablericons.com -->
-<link rel="stylesheet" href="../assets/fonts/tabler-icons.min.css" />
-<!-- [Template CSS Files] -->
-<link rel="stylesheet" href="../assets/css/style.css" id="main-style-link" />
-<link rel="stylesheet" href="../assets/css/style-preset.css" />
-<!-- Google tag (gtag.js) -->
+  <link rel="icon" href="{{ asset('assets/images/favicon.svg') }}" type="image/x-icon" />
+  <!-- [Font] Family -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- [phosphor Icons] -->
+  <link rel="stylesheet" href="{{ asset('assets/fonts/phosphor/regular/style.css') }}" />
+  <!-- [Tabler Icons] -->
+  <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}" />
+  <!-- [Template CSS Files] -->
+  <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link" />
+  <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}" />
+  <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-14K1GBX9FG"></script>
 <script>
   window.dataLayer = window.dataLayer || [];

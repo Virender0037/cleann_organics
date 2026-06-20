@@ -1,3 +1,2 @@
   </body>
-  <!-- [Body] end -->
 </html>

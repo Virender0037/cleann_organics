@@ -21,9 +21,11 @@
             <div class="card mb-0">
               <div class="card-body">
                 <div class="text-center">
-                  <a href="#"><img src="../assets/images/logo-dark.svg" alt="img" /></a>
+                  <a href="#">
+                    <img src="{{ asset('assets/images/vertical-logo.jpeg') }}" alt="img" width="180" height="40">
+                  </a>
                 </div>
-                <h4 class="text-center f-w-500 mt-4 mb-3">Login</h4>
+                <h4 class="text-center f-w-500 mt-4 mb-3">Admin Login</h4>
                 <div class="mb-3">
                   <input type="email" class="form-control" id="floatingInput" placeholder="Email Address" />
                 </div>
