@@ -89,4 +89,8 @@ Route::get('/admin', function () {
     return view('admin-dist.pages.login');
 })->name('admin');
 
+Route::get('/admin-dashboard', function () {
+    return view('admin-dist.dashboard.adminindex');
+})->name('admin-dashboard');
+
 require __DIR__.'/auth.php';
