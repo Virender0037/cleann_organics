@@ -17260,6 +17260,13 @@ pre[class*=language-] > code {
   margin-left: 264px;
   min-height: calc(100vh - 140px);
 }
+
+.pc-container-edit {
+  position: relative;
+  top: 74px;
+  margin-left: 300px;
+  min-height: calc(100vh - 140px);
+}
 .pc-container .pc-content {
   padding-left: 40px;
   padding-right: 40px;

@@ -1,18 +1,32 @@
 <x-admin-layout title="Categories">
-    <div class="pc-content">
+<main class="pc-container">    
+<div class="pc-content">
         <!-- Page Header -->
         <div class="page-header">
             <div class="page-block">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <h4 class="mb-0">Categories</h4>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 class="mb-1">Categories</h4>
+                        <p class="text-muted mb-0">
+                            Manage product categories
+                        </p>
                     </div>
-                    <div class="col-md-6 text-end">
-                        <a href="#" class="btn btn-primary">
+                    <div>
+                        <button class="btn btn-light-primary me-2">
+                            <i class="ph ph-upload-simple"></i>
+                            Import
+                        </button>
+                        <button class="btn btn-light-secondary me-2">
+                            <i class="ph ph-download-simple"></i>
+                            Export
+                        </button>
+                        <button class="btn btn-primary">
                             <i class="ph ph-plus"></i>
                             Add Category
-                        </a>
+                        </button>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -67,9 +81,7 @@
                                 <td>1</td>
 
                                 <td>
-                                    <img src="https://via.placeholder.com/50"
-                                         class="rounded"
-                                         width="50">
+                                <img src="{{ asset('assets/images/placeholder.png') }}" width="40" height="40" class="rounded" alt="Category">
                                 </td>
 
                                 <td>Organic Oils</td>
@@ -87,13 +99,11 @@
                                 <td>12</td>
 
                                 <td>
-                                    <a href="#"
-                                       class="btn btn-sm btn-info">
-                                        <i class="ph ph-pencil"></i>
+                                    <a href="{{ route('admin.catalog.categories.edit') }}" class="btn btn-sm btn-info" title="Edit Category">
+                                        <i class="ph ph-pencil-simple"></i>
                                     </a>
 
-                                    <a href="#"
-                                       class="btn btn-sm btn-danger">
+                                    <a href="#" class="btn btn-sm btn-danger" title="Delete Category">
                                         <i class="ph ph-trash"></i>
                                     </a>
                                 </td>
@@ -102,7 +112,7 @@
                         </tbody>
 
                     </table>
-                </div>
+                </div>  
                 <!-- Pagination -->
                 <div class="d-flex justify-content-end">
                     <nav>
@@ -129,4 +139,5 @@
             </div>
         </div>
     </div>
+</main>
 </x-admin-layout>

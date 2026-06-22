@@ -97,6 +97,9 @@ Route::prefix('admin')
 
         Route::view('/catalog/categories', 'admin.catalog.categories.index')
             ->name('catalog.categories.index');
+        
+        Route::view('/catalog/categories/edit', 'admin.catalog.categories.edit')
+            ->name('catalog.categories.edit');
 
         Route::view('/catalog/products', 'admin.catalog.products.index')
             ->name('catalog.products.index');
