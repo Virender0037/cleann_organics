@@ -1,3 +1,2 @@
-<div>
-    <!-- Live as if you were to die tomorrow. Learn as if you were to live forever. - Mahatma Gandhi -->
-</div>
+<x-admin-layout title="Tax-rates">
+</x-admin-layout>

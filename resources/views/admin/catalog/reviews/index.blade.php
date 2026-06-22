@@ -1,3 +1,2 @@
-<div>
-    <!-- When there is no desire, all things are at peace. - Laozi -->
-</div>
+<x-admin-layout title="Reviews">
+</x-admin-layout>

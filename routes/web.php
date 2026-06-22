@@ -85,12 +85,30 @@ Route::get('/shop', function () {
     return view('shop');
 })->name('shop');
 
-Route::get('/admin', function () {
-    return view('admin-dist.pages.login');
-})->name('admin');
+Route::prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
-Route::get('/admin-dashboard', function () {
-    return view('admin-dist.dashboard.adminindex');
-})->name('admin-dashboard');
+        Route::view('/', 'admin-dist.pages.login')
+            ->name('admin');
+
+        Route::view('/dashboard', 'admin.dashboard')
+            ->name('dashboard');
+
+        Route::view('/catalog/categories', 'admin.catalog.categories.index')
+            ->name('catalog.categories.index');
+
+        Route::view('/catalog/products', 'admin.catalog.products.index')
+            ->name('catalog.products.index');
+
+        Route::view('/catalog/variants', 'admin.catalog.variants.index')
+            ->name('catalog.variants.index');
+
+        Route::view('/catalog/reviews', 'admin.catalog.reviews.index')
+            ->name('catalog.reviews.index');
+
+        Route::view('/catalog/tax-rates', 'admin.catalog.tax-rates.index')
+            ->name('catalog.tax-rates.index');
+    });
 
 require __DIR__.'/auth.php';
