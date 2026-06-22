@@ -3,10 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -101,11 +97,26 @@ Route::prefix('admin')
         Route::view('/catalog/categories/edit', 'admin.catalog.categories.edit')
             ->name('catalog.categories.edit');
 
+        Route::view('/catalog/categories/create', 'admin.catalog.categories.create')
+            ->name('catalog.categories.create');
+
         Route::view('/catalog/products', 'admin.catalog.products.index')
             ->name('catalog.products.index');
 
+        Route::view('/catalog/products/create', 'admin.catalog.products.create')
+            ->name('catalog.products.create');
+
+        Route::view('/catalog/products/edit', 'admin.catalog.products.edit')
+            ->name('catalog.products.edit');
+
         Route::view('/catalog/variants', 'admin.catalog.variants.index')
             ->name('catalog.variants.index');
+
+        Route::view('/catalog/variants/create', 'admin.catalog.variants.create')
+            ->name('catalog.variants.create');
+
+        Route::view('/catalog/variants/edit', 'admin.catalog.variants.edit')
+            ->name('catalog.variants.edit');
 
         Route::view('/catalog/reviews', 'admin.catalog.reviews.index')
             ->name('catalog.reviews.index');

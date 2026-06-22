@@ -21,10 +21,11 @@
                             <i class="ph ph-download-simple"></i>
                             Export
                         </button>
-                        <button class="btn btn-primary">
+                        <a href="{{ route('admin.catalog.categories.create') }}"
+                        class="btn btn-primary">
                             <i class="ph ph-plus"></i>
                             Add Category
-                        </button>
+                        </a>
                     </div>
                 </div>
                 </div>
