@@ -129,6 +129,12 @@ Route::prefix('admin')
 
         Route::view('/catalog/tax-rates/edit', 'admin.catalog.tax-rates.edit')
             ->name('catalog.tax-rates.edit');
+        
+        Route::view('/inventory/stock-levels', 'admin.inventory.stock-levels.index')
+            ->name('inventory.stock-levels.index');
+        
+        Route::view('/inventory/low-stock', 'admin.inventory.low-stock.index')
+            ->name('inventory.low-stock.index');
     });
 
 require __DIR__.'/auth.php';

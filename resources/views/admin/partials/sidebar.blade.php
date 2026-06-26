@@ -97,7 +97,7 @@
           <ul class="pc-submenu">
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.inventory.stock-levels.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-package"></i>
                       </span>
@@ -106,7 +106,7 @@
               </li>
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.inventory.low-stock.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-warning-circle"></i>
                       </span>
