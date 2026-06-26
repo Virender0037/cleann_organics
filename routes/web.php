@@ -123,6 +123,12 @@ Route::prefix('admin')
 
         Route::view('/catalog/tax-rates', 'admin.catalog.tax-rates.index')
             ->name('catalog.tax-rates.index');
+        
+        Route::view('/catalog/tax-rates/create', 'admin.catalog.tax-rates.create')
+            ->name('catalog.tax-rates.create');
+
+        Route::view('/catalog/tax-rates/edit', 'admin.catalog.tax-rates.edit')
+            ->name('catalog.tax-rates.edit');
     });
 
 require __DIR__.'/auth.php';
