@@ -135,6 +135,9 @@ Route::prefix('admin')
         
         Route::view('/inventory/low-stock', 'admin.inventory.low-stock.index')
             ->name('inventory.low-stock.index');
+        
+        Route::view('/inventory/out-of-stock', 'admin.inventory.out-of-stock.index')
+            ->name('inventory.out-of-stock.index');
     });
 
 require __DIR__.'/auth.php';

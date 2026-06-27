@@ -115,7 +115,7 @@
               </li>
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.inventory.out-of-stock.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-x-circle"></i>
                       </span>
