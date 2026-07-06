@@ -150,9 +150,9 @@
                 <path d="M3 18H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </button>
-        <a href="index.html">
-            <img src="{{ asset('images/logo.png')}}" alt="brand-logo" />
-        </a>
+        <img src="{{ asset('images/vertical-logo.jpeg') }}"
+     alt="brand-logo"
+     style="height: 39px; width: auto;">
     </div>
     <form action="#">
         <div class="header__input-form">

@@ -141,6 +141,9 @@ Route::prefix('admin')
         
         Route::view('/sales/orders', 'admin.sales.orders.index')
             ->name('sales.orders.index');
+
+        // Route::view('/sales/orders/', 'admin.sales.orders.show')
+        //     ->name('sales.orders.show');
     });
 
 require __DIR__.'/auth.php';

@@ -101,13 +101,21 @@
                             <td>26 Jun 2026</td>
 
                             <td>
-                                <a href="#" class="btn btn-sm btn-info" title="View Order">
+                                <a href="{{ route('admin.sales.orders.show') }}"
+                                class="btn btn-sm btn-info"
+                                title="View Order">
                                     <i class="ph ph-eye"></i>
                                 </a>
 
-                                <a href="#" class="btn btn-sm btn-warning" title="Update Status">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
+                                <button class="btn btn-sm btn-success"
+                                        title="Print Invoice">
+                                    <i class="ph ph-printer"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-warning"
+                                        title="Update Status">
+                                    <i class="ph ph-arrows-clockwise"></i>
+                                </button>
                             </td>
                         </tr>
 
@@ -139,13 +147,21 @@
                             <td>26 Jun 2026</td>
 
                             <td>
-                                <a href="#" class="btn btn-sm btn-info" title="View Order">
+                               <a href="{{ route('admin.sales.orders.show') }}"
+                                class="btn btn-sm btn-info"
+                                title="View Order">
                                     <i class="ph ph-eye"></i>
                                 </a>
 
-                                <a href="#" class="btn btn-sm btn-warning" title="Update Status">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
+                                <button class="btn btn-sm btn-success"
+                                        title="Print Invoice">
+                                    <i class="ph ph-printer"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-warning"
+                                        title="Update Status">
+                                    <i class="ph ph-arrows-clockwise"></i>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
