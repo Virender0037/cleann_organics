@@ -136,7 +136,7 @@
             <ul class="pc-submenu">
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.sales.orders.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-receipt"></i>
                         </span>
