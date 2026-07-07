@@ -145,7 +145,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.sales.payments.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-credit-card"></i>
                         </span>

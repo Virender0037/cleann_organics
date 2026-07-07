@@ -6,7 +6,9 @@
                 <div class="col-lg-4">
                     <div class="footer__brand-info">
                         <div class="footer__brand-info-logo">
-                            <img src="{{ asset('images/logo-nl-white.png') }}" alt="logo">
+                            <img src="{{ asset('images/vertical-logo.jpeg') }}"
+                            alt="brand-logo"
+                            style="height: 39px; width: auto;">
                         </div>
                         <p class="font-body--md-400">
                             Morbi cursus porttitor enim lobortis molestie. Duis gravida turpis dui, eget bibendum magna congue nec.

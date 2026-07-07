@@ -85,65 +85,41 @@ Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
 
-        Route::view('/', 'admin-dist.pages.login')
-            ->name('admin');
+        Route::view('/', 'admin-dist.pages.login')->name('admin');
+        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
 
-        Route::view('/dashboard', 'admin.dashboard')
-            ->name('dashboard');
+        // Catalog routes...
+        Route::view('/catalog/categories', 'admin.catalog.categories.index')->name('catalog.categories.index');
+        Route::view('/catalog/categories/edit', 'admin.catalog.categories.edit')->name('catalog.categories.edit');
+        Route::view('/catalog/categories/create', 'admin.catalog.categories.create')->name('catalog.categories.create');
 
-        Route::view('/catalog/categories', 'admin.catalog.categories.index')
-            ->name('catalog.categories.index');
-        
-        Route::view('/catalog/categories/edit', 'admin.catalog.categories.edit')
-            ->name('catalog.categories.edit');
+        Route::view('/catalog/products', 'admin.catalog.products.index')->name('catalog.products.index');
+        Route::view('/catalog/products/create', 'admin.catalog.products.create')->name('catalog.products.create');
+        Route::view('/catalog/products/edit', 'admin.catalog.products.edit')->name('catalog.products.edit');
 
-        Route::view('/catalog/categories/create', 'admin.catalog.categories.create')
-            ->name('catalog.categories.create');
+        Route::view('/catalog/variants', 'admin.catalog.variants.index')->name('catalog.variants.index');
+        Route::view('/catalog/variants/create', 'admin.catalog.variants.create')->name('catalog.variants.create');
+        Route::view('/catalog/variants/edit', 'admin.catalog.variants.edit')->name('catalog.variants.edit');
 
-        Route::view('/catalog/products', 'admin.catalog.products.index')
-            ->name('catalog.products.index');
+        Route::view('/catalog/reviews', 'admin.catalog.reviews.index')->name('catalog.reviews.index');
 
-        Route::view('/catalog/products/create', 'admin.catalog.products.create')
-            ->name('catalog.products.create');
+        Route::view('/catalog/tax-rates', 'admin.catalog.tax-rates.index')->name('catalog.tax-rates.index');
+        Route::view('/catalog/tax-rates/create', 'admin.catalog.tax-rates.create')->name('catalog.tax-rates.create');
+        Route::view('/catalog/tax-rates/edit', 'admin.catalog.tax-rates.edit')->name('catalog.tax-rates.edit');
 
-        Route::view('/catalog/products/edit', 'admin.catalog.products.edit')
-            ->name('catalog.products.edit');
+        // Inventory routes...
+        Route::view('/inventory/stock-levels', 'admin.inventory.stock-levels.index')->name('inventory.stock-levels.index');
+        Route::view('/inventory/low-stock', 'admin.inventory.low-stock.index')->name('inventory.low-stock.index');
+        Route::view('/inventory/out-of-stock', 'admin.inventory.out-of-stock.index')->name('inventory.out-of-stock.index');
 
-        Route::view('/catalog/variants', 'admin.catalog.variants.index')
-            ->name('catalog.variants.index');
-
-        Route::view('/catalog/variants/create', 'admin.catalog.variants.create')
-            ->name('catalog.variants.create');
-
-        Route::view('/catalog/variants/edit', 'admin.catalog.variants.edit')
-            ->name('catalog.variants.edit');
-
-        Route::view('/catalog/reviews', 'admin.catalog.reviews.index')
-            ->name('catalog.reviews.index');
-
-        Route::view('/catalog/tax-rates', 'admin.catalog.tax-rates.index')
-            ->name('catalog.tax-rates.index');
-        
-        Route::view('/catalog/tax-rates/create', 'admin.catalog.tax-rates.create')
-            ->name('catalog.tax-rates.create');
-
-        Route::view('/catalog/tax-rates/edit', 'admin.catalog.tax-rates.edit')
-            ->name('catalog.tax-rates.edit');
-        
-        Route::view('/inventory/stock-levels', 'admin.inventory.stock-levels.index')
-            ->name('inventory.stock-levels.index');
-        
-        Route::view('/inventory/low-stock', 'admin.inventory.low-stock.index')
-            ->name('inventory.low-stock.index');
-        
-        Route::view('/inventory/out-of-stock', 'admin.inventory.out-of-stock.index')
-            ->name('inventory.out-of-stock.index');
-        
-        Route::view('/sales/orders', 'admin.sales.orders.index')
-            ->name('sales.orders.index');
-
-        // Route::view('/sales/orders/', 'admin.sales.orders.show')
-        //     ->name('sales.orders.show');
+        // Sales routes...
+        Route::prefix('sales')->name('sales.')->group(function () {
+            Route::view('/orders', 'admin.sales.orders.index')->name('orders.index');
+            Route::view('/orders/show', 'admin.sales.orders.show')->name('orders.show');
+            Route::view('/payments', 'admin.sales.payments.index')->name('payments.index');
+            Route::view('/coupons', 'admin.sales.coupons.index')->name('coupons.index');
+            Route::view('/returns', 'admin.sales.returns.index')->name('returns.index');
+        });
     });
 
 require __DIR__.'/auth.php';
