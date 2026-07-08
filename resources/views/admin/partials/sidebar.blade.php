@@ -260,7 +260,7 @@
             <ul class="pc-submenu">
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.cms.pages.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-file-text"></i>
                         </span>
@@ -269,7 +269,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.cms.blogs.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-newspaper"></i>
                         </span>
@@ -278,7 +278,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.cms.blog-categories.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-folders"></i>
                         </span>

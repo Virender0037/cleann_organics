@@ -150,6 +150,26 @@ Route::prefix('admin')
             Route::view('/rates/create', 'admin.shipping.rates.create')->name('rates.create');
             Route::view('/rates/edit', 'admin.shipping.rates.edit')->name('rates.edit');
         });
+            // CMS routes...
+            Route::prefix('cms')->name('cms.')->group(function () {
+            Route::prefix('pages')->name('pages.')->group(function () {
+            Route::view('/', 'admin.cms.pages.index')->name('index');
+            Route::view('/create', 'admin.cms.pages.create')->name('create');
+            Route::view('/edit', 'admin.cms.pages.edit')->name('edit');
+            });
+        });
+
+            Route::prefix('blogs')->name('blogs.')->group(function () {
+            Route::view('/', 'admin.cms.blogs.index')->name('index');
+            Route::view('/create', 'admin.cms.blogs.create')->name('create');
+            Route::view('/edit', 'admin.cms.blogs.edit')->name('edit');
+        });
+
+        Route::prefix('blog-categories')->name('blog-categories.')->group(function () {
+            Route::view('/', 'admin.cms.blog-categories.index')->name('index');
+            Route::view('/create', 'admin.cms.blog-categories.create')->name('create');
+            Route::view('/edit', 'admin.cms.blog-categories.edit')->name('edit');
+        });
     });
 
 require __DIR__.'/auth.php';
