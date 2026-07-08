@@ -117,8 +117,13 @@ Route::prefix('admin')
             Route::view('/orders', 'admin.sales.orders.index')->name('orders.index');
             Route::view('/orders/show', 'admin.sales.orders.show')->name('orders.show');
             Route::view('/payments', 'admin.sales.payments.index')->name('payments.index');
+            Route::view('/payments/show', 'admin.sales.payments.show')->name('payments.show');
             Route::view('/coupons', 'admin.sales.coupons.index')->name('coupons.index');
+            Route::view('/coupons/create', 'admin.sales.coupons.create')->name('coupons.create');
+            Route::view('/coupons/edit', 'admin.sales.coupons.edit')->name('coupons.edit');
             Route::view('/returns', 'admin.sales.returns.index')->name('returns.index');
+            Route::view('/returns/show', 'admin.sales.returns.show')->name('returns.show');
+            Route::view('/customers', 'admin.customers.index')->name('customers.index');
         });
     });
 

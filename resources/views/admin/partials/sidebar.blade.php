@@ -154,7 +154,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.sales.coupons.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-ticket"></i>
                         </span>
@@ -163,7 +163,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.sales.returns.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-arrow-counter-clockwise"></i>
                         </span>

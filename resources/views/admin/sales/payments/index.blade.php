@@ -138,9 +138,11 @@
 
                                 <td>
 
-                                    <button class="btn btn-info btn-sm" title="View Payment">
+                                    <a href="{{ route('admin.sales.payments.show') }}"
+                                    class="btn btn-info btn-sm"
+                                    title="View Payment">
                                         <i class="ph ph-eye"></i>
-                                    </button>
+                                    </a>
 
                                     <button class="btn btn-success btn-sm" title="Download Receipt">
                                         <i class="ph ph-download-simple"></i>
@@ -192,9 +194,11 @@
 
                                 <td>
 
-                                    <button class="btn btn-info btn-sm" title="View Payment">
+                                    <a href="{{ route('admin.sales.payments.show') }}"
+                                    class="btn btn-info btn-sm"
+                                    title="View Payment">
                                         <i class="ph ph-eye"></i>
-                                    </button>
+                                    </a>
 
                                 </td>
 
@@ -242,9 +246,11 @@
 
                                 <td>
 
-                                    <button class="btn btn-info btn-sm" title="View Payment">
+                                    <a href="{{ route('admin.sales.payments.show') }}"
+                                    class="btn btn-info btn-sm"
+                                    title="View Payment">
                                         <i class="ph ph-eye"></i>
-                                    </button>
+                                    </a>
 
                                 </td>
 
