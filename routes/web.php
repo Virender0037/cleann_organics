@@ -84,34 +84,35 @@ Route::get('/shop', function () {
 Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
-
         Route::view('/', 'admin-dist.pages.login')->name('admin');
         Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
-
         // Catalog routes...
-        Route::view('/catalog/categories', 'admin.catalog.categories.index')->name('catalog.categories.index');
-        Route::view('/catalog/categories/edit', 'admin.catalog.categories.edit')->name('catalog.categories.edit');
-        Route::view('/catalog/categories/create', 'admin.catalog.categories.create')->name('catalog.categories.create');
-
-        Route::view('/catalog/products', 'admin.catalog.products.index')->name('catalog.products.index');
-        Route::view('/catalog/products/create', 'admin.catalog.products.create')->name('catalog.products.create');
-        Route::view('/catalog/products/edit', 'admin.catalog.products.edit')->name('catalog.products.edit');
-
-        Route::view('/catalog/variants', 'admin.catalog.variants.index')->name('catalog.variants.index');
-        Route::view('/catalog/variants/create', 'admin.catalog.variants.create')->name('catalog.variants.create');
-        Route::view('/catalog/variants/edit', 'admin.catalog.variants.edit')->name('catalog.variants.edit');
-
-        Route::view('/catalog/reviews', 'admin.catalog.reviews.index')->name('catalog.reviews.index');
-
-        Route::view('/catalog/tax-rates', 'admin.catalog.tax-rates.index')->name('catalog.tax-rates.index');
-        Route::view('/catalog/tax-rates/create', 'admin.catalog.tax-rates.create')->name('catalog.tax-rates.create');
-        Route::view('/catalog/tax-rates/edit', 'admin.catalog.tax-rates.edit')->name('catalog.tax-rates.edit');
-
+       Route::prefix('catalog')->name('catalog.')->group(function () {
+            // Categories
+            Route::view('/categories', 'admin.catalog.categories.index')->name('categories.index');
+            Route::view('/categories/create', 'admin.catalog.categories.create')->name('categories.create');
+            Route::view('/categories/edit', 'admin.catalog.categories.edit')->name('categories.edit');
+            // Products
+            Route::view('/products', 'admin.catalog.products.index')->name('products.index');
+            Route::view('/products/create', 'admin.catalog.products.create')->name('products.create');
+            Route::view('/products/edit', 'admin.catalog.products.edit')->name('products.edit');
+            // Variants
+            Route::view('/variants', 'admin.catalog.variants.index')->name('variants.index');
+            Route::view('/variants/create', 'admin.catalog.variants.create')->name('variants.create');
+            Route::view('/variants/edit', 'admin.catalog.variants.edit')->name('variants.edit');
+            // Reviews
+            Route::view('/reviews', 'admin.catalog.reviews.index')->name('reviews.index');
+            // Tax Rates
+            Route::view('/tax-rates', 'admin.catalog.tax-rates.index')->name('tax-rates.index');
+            Route::view('/tax-rates/create', 'admin.catalog.tax-rates.create')->name('tax-rates.create');
+            Route::view('/tax-rates/edit', 'admin.catalog.tax-rates.edit')->name('tax-rates.edit');
+        });
         // Inventory routes...
-        Route::view('/inventory/stock-levels', 'admin.inventory.stock-levels.index')->name('inventory.stock-levels.index');
-        Route::view('/inventory/low-stock', 'admin.inventory.low-stock.index')->name('inventory.low-stock.index');
-        Route::view('/inventory/out-of-stock', 'admin.inventory.out-of-stock.index')->name('inventory.out-of-stock.index');
-
+        Route::prefix('inventory')->name('inventory.')->group(function () {
+            Route::view('/stock-levels', 'admin.inventory.stock-levels.index')->name('stock-levels.index');
+            Route::view('/low-stock', 'admin.inventory.low-stock.index')->name('low-stock.index');
+            Route::view('/out-of-stock', 'admin.inventory.out-of-stock.index')->name('out-of-stock.index');
+        });
         // Sales routes...
         Route::prefix('sales')->name('sales.')->group(function () {
             Route::view('/orders', 'admin.sales.orders.index')->name('orders.index');
@@ -123,7 +124,14 @@ Route::prefix('admin')
             Route::view('/coupons/edit', 'admin.sales.coupons.edit')->name('coupons.edit');
             Route::view('/returns', 'admin.sales.returns.index')->name('returns.index');
             Route::view('/returns/show', 'admin.sales.returns.show')->name('returns.show');
-            Route::view('/customers', 'admin.customers.index')->name('customers.index');
+        });
+        //Customer routes...
+        Route::prefix('customers')->name('customers.')->group(function () {
+            Route::view('/', 'admin.customers.index')->name('index');
+            Route::view('/show', 'admin.customers.show')->name('show');
+            Route::view('/edit', 'admin.customers.edit')->name('edit');
+            Route::view('/addresses', 'admin.customers.addresses.index')->name('addresses.index');
+            Route::view('/wishlists', 'admin.customers.wishlists.index')->name('wishlists.index');
         });
     });
 
