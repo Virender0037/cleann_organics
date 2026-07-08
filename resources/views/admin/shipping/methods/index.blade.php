@@ -1,16 +1,16 @@
-<x-admin-layout title="Shipping Rates">
+<x-admin-layout title="Shipping Methods">
 
     <main class="pc-container-edit">
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h4 class="mb-1">Shipping Rates</h4>
-                <p class="text-muted mb-0">Manage shipping charges based on zone and weight range</p>
+                <h4 class="mb-1">Shipping Methods</h4>
+                <p class="text-muted mb-0">Manage available delivery methods</p>
             </div>
 
-            <a href="{{ route('admin.shipping.rates.create') }}" class="btn btn-primary">
+            <a href="{{ route('admin.shipping.methods.create') }}" class="btn btn-primary">
                 <i class="ph ph-plus me-1"></i>
-                Add Rate
+                Add Method
             </a>
         </div>
 
@@ -19,27 +19,18 @@
             <span class="mx-2">›</span>
             <span>Shipping</span>
             <span class="mx-2">›</span>
-            <span>Rates</span>
+            <span>Methods</span>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h5>Rate List</h5>
+                <h5>Method List</h5>
             </div>
 
             <div class="card-body">
-
                 <div class="row mb-4">
                     <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Search zone">
-                    </div>
-
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Zones</option>
-                            <option>Gujarat Zone</option>
-                            <option>Maharashtra Zone</option>
-                        </select>
+                        <input type="text" class="form-control" placeholder="Search method">
                     </div>
 
                     <div class="col-md-3">
@@ -56,10 +47,10 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Shipping Zone</th>
-                                <th>Weight Range</th>
-                                <th>Shipping Charge</th>
-                                <th>Free Shipping Above</th>
+                                <th>Method Name</th>
+                                <th>Code</th>
+                                <th>Estimated Delivery</th>
+                                <th>Sort Order</th>
                                 <th>Status</th>
                                 <th width="130">Action</th>
                             </tr>
@@ -68,17 +59,17 @@
                         <tbody>
                             <tr>
                                 <td>1</td>
-                                <td><strong>Gujarat Zone</strong></td>
-                                <td>0 kg - 2 kg</td>
-                                <td>₹50.00</td>
-                                <td>₹999.00</td>
+                                <td><strong>Standard Shipping</strong></td>
+                                <td>standard</td>
+                                <td>3 - 5 Days</td>
+                                <td>1</td>
                                 <td><span class="badge bg-success">Active</span></td>
                                 <td>
-                                    <a href="{{ route('admin.shipping.rates.edit') }}" class="btn btn-sm btn-warning" title="Edit Rate">
+                                    <a href="{{ route('admin.shipping.methods.edit') }}" class="btn btn-sm btn-warning" title="Edit Method">
                                         <i class="ph ph-pencil-simple"></i>
                                     </a>
 
-                                    <button class="btn btn-sm btn-danger" title="Delete Rate">
+                                    <button class="btn btn-sm btn-danger" title="Delete Method">
                                         <i class="ph ph-trash"></i>
                                     </button>
                                 </td>
@@ -86,17 +77,17 @@
 
                             <tr>
                                 <td>2</td>
-                                <td><strong>Maharashtra Zone</strong></td>
-                                <td>2 kg - 5 kg</td>
-                                <td>₹90.00</td>
-                                <td>₹1499.00</td>
+                                <td><strong>Express Shipping</strong></td>
+                                <td>express</td>
+                                <td>1 - 2 Days</td>
+                                <td>2</td>
                                 <td><span class="badge bg-success">Active</span></td>
                                 <td>
-                                    <a href="{{ route('admin.shipping.rates.edit') }}" class="btn btn-sm btn-warning" title="Edit Rate">
+                                    <a href="{{ route('admin.shipping.methods.edit') }}" class="btn btn-sm btn-warning" title="Edit Method">
                                         <i class="ph ph-pencil-simple"></i>
                                     </a>
 
-                                    <button class="btn btn-sm btn-danger" title="Delete Rate">
+                                    <button class="btn btn-sm btn-danger" title="Delete Method">
                                         <i class="ph ph-trash"></i>
                                     </button>
                                 </td>
@@ -105,7 +96,6 @@
 
                     </table>
                 </div>
-
             </div>
         </div>
 

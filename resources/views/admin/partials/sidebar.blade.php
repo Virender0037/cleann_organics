@@ -223,7 +223,7 @@
             <ul class="pc-submenu">
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.shipping.zones.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-map-trifold"></i>
                         </span>
@@ -232,12 +232,19 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.shipping.rates.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-currency-circle-dollar"></i>
                         </span>
                         Shipping Rates
                     </a>
+                </li>
+
+                <li class="pc-item">
+                <a class="pc-link" href="{{ route('admin.shipping.methods.index') }}">
+                    <span class="pc-micon"><i class="ph ph-truck"></i></span>
+                    Shipping Methods
+                </a>
                 </li>
 
             </ul>
@@ -461,16 +468,16 @@
   <div class="header-wrapper"> <!-- [Mobile Media Block] start -->
 <div class="me-auto pc-mob-drp">
   <ul class="list-unstyled">
-    <li class="pc-h-item pc-sidebar-collapse">
+    <!-- <li class="pc-h-item pc-sidebar-collapse">
       <a href="#" class="pc-head-link ms-0" id="sidebar-hide">
         <i class="ph ph-list"></i>
       </a>
-    </li>
-    <li class="pc-h-item pc-sidebar-popup">
+    </li> -->
+    <!-- <li class="pc-h-item pc-sidebar-popup">
       <a href="#" class="pc-head-link ms-0" id="mobile-collapse">
         <i class="ph ph-list"></i>
       </a>
-    </li>
+    </li> -->
   </ul>
 </div>
 <!-- [Mobile Media Block end] -->

@@ -37,9 +37,11 @@
                             Billing Address
                         </h5>
 
-                        <button class="btn btn-sm btn-warning">
+                       <a href="{{ route('admin.customers.addresses.edit') }}"
+                        class="btn btn-sm btn-warning"
+                        title="Edit Address">
                             <i class="ph ph-pencil-simple"></i>
-                        </button>
+                       </a>
                     </div>
 
                     <div class="card-body">
@@ -83,9 +85,11 @@
                             Shipping Address
                         </h5>
 
-                        <button class="btn btn-sm btn-warning">
+                        <a href="{{ route('admin.customers.addresses.edit') }}"
+                        class="btn btn-sm btn-warning"
+                        title="Edit Address">
                             <i class="ph ph-pencil-simple"></i>
-                        </button>
+                        </a>
                     </div>
 
                     <div class="card-body">
@@ -128,10 +132,11 @@
 
                 <h5 class="mb-0">Saved Addresses</h5>
 
-                <button class="btn btn-primary btn-sm">
+                <a href="{{ route('admin.customers.addresses.create') }}"
+                class="btn btn-primary btn-sm">
                     <i class="ph ph-plus me-1"></i>
                     Add Address
-                </button>
+                </a>
 
             </div>
 
@@ -193,9 +198,11 @@
 
                             <td>
 
-                                <button class="btn btn-sm btn-warning" title="Edit">
+                                <a href="{{ route('admin.customers.addresses.edit') }}"
+                                class="btn btn-sm btn-warning"
+                                title="Edit Address">
                                     <i class="ph ph-pencil-simple"></i>
-                                </button>
+                                </a>
 
                                 <button class="btn btn-sm btn-danger" title="Delete">
                                     <i class="ph ph-trash"></i>
@@ -231,9 +238,11 @@
 
                             <td>
 
-                                <button class="btn btn-sm btn-warning">
+                                <a href="{{ route('admin.customers.addresses.edit') }}"
+                                class="btn btn-sm btn-warning"
+                                title="Edit Address">
                                     <i class="ph ph-pencil-simple"></i>
-                                </button>
+                                </a>
 
                                 <button class="btn btn-sm btn-danger">
                                     <i class="ph ph-trash"></i>

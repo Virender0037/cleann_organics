@@ -132,6 +132,23 @@ Route::prefix('admin')
             Route::view('/edit', 'admin.customers.edit')->name('edit');
             Route::view('/addresses', 'admin.customers.addresses.index')->name('addresses.index');
             Route::view('/wishlists', 'admin.customers.wishlists.index')->name('wishlists.index');
+            Route::view('/addresses/create', 'admin.customers.addresses.create')->name('addresses.create');
+            Route::view('/addresses/edit', 'admin.customers.addresses.edit')->name('addresses.edit');
+        });
+         // Shipping routes...
+            Route::prefix('shipping')->name('shipping.')->group(function () {
+            // Zones
+            Route::view('/zones', 'admin.shipping.zones.index')->name('zones.index');
+            Route::view('/zones/create', 'admin.shipping.zones.create')->name('zones.create');
+            Route::view('/zones/edit', 'admin.shipping.zones.edit')->name('zones.edit');
+            // Methods
+            Route::view('/methods', 'admin.shipping.methods.index')->name('methods.index');
+            Route::view('/methods/create', 'admin.shipping.methods.create')->name('methods.create');
+            Route::view('/methods/edit', 'admin.shipping.methods.edit')->name('methods.edit');
+            // Rates
+            Route::view('/rates', 'admin.shipping.rates.index')->name('rates.index');
+            Route::view('/rates/create', 'admin.shipping.rates.create')->name('rates.create');
+            Route::view('/rates/edit', 'admin.shipping.rates.edit')->name('rates.edit');
         });
     });
 
