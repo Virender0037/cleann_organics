@@ -428,7 +428,7 @@
           <ul class="pc-submenu">
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.administration.users.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-users"></i>
                       </span>
@@ -437,7 +437,7 @@
               </li>
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.administration.roles.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-shield-check"></i>
                       </span>

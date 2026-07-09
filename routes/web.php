@@ -219,6 +219,16 @@ Route::prefix('admin')
             Route::view('/activity-logs', 'admin.administration.activity-logs.index')
                 ->name('activity-logs.index');
         });
+            Route::prefix('settings')->name('settings.')->group(function () {
+                Route::view('/general', 'admin.settings.general.index')->name('general.index');
+                Route::view('/store', 'admin.settings.store.index')->name('store.index');
+                Route::view('/payment', 'admin.settings.payment.index')->name('payment.index');
+                Route::view('/shipping', 'admin.settings.shipping.index')->name('shipping.index');
+                Route::view('/tax', 'admin.settings.tax.index')->name('tax.index');
+                Route::view('/email', 'admin.settings.email.index')->name('email.index');
+                Route::view('/seo', 'admin.settings.seo.index')->name('seo.index');
+                Route::view('/social', 'admin.settings.social.index')->name('social.index');
+            });
     });
 
 require __DIR__.'/auth.php';
