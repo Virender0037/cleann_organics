@@ -179,9 +179,18 @@ Route::prefix('admin')
                 Route::view('/edit', 'admin.cms.faqs.edit')->name('edit');
             });
             Route::prefix('team-members')->name('team-members.')->group(function () {
-            Route::view('/', 'admin.cms.team-members.index')->name('index');
-            Route::view('/create', 'admin.cms.team-members.create')->name('create');
-            Route::view('/edit', 'admin.cms.team-members.edit')->name('edit');
+                Route::view('/', 'admin.cms.team-members.index')->name('index');
+                Route::view('/create', 'admin.cms.team-members.create')->name('create');
+                Route::view('/edit', 'admin.cms.team-members.edit')->name('edit');
+            });
+            Route::prefix('testimonials')->name('testimonials.')->group(function () {
+                Route::view('/', 'admin.cms.testimonials.index')->name('index');
+                Route::view('/create', 'admin.cms.testimonials.create')->name('create');
+                Route::view('/edit', 'admin.cms.testimonials.edit')->name('edit');
+            });
+            Route::prefix('contact-messages')->name('contact-messages.')->group(function () {
+            Route::view('/', 'admin.cms.contact-messages.index')->name('index');
+            Route::view('/show', 'admin.cms.contact-messages.show')->name('show');
             });
             });
     });

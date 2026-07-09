@@ -314,7 +314,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.cms.testimonials.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-chat-circle-text"></i>
                         </span>
