@@ -1,16 +1,16 @@
-<x-admin-layout title="General Settings">
+<x-admin-layout title="Email Settings">
 <main class="pc-container-edit">
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h4 class="mb-1">General Settings</h4>
-        <p class="text-muted mb-0">Manage basic application configuration</p>
+        <h4 class="mb-1">Email Settings</h4>
+        <p class="text-muted mb-0">Configure SMTP and system email settings</p>
     </div>
 </div>
 
 <div class="card">
     <div class="card-header">
-        <h5>General Information</h5>
+        <h5>SMTP Configuration</h5>
     </div>
 
     <div class="card-body">
@@ -18,56 +18,71 @@
             @csrf
 
             <div class="row">
-
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Application Name</label>
-                    <input type="text" name="app_name" class="form-control" value="Cleann Organics">
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Support Email</label>
-                    <input type="email" name="support_email" class="form-control" value="support@cleannorganics.com">
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Support Phone</label>
-                    <input type="text" name="support_phone" class="form-control" value="+91 9876543210">
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Timezone</label>
-                    <select name="timezone" class="form-select">
-                        <option selected>Asia/Kolkata</option>
-                        <option>UTC</option>
+                    <label class="form-label">Mail Driver</label>
+                    <select class="form-select">
+                        <option selected>SMTP</option>
+                        <option>Sendmail</option>
+                        <option>Mailgun</option>
                     </select>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Date Format</label>
-                    <select name="date_format" class="form-select">
-                        <option selected>d M Y</option>
-                        <option>Y-m-d</option>
-                        <option>d/m/Y</option>
+                    <label class="form-label">SMTP Host</label>
+                    <input type="text" class="form-control" placeholder="smtp.mailtrap.io">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">SMTP Port</label>
+                    <input type="text" class="form-control" placeholder="587">
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Encryption</label>
+                    <select class="form-select">
+                        <option selected>TLS</option>
+                        <option>SSL</option>
+                        <option>None</option>
                     </select>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">From Email</label>
+                    <input type="email" class="form-control" value="noreply@cleannorganics.com">
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Default Language</label>
-                    <select name="language" class="form-select">
-                        <option selected>English</option>
-                        <option>Hindi</option>
-                    </select>
+                    <label class="form-label">SMTP Username</label>
+                    <input type="text" class="form-control">
                 </div>
 
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">SMTP Password</label>
+                    <input type="password" class="form-control">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">From Name</label>
+                    <input type="text" class="form-control" value="Cleann Organics">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Reply To Email</label>
+                    <input type="email" class="form-control" value="support@cleannorganics.com">
+                </div>
             </div>
 
-            <div class="text-end mt-4">
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-light-primary">
+                    <i class="ph ph-paper-plane-tilt me-1"></i>
+                    Send Test Email
+                </button>
+
                 <button class="btn btn-primary">
                     <i class="ph ph-floppy-disk me-1"></i>
-                    Save Settings
+                    Save Email Settings
                 </button>
             </div>
-
         </form>
     </div>
 </div>
