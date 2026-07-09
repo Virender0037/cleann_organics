@@ -446,7 +446,7 @@
               </li>
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.administration.permissions.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-key"></i>
                       </span>
@@ -467,7 +467,7 @@
             <ul class="pc-submenu">
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{ route('admin.settings.general.index') }}">
                         <span class="pc-micon">
                             <i class="ph ph-gear"></i>
                         </span>
@@ -476,7 +476,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{ route('admin.settings.seo.index') }}">
                         <span class="pc-micon">
                             <i class="ph ph-magnifying-glass"></i>
                         </span>
@@ -485,7 +485,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{ route('admin.settings.email.index') }}">
                         <span class="pc-micon">
                             <i class="ph ph-envelope"></i>
                         </span>
