@@ -189,10 +189,36 @@ Route::prefix('admin')
                 Route::view('/edit', 'admin.cms.testimonials.edit')->name('edit');
             });
             Route::prefix('contact-messages')->name('contact-messages.')->group(function () {
-            Route::view('/', 'admin.cms.contact-messages.index')->name('index');
-            Route::view('/show', 'admin.cms.contact-messages.show')->name('show');
+                Route::view('/', 'admin.cms.contact-messages.index')->name('index');
+                Route::view('/show', 'admin.cms.contact-messages.show')->name('show');
             });
             });
+            Route::prefix('reports')->name('reports.')->group(function () {
+                Route::view('/sales', 'admin.reports.sales.index')->name('sales.index');
+                Route::view('/orders', 'admin.reports.orders.index')->name('orders.index');
+                Route::view('/products', 'admin.reports.products.index')->name('products.index');
+                Route::view('/customers', 'admin.reports.customers.index')->name('customers.index');
+                Route::view('/inventory', 'admin.reports.inventory.index')->name('inventory.index');
+                Route::view('/payments', 'admin.reports.payments.index')->name('payments.index');
+                Route::view('/coupons', 'admin.reports.coupons.index')->name('coupons.index');
+                Route::view('/returns', 'admin.reports.returns.index')->name('returns.index');
+            });
+            Route::prefix('administration')->name('administration.')->group(function () {
+            Route::prefix('users')->name('users.')->group(function () {
+                Route::view('/', 'admin.administration.users.index')->name('index');
+                Route::view('/create', 'admin.administration.users.create')->name('create');
+                Route::view('/edit', 'admin.administration.users.edit')->name('edit');
+            });
+            Route::prefix('roles')->name('roles.')->group(function () {
+                Route::view('/', 'admin.administration.roles.index')->name('index');
+                Route::view('/create', 'admin.administration.roles.create')->name('create');
+                Route::view('/edit', 'admin.administration.roles.edit')->name('edit');
+            });
+            Route::view('/permissions', 'admin.administration.permissions.index')
+                ->name('permissions.index');
+            Route::view('/activity-logs', 'admin.administration.activity-logs.index')
+                ->name('activity-logs.index');
+        });
     });
 
 require __DIR__.'/auth.php';

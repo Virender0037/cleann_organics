@@ -1,10 +1,10 @@
-<x-admin-layout title="Customers Report">
+<x-admin-layout title="Inventory Report">
 <main class="pc-container-edit">
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 <div>
-<h4>Customers Report</h4>
-<p class="text-muted">Customer registrations and purchase statistics</p>
+<h4>Inventory Report</h4>
+<p class="text-muted">Current inventory summary</p>
 </div>
 
 <button class="btn btn-light-secondary">
@@ -16,29 +16,29 @@
 
 <div class="col-md-3">
 <div class="card"><div class="card-body">
-<p class="text-muted">Total Customers</p>
-<h4>2,450</h4>
+<p>Total Products</p>
+<h4>158</h4>
 </div></div>
 </div>
 
 <div class="col-md-3">
 <div class="card"><div class="card-body">
-<p class="text-muted">New This Month</p>
-<h4 class="text-success">154</h4>
+<p>In Stock</p>
+<h4 class="text-success">142</h4>
 </div></div>
 </div>
 
 <div class="col-md-3">
 <div class="card"><div class="card-body">
-<p class="text-muted">Returning</p>
-<h4>680</h4>
+<p>Low Stock</p>
+<h4 class="text-warning">9</h4>
 </div></div>
 </div>
 
 <div class="col-md-3">
 <div class="card"><div class="card-body">
-<p class="text-muted">Inactive</p>
-<h4 class="text-danger">48</h4>
+<p>Out of Stock</p>
+<h4 class="text-danger">7</h4>
 </div></div>
 </div>
 
@@ -46,7 +46,7 @@
 
 <div class="card">
 <div class="card-header">
-<h5>Customer List</h5>
+<h5>Inventory Summary</h5>
 </div>
 
 <div class="card-body table-responsive">
@@ -54,33 +54,30 @@
 
 <thead>
 <tr>
-<th>#</th>
-<th>Name</th>
-<th>Email</th>
-<th>Orders</th>
-<th>Total Spend</th>
-<th>Joined</th>
+<th>Product</th>
+<th>SKU</th>
+<th>Stock</th>
+<th>Reserved</th>
+<th>Status</th>
 </tr>
 </thead>
 
 <tbody>
 
 <tr>
-<td>1</td>
-<td>Rahul Sharma</td>
-<td>rahul@email.com</td>
-<td>18</td>
-<td>₹28,550</td>
-<td>Jan 2026</td>
+<td>Organic Honey</td>
+<td>HON500</td>
+<td>120</td>
+<td>15</td>
+<td><span class="badge bg-success">In Stock</span></td>
 </tr>
 
 <tr>
+<td>Cold Pressed Oil</td>
+<td>OIL1L</td>
+<td>4</td>
 <td>2</td>
-<td>Priya Patel</td>
-<td>priya@email.com</td>
-<td>11</td>
-<td>₹14,800</td>
-<td>Feb 2026</td>
+<td><span class="badge bg-warning">Low Stock</span></td>
 </tr>
 
 </tbody>

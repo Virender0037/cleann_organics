@@ -323,7 +323,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.cms.contact-messages.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-envelope-simple"></i>
                         </span>
@@ -344,7 +344,7 @@
           <ul class="pc-submenu">
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.reports.sales.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-chart-line"></i>
                       </span>
@@ -353,7 +353,7 @@
               </li>
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.reports.orders.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-receipt"></i>
                       </span>
@@ -362,7 +362,7 @@
               </li>
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.reports.products.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-package"></i>
                       </span>
@@ -371,11 +371,47 @@
               </li>
 
               <li class="pc-item">
-                  <a class="pc-link" href="#">
+                  <a class="pc-link" href="{{route('admin.reports.customers.index')}}">
                       <span class="pc-micon">
                           <i class="ph ph-users-three"></i>
                       </span>
                       Customer Report
+                  </a>
+              </li>
+
+              <li class="pc-item">
+                  <a class="pc-link" href="{{route('admin.reports.inventory.index')}}">
+                      <span class="pc-micon">
+                          <i class="ph ph-users-three"></i>
+                      </span>
+                      Inventory Report
+                  </a>
+              </li>
+
+              <li class="pc-item">
+                  <a class="pc-link" href="{{route('admin.reports.payments.index')}}">
+                      <span class="pc-micon">
+                          <i class="ph ph-users-three"></i>
+                      </span>
+                      Payments Report
+                  </a>
+              </li>
+
+              <li class="pc-item">
+                  <a class="pc-link" href="{{route('admin.reports.coupons.index')}}">
+                      <span class="pc-micon">
+                          <i class="ph ph-users-three"></i>
+                      </span>
+                      Coupons Report
+                  </a>
+              </li>
+
+              <li class="pc-item">
+                  <a class="pc-link" href="{{route('admin.reports.returns.index')}}">
+                      <span class="pc-micon">
+                          <i class="ph ph-users-three"></i>
+                      </span>
+                      Returns Report
                   </a>
               </li>
 
