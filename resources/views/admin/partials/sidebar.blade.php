@@ -287,7 +287,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.cms.blog-tags.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-tag"></i>
                         </span>
@@ -296,7 +296,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.cms.faqs.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-question"></i>
                         </span>
@@ -305,7 +305,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="#">
+                    <a class="pc-link" href="{{route('admin.cms.team-members.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-users"></i>
                         </span>

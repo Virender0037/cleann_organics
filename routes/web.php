@@ -173,6 +173,16 @@ Route::prefix('admin')
                 Route::view('/create', 'admin.cms.blog-tags.create')->name('create');
                 Route::view('/edit', 'admin.cms.blog-tags.edit')->name('edit');
             });
+            Route::prefix('faqs')->name('faqs.')->group(function () {
+                Route::view('/', 'admin.cms.faqs.index')->name('index');
+                Route::view('/create', 'admin.cms.faqs.create')->name('create');
+                Route::view('/edit', 'admin.cms.faqs.edit')->name('edit');
+            });
+            Route::prefix('team-members')->name('team-members.')->group(function () {
+            Route::view('/', 'admin.cms.team-members.index')->name('index');
+            Route::view('/create', 'admin.cms.team-members.create')->name('create');
+            Route::view('/edit', 'admin.cms.team-members.edit')->name('edit');
+            });
             });
     });
 
