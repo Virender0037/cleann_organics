@@ -53,11 +53,24 @@
 
             <div class="card-body">
 
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <input type="text"
-                               class="form-control"
-                               placeholder="Search Category">
+                        <form method="GET" action="{{ route('admin.catalog.categories.index') }}">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search Category"
+                                   onchange="this.form.submit()">
+                        </form>
                     </div>
                 </div>
 
@@ -70,6 +83,8 @@
                                 <th>Image</th>
                                 <th>Name</th>
                                 <th>Slug</th>
+                                <th>Parent Category</th>
+                                <th>Sort Order</th>
                                 <th>Status</th>
                                 <th>Products</th>
                                 <th width="150">Action</th>
@@ -78,63 +93,59 @@
 
                         <tbody>
 
-                            <tr>
-                                <td>1</td>
+                            @forelse ($categories as $category)
+                                <tr>
+                                    <td>{{ $category->id }}</td>
 
-                                <td>
-                                <img src="{{ asset('assets/images/placeholder.png') }}" width="40" height="40" class="rounded" alt="Category">
-                                </td>
+                                    <td>
+                                        <img src="{{ $category->image ? \Illuminate\Support\Facades\Storage::url($category->image) : asset('assets/images/placeholder.png') }}" width="40" height="40" class="rounded" alt="Category">
+                                    </td>
 
-                                <td>Organic Oils</td>
+                                    <td>{{ $category->name }}</td>
 
-                                <td>
-                                    organic-oils
-                                </td>
+                                    <td>
+                                        {{ $category->slug }}
+                                    </td>
 
-                                <td>
-                                    <span class="badge bg-success">
-                                        Active
-                                    </span>
-                                </td>
+                                    <td>{{ $category->parent->name ?? '—' }}</td>
 
-                                <td>12</td>
+                                    <td>{{ $category->sort_order }}</td>
 
-                                <td>
-                                    <a href="{{ route('admin.catalog.categories.edit') }}" class="btn btn-sm btn-info" title="Edit Category">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
+                                    <td>
+                                        <span class="badge {{ $category->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                            {{ ucfirst($category->status) }}
+                                        </span>
+                                    </td>
 
-                                    <a href="#" class="btn btn-sm btn-danger" title="Delete Category">
-                                        <i class="ph ph-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
+                                    <td>{{ $category->products_count }}</td>
+
+                                    <td>
+                                        <a href="{{ route('admin.catalog.categories.edit', $category) }}" class="btn btn-sm btn-info" title="Edit Category">
+                                            <i class="ph ph-pencil-simple"></i>
+                                        </a>
+
+                                        <form action="{{ route('admin.catalog.categories.destroy', $category) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this category?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Category">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">No categories found.</td>
+                                </tr>
+                            @endforelse
 
                         </tbody>
 
                     </table>
-                </div>  
+                </div>
                 <!-- Pagination -->
                 <div class="d-flex justify-content-end">
-                    <nav>
-                        <ul class="pagination">
-                            <li class="page-item disabled">
-                                <span class="page-link">Previous</span>
-                            </li>
-
-                            <li class="page-item active">
-                                <span class="page-link">1</span>
-                            </li>
-
-                            <li class="page-item">
-                                <a class="page-link" href="#">2</a>
-                            </li>
-
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
+                    {{ $categories->links() }}
                 </div>
 
             </div>

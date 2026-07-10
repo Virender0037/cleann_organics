@@ -31,7 +31,7 @@
         </div>
 
         <div class="card-body">
-            <form action="#" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.catalog.categories.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="row">
@@ -44,39 +44,48 @@
                         <input
                             type="text"
                             name="name"
-                            class="form-control"
+                            class="form-control @error('name') is-invalid @enderror"
+                            value="{{ old('name') }}"
                             placeholder="Enter category name">
+                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">
-                            Slug <span class="text-danger">*</span>
+                            Slug
                         </label>
 
                         <input
                             type="text"
                             name="slug"
-                            class="form-control"
-                            placeholder="category-slug">
+                            class="form-control @error('slug') is-invalid @enderror"
+                            value="{{ old('slug') }}"
+                            placeholder="Leave blank to auto-generate from name">
+                        @error('slug') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Parent Category</label>
 
-                        <select name="parent_id" class="form-select">
+                        <select name="parent_id" class="form-select @error('parent_id') is-invalid @enderror">
                             <option value="">Select Parent Category</option>
-                            <option value="1">Organic Products</option>
-                            <option value="2">Health Supplements</option>
+                            @foreach ($parentCategories as $parentCategory)
+                                <option value="{{ $parentCategory->id }}" @selected((int) old('parent_id') === $parentCategory->id)>
+                                    {{ $parentCategory->name }}
+                                </option>
+                            @endforeach
                         </select>
+                        @error('parent_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Status</label>
 
-                        <select name="status" class="form-select">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                        <select name="status" class="form-select @error('status') is-invalid @enderror">
+                            <option value="active" @selected(old('status', 'active') === 'active')>Active</option>
+                            <option value="inactive" @selected(old('status') === 'inactive')>Inactive</option>
                         </select>
+                        @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -85,8 +94,9 @@
                         <input
                             type="number"
                             name="sort_order"
-                            class="form-control"
-                            value="0">
+                            class="form-control @error('sort_order') is-invalid @enderror"
+                            value="{{ old('sort_order', 0) }}">
+                        @error('sort_order') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -95,7 +105,8 @@
                         <input
                             type="file"
                             name="image"
-                            class="form-control">
+                            class="form-control @error('image') is-invalid @enderror">
+                        @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-12 mb-3">
@@ -103,9 +114,10 @@
 
                         <textarea
                             name="description"
-                            class="form-control"
+                            class="form-control @error('description') is-invalid @enderror"
                             rows="4"
-                            placeholder="Enter category description"></textarea>
+                            placeholder="Enter category description">{{ old('description') }}</textarea>
+                        @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                 </div>
@@ -122,8 +134,10 @@
                         <input
                             type="text"
                             name="meta_title"
-                            class="form-control"
+                            class="form-control @error('meta_title') is-invalid @enderror"
+                            value="{{ old('meta_title') }}"
                             placeholder="Meta title">
+                        @error('meta_title') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -132,8 +146,10 @@
                         <input
                             type="text"
                             name="meta_keywords"
-                            class="form-control"
+                            class="form-control @error('meta_keywords') is-invalid @enderror"
+                            value="{{ old('meta_keywords') }}"
                             placeholder="keyword1, keyword2">
+                        @error('meta_keywords') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-12 mb-3">
@@ -141,9 +157,10 @@
 
                         <textarea
                             name="meta_description"
-                            class="form-control"
+                            class="form-control @error('meta_description') is-invalid @enderror"
                             rows="3"
-                            placeholder="Meta description"></textarea>
+                            placeholder="Meta description">{{ old('meta_description') }}</textarea>
+                        @error('meta_description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                 </div>

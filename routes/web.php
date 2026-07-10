@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -87,11 +88,16 @@ Route::prefix('admin')
         Route::view('/', 'admin-dist.pages.login')->name('admin');
         Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
         // Catalog routes...
-       Route::prefix('catalog')->name('catalog.')->group(function () {
+        Route::prefix('catalog')->name('catalog.')->group(function () {
             // Categories
-            Route::view('/categories', 'admin.catalog.categories.index')->name('categories.index');
-            Route::view('/categories/create', 'admin.catalog.categories.create')->name('categories.create');
-            Route::view('/categories/edit', 'admin.catalog.categories.edit')->name('categories.edit');
+            Route::prefix('categories')->name('categories.')->controller(CategoryController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{category}/edit', 'edit')->name('edit');
+                Route::put('/{category}', 'update')->name('update');
+                Route::delete('/{category}', 'destroy')->name('destroy');
+            });
             // Products
             Route::view('/products', 'admin.catalog.products.index')->name('products.index');
             Route::view('/products/create', 'admin.catalog.products.create')->name('products.create');
@@ -125,7 +131,7 @@ Route::prefix('admin')
             Route::view('/returns', 'admin.sales.returns.index')->name('returns.index');
             Route::view('/returns/show', 'admin.sales.returns.show')->name('returns.show');
         });
-        //Customer routes...
+        // Customer routes...
         Route::prefix('customers')->name('customers.')->group(function () {
             Route::view('/', 'admin.customers.index')->name('index');
             Route::view('/show', 'admin.customers.show')->name('show');
@@ -135,8 +141,8 @@ Route::prefix('admin')
             Route::view('/addresses/create', 'admin.customers.addresses.create')->name('addresses.create');
             Route::view('/addresses/edit', 'admin.customers.addresses.edit')->name('addresses.edit');
         });
-         // Shipping routes...
-            Route::prefix('shipping')->name('shipping.')->group(function () {
+        // Shipping routes...
+        Route::prefix('shipping')->name('shipping.')->group(function () {
             // Zones
             Route::view('/zones', 'admin.shipping.zones.index')->name('zones.index');
             Route::view('/zones/create', 'admin.shipping.zones.create')->name('zones.create');
@@ -150,9 +156,9 @@ Route::prefix('admin')
             Route::view('/rates/create', 'admin.shipping.rates.create')->name('rates.create');
             Route::view('/rates/edit', 'admin.shipping.rates.edit')->name('rates.edit');
         });
-        
-            // CMS routes...
-            Route::prefix('cms')->name('cms.')->group(function () {
+
+        // CMS routes...
+        Route::prefix('cms')->name('cms.')->group(function () {
             Route::prefix('pages')->name('pages.')->group(function () {
                 Route::view('/', 'admin.cms.pages.index')->name('index');
                 Route::view('/create', 'admin.cms.pages.create')->name('create');
@@ -192,18 +198,18 @@ Route::prefix('admin')
                 Route::view('/', 'admin.cms.contact-messages.index')->name('index');
                 Route::view('/show', 'admin.cms.contact-messages.show')->name('show');
             });
-            });
-            Route::prefix('reports')->name('reports.')->group(function () {
-                Route::view('/sales', 'admin.reports.sales.index')->name('sales.index');
-                Route::view('/orders', 'admin.reports.orders.index')->name('orders.index');
-                Route::view('/products', 'admin.reports.products.index')->name('products.index');
-                Route::view('/customers', 'admin.reports.customers.index')->name('customers.index');
-                Route::view('/inventory', 'admin.reports.inventory.index')->name('inventory.index');
-                Route::view('/payments', 'admin.reports.payments.index')->name('payments.index');
-                Route::view('/coupons', 'admin.reports.coupons.index')->name('coupons.index');
-                Route::view('/returns', 'admin.reports.returns.index')->name('returns.index');
-            });
-            Route::prefix('administration')->name('administration.')->group(function () {
+        });
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::view('/sales', 'admin.reports.sales.index')->name('sales.index');
+            Route::view('/orders', 'admin.reports.orders.index')->name('orders.index');
+            Route::view('/products', 'admin.reports.products.index')->name('products.index');
+            Route::view('/customers', 'admin.reports.customers.index')->name('customers.index');
+            Route::view('/inventory', 'admin.reports.inventory.index')->name('inventory.index');
+            Route::view('/payments', 'admin.reports.payments.index')->name('payments.index');
+            Route::view('/coupons', 'admin.reports.coupons.index')->name('coupons.index');
+            Route::view('/returns', 'admin.reports.returns.index')->name('returns.index');
+        });
+        Route::prefix('administration')->name('administration.')->group(function () {
             Route::prefix('users')->name('users.')->group(function () {
                 Route::view('/', 'admin.administration.users.index')->name('index');
                 Route::view('/create', 'admin.administration.users.create')->name('create');
@@ -219,11 +225,11 @@ Route::prefix('admin')
             Route::view('/activity-logs', 'admin.administration.activity-logs.index')
                 ->name('activity-logs.index');
         });
-            Route::prefix('settings')->name('settings.')->group(function () {
-                Route::view('/general', 'admin.settings.general.index')->name('general.index');
-                 Route::view('/seo', 'admin.settings.seo.index')->name('seo.index');
-                Route::view('/email', 'admin.settings.email.index')->name('email.index');
-            });
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::view('/general', 'admin.settings.general.index')->name('general.index');
+            Route::view('/seo', 'admin.settings.seo.index')->name('seo.index');
+            Route::view('/email', 'admin.settings.email.index')->name('email.index');
+        });
     });
 
 require __DIR__.'/auth.php';
