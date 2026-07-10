@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\TaxRate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -41,17 +42,22 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-        $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
-        $data['sort_order'] = $data['sort_order'] ?? 0;
+        DB::transaction(function () use ($request) {
+            $data = $request->safe()->except('specifications');
+            $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
+            $data['sort_order'] = $data['sort_order'] ?? 0;
 
-        Product::create($data);
+            $product = Product::create($data);
+
+            $this->syncSpecifications($product, $request->input('specifications', []));
+        });
 
         return redirect()->route('admin.catalog.products.index')->with('success', 'Product created.');
     }
 
     public function edit(Product $product): View
     {
+        $product->load(['specifications' => fn ($query) => $query->orderBy('sort_order')]);
         $categories = Category::ordered()->get();
         $taxRates = TaxRate::all();
 
@@ -60,11 +66,15 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
-        $data = $request->validated();
-        $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
-        $data['sort_order'] = $data['sort_order'] ?? 0;
+        DB::transaction(function () use ($request, $product) {
+            $data = $request->safe()->except('specifications');
+            $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
+            $data['sort_order'] = $data['sort_order'] ?? 0;
 
-        $product->update($data);
+            $product->update($data);
+
+            $this->syncSpecifications($product, $request->input('specifications', []));
+        });
 
         return redirect()->route('admin.catalog.products.index')->with('success', 'Product updated.');
     }
@@ -78,5 +88,27 @@ class ProductController extends Controller
         $product->delete();
 
         return back()->with('success', 'Product deleted.');
+    }
+
+    /**
+     * Replace a product's specification rows with the submitted set.
+     *
+     * @param  array<int, array{title?: string, value?: string|null}>  $specifications
+     */
+    private function syncSpecifications(Product $product, array $specifications): void
+    {
+        $product->specifications()->delete();
+
+        foreach (array_values($specifications) as $index => $spec) {
+            if (blank($spec['title'] ?? null)) {
+                continue;
+            }
+
+            $product->specifications()->create([
+                'title' => $spec['title'],
+                'value' => $spec['value'] ?? null,
+                'sort_order' => $index,
+            ]);
+        }
     }
 }

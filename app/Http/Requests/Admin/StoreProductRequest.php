@@ -35,6 +35,9 @@ class StoreProductRequest extends FormRequest
             'canonical_url' => ['nullable', 'string', 'max:255'],
             'meta_keywords' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string'],
+            'specifications' => ['nullable', 'array'],
+            'specifications.*.title' => ['required', 'string', 'max:255'],
+            'specifications.*.value' => ['nullable', 'string'],
         ];
     }
 }

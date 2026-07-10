@@ -207,6 +207,36 @@
             </div>
         </div>
 
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Specifications</h5>
+                <button type="button" class="btn btn-sm btn-light-primary" id="add-specification">
+                    <i class="ph ph-plus me-1"></i>
+                    Add Specification
+                </button>
+            </div>
+
+            <div class="card-body">
+                <div id="specifications-container">
+                    <div class="row specification-row mb-2 align-items-start">
+                        <div class="col-md-5">
+                            <input type="text" name="specifications[0][title]" class="form-control @error('specifications.0.title') is-invalid @enderror" placeholder="e.g. Weight" value="{{ old('specifications.0.title') }}">
+                            @error('specifications.0.title') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" name="specifications[0][value]" class="form-control" placeholder="e.g. 500g" value="{{ old('specifications.0.value') }}">
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-sm btn-danger remove-specification">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <small class="text-muted">Add key/value details such as Weight, Origin, Material, Shelf Life.</small>
+            </div>
+        </div>
+
         <div class="text-end mb-4">
             <a href="{{ route('admin.catalog.products.index') }}" class="btn btn-light">
                 Cancel
@@ -219,5 +249,45 @@
         </div>
 
     </form>
+
+    <template id="specification-row-template">
+        <div class="row specification-row mb-2 align-items-start">
+            <div class="col-md-5">
+                <input type="text" name="specifications[__INDEX__][title]" class="form-control" placeholder="e.g. Weight">
+            </div>
+            <div class="col-md-6">
+                <input type="text" name="specifications[__INDEX__][value]" class="form-control" placeholder="e.g. 500g">
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-sm btn-danger remove-specification">
+                    <i class="ph ph-trash"></i>
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        (function () {
+            var container = document.getElementById('specifications-container');
+            var template = document.getElementById('specification-row-template');
+            var addButton = document.getElementById('add-specification');
+            var nextIndex = 1;
+
+            addButton.addEventListener('click', function () {
+                var html = template.innerHTML.replace(/__INDEX__/g, nextIndex);
+                var wrapper = document.createElement('div');
+                wrapper.innerHTML = html.trim();
+                container.appendChild(wrapper.firstElementChild);
+                nextIndex++;
+            });
+
+            container.addEventListener('click', function (event) {
+                var button = event.target.closest('.remove-specification');
+                if (button) {
+                    button.closest('.specification-row').remove();
+                }
+            });
+        })();
+    </script>
 </main>
 </x-admin-layout>
