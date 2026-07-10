@@ -39,9 +39,25 @@
         </div>
 
         <div class="card-body">
+
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="Search Product">
+                    <form method="GET" action="{{ route('admin.catalog.products.index') }}">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="{{ request('search') }}"
+                               placeholder="Search Product"
+                               onchange="this.form.submit()">
+                    </form>
                 </div>
             </div>
 
@@ -63,53 +79,90 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>1</td>
+                        @forelse ($products as $product)
+                            <tr>
+                                <td>{{ $product->id }}</td>
 
-                            <td>
-                                <img src="https://placehold.co/50x50"
-                                     class="rounded"
-                                     width="50"
-                                     height="50"
-                                     alt="Product">
-                            </td>
+                                <td>
+                                    <img src="https://placehold.co/50x50"
+                                         class="rounded"
+                                         width="50"
+                                         height="50"
+                                         alt="Product">
+                                </td>
 
-                            <td>
-                                <strong>Organic Honey</strong>
-                                <br>
-                                <small class="text-muted">Slug: organic-honey</small>
-                            </td>
+                                <td>
+                                    <strong>{{ $product->name }}</strong>
+                                    <br>
+                                    <small class="text-muted">Slug: {{ $product->slug }}</small>
+                                </td>
 
-                            <td>Organic Foods</td>
+                                <td>{{ $product->category->name ?? '—' }}</td>
 
-                            <td>3</td>
+                                <td>{{ $product->variants_count }}</td>
 
-                            <td>
-                                <span class="badge bg-success">Active</span>
-                            </td>
+                                <td>
+                                    @php
+                                        $statusBadge = match ($product->status) {
+                                            'active' => 'bg-success',
+                                            'inactive' => 'bg-secondary',
+                                            default => 'bg-warning',
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $statusBadge }}">{{ ucfirst($product->status) }}</span>
+                                </td>
 
-                            <td>
-                                <span class="badge bg-primary">Yes</span>
-                            </td>
+                                <td>
+                                    <span class="badge {{ $product->is_featured ? 'bg-primary' : 'bg-secondary' }}">
+                                        {{ $product->is_featured ? 'Yes' : 'No' }}
+                                    </span>
+                                </td>
 
-                            <td>
-                                <span class="badge bg-success">In Stock</span>
-                            </td>
+                                <td>
+                                    @if ($product->variants_count === 0)
+                                        —
+                                    @elseif ($product->variants_sum_stock_quantity > 0)
+                                        <span class="badge bg-success">In Stock</span>
+                                    @else
+                                        <span class="badge bg-danger">Out of Stock</span>
+                                    @endif
+                                </td>
 
-                            <td>₹199 - ₹599</td>
+                                <td>
+                                    @if ($product->variants_min_single_price === null)
+                                        —
+                                    @elseif ($product->variants_min_single_price == $product->variants_max_single_price)
+                                        ₹{{ $product->variants_min_single_price }}
+                                    @else
+                                        ₹{{ $product->variants_min_single_price }} - ₹{{ $product->variants_max_single_price }}
+                                    @endif
+                                </td>
 
-                            <td>
-                                <a href="{{ route('admin.catalog.products.edit') }}" class="btn btn-sm btn-info" title="Edit Product">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
+                                <td>
+                                    <a href="{{ route('admin.catalog.products.edit', $product) }}" class="btn btn-sm btn-info" title="Edit Product">
+                                        <i class="ph ph-pencil-simple"></i>
+                                    </a>
 
-                                <a href="#" class="btn btn-sm btn-danger" title="Delete Product">
-                                    <i class="ph ph-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
+                                    <form action="{{ route('admin.catalog.products.destroy', $product) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this product?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Product">
+                                            <i class="ph ph-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" class="text-center text-muted">No products found.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                {{ $products->links() }}
             </div>
 
         </div>

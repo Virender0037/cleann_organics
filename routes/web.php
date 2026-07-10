@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -99,9 +100,14 @@ Route::prefix('admin')
                 Route::delete('/{category}', 'destroy')->name('destroy');
             });
             // Products
-            Route::view('/products', 'admin.catalog.products.index')->name('products.index');
-            Route::view('/products/create', 'admin.catalog.products.create')->name('products.create');
-            Route::view('/products/edit', 'admin.catalog.products.edit')->name('products.edit');
+            Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{product}/edit', 'edit')->name('edit');
+                Route::put('/{product}', 'update')->name('update');
+                Route::delete('/{product}', 'destroy')->name('destroy');
+            });
             // Variants
             Route::view('/variants', 'admin.catalog.variants.index')->name('variants.index');
             Route::view('/variants/create', 'admin.catalog.variants.create')->name('variants.create');
