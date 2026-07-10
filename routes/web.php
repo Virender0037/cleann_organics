@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerAddressController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerWishlistController;
@@ -155,9 +156,14 @@ Route::prefix('admin')
             Route::get('/orders/{order}', [SalesOrderController::class, 'show'])->name('orders.show');
             Route::get('/payments', [SalesPaymentController::class, 'index'])->name('payments.index');
             Route::get('/payments/{payment}', [SalesPaymentController::class, 'show'])->name('payments.show');
-            Route::view('/coupons', 'admin.sales.coupons.index')->name('coupons.index');
-            Route::view('/coupons/create', 'admin.sales.coupons.create')->name('coupons.create');
-            Route::view('/coupons/edit', 'admin.sales.coupons.edit')->name('coupons.edit');
+            Route::prefix('coupons')->name('coupons.')->controller(CouponController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{coupon}/edit', 'edit')->name('edit');
+                Route::put('/{coupon}', 'update')->name('update');
+                Route::delete('/{coupon}', 'destroy')->name('destroy');
+            });
             Route::view('/returns', 'admin.sales.returns.index')->name('returns.index');
             Route::view('/returns/show', 'admin.sales.returns.show')->name('returns.show');
         });

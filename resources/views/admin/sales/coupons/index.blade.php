@@ -27,35 +27,50 @@
             </div>
 
             <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Search coupon code or name">
-                    </div>
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Types</option>
-                            <option>Percentage</option>
-                            <option>Fixed Amount</option>
-                        </select>
-                    </div>
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>Active</option>
-                            <option>Inactive</option>
-                            <option>Expired</option>
-                        </select>
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+
+                <form method="GET" action="{{ route('admin.sales.coupons.index') }}">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search coupon code"
+                                   onchange="this.form.submit()">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="type" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Types</option>
+                                <option value="percentage" @selected(request('type') === 'percentage')>Percentage</option>
+                                <option value="fixed" @selected(request('type') === 'fixed')>Fixed Amount</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Status</option>
+                                <option value="active" @selected(request('status') === 'active')>Active</option>
+                                <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+                                <option value="expired" @selected(request('status') === 'expired')>Expired</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Coupon</th>
                                 <th>Code</th>
                                 <th>Type</th>
                                 <th>Discount</th>
@@ -68,50 +83,51 @@
                         </thead>
 
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><strong>Welcome Offer</strong></td>
-                                <td><span class="badge bg-light text-dark">WELCOME10</span></td>
-                                <td>Percentage</td>
-                                <td>10%</td>
-                                <td>₹500</td>
-                                <td>25 / 100</td>
-                                <td>01 Jun 2026 - 30 Jun 2026</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <a href="{{ route('admin.sales.coupons.edit') }}" class="btn btn-sm btn-info" title="Edit Coupon">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
+                            @forelse ($coupons as $coupon)
+                                @php $isExpired = $coupon->end_date->isPast(); @endphp
+                                <tr>
+                                    <td>{{ $coupon->id }}</td>
+                                    <td><span class="badge bg-light text-dark">{{ $coupon->code }}</span></td>
+                                    <td>{{ $coupon->type === 'percentage' ? 'Percentage' : 'Fixed Amount' }}</td>
+                                    <td>{{ $coupon->type === 'percentage' ? number_format((float) $coupon->value, 2).'%' : '₹'.number_format((float) $coupon->value, 2) }}</td>
+                                    <td>₹{{ number_format((float) $coupon->minimum_order_amount, 2) }}</td>
+                                    <td>{{ $coupon->used_count }} / {{ $coupon->usage_limit ?? 'Unlimited' }}</td>
+                                    <td>{{ $coupon->start_date->format('d M Y') }} - {{ $coupon->end_date->format('d M Y') }}</td>
+                                    <td>
+                                        @if ($isExpired)
+                                            <span class="badge bg-danger">Expired</span>
+                                        @elseif ($coupon->status === 'active')
+                                            <span class="badge bg-success">Active</span>
+                                        @else
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('admin.sales.coupons.edit', $coupon) }}" class="btn btn-sm btn-info" title="Edit Coupon">
+                                            <i class="ph ph-pencil-simple"></i>
+                                        </a>
 
-                                    <button class="btn btn-sm btn-danger" title="Delete Coupon">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>2</td>
-                                <td><strong>Flat Discount</strong></td>
-                                <td><span class="badge bg-light text-dark">FLAT100</span></td>
-                                <td>Fixed Amount</td>
-                                <td>₹100</td>
-                                <td>₹999</td>
-                                <td>10 / 50</td>
-                                <td>01 Jun 2026 - 15 Jul 2026</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <a href="{{ route('admin.sales.coupons.edit') }}" class="btn btn-sm btn-info" title="Edit Coupon">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger" title="Delete Coupon">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                        <form action="{{ route('admin.sales.coupons.destroy', $coupon) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this coupon?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Coupon">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">No coupons found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
 
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $coupons->links() }}
                 </div>
             </div>
         </div>
