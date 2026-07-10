@@ -14,7 +14,7 @@
             </a>
         </div>
 
-        <form action="#" method="POST">
+        <form action="{{ route('admin.cms.blog-tags.update', $blogTag) }}" method="POST">
             @csrf
             @method('PUT')
 
@@ -28,20 +28,23 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Tag Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" value="Organic">
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $blogTag->name) }}">
+                            @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Slug <span class="text-danger">*</span></label>
-                            <input type="text" name="slug" class="form-control" value="organic">
+                            <label class="form-label">Slug</label>
+                            <input type="text" name="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug', $blogTag->slug) }}">
+                            @error('slug') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="active" selected>Active</option>
-                                <option value="inactive">Inactive</option>
+                            <select name="status" class="form-select @error('status') is-invalid @enderror">
+                                <option value="active" @selected(old('status', $blogTag->status) === 'active')>Active</option>
+                                <option value="inactive" @selected(old('status', $blogTag->status) === 'inactive')>Inactive</option>
                             </select>
+                            @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                     </div>

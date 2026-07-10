@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BlogCategoryController;
+use App\Http\Controllers\Admin\BlogTagController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerAddressController;
@@ -246,10 +247,13 @@ Route::prefix('admin')
                 Route::put('/{blogCategory}', 'update')->name('update');
                 Route::delete('/{blogCategory}', 'destroy')->name('destroy');
             });
-            Route::prefix('blog-tags')->name('blog-tags.')->group(function () {
-                Route::view('/', 'admin.cms.blog-tags.index')->name('index');
-                Route::view('/create', 'admin.cms.blog-tags.create')->name('create');
-                Route::view('/edit', 'admin.cms.blog-tags.edit')->name('edit');
+            Route::prefix('blog-tags')->name('blog-tags.')->controller(BlogTagController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{blogTag}/edit', 'edit')->name('edit');
+                Route::put('/{blogTag}', 'update')->name('update');
+                Route::delete('/{blogTag}', 'destroy')->name('destroy');
             });
             Route::prefix('faqs')->name('faqs.')->group(function () {
                 Route::view('/', 'admin.cms.faqs.index')->name('index');
