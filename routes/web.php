@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\ReturnController;
 use App\Http\Controllers\Admin\SalesOrderController;
 use App\Http\Controllers\Admin\SalesPaymentController;
 use App\Http\Controllers\Admin\TaxRateController;
@@ -164,8 +165,11 @@ Route::prefix('admin')
                 Route::put('/{coupon}', 'update')->name('update');
                 Route::delete('/{coupon}', 'destroy')->name('destroy');
             });
-            Route::view('/returns', 'admin.sales.returns.index')->name('returns.index');
-            Route::view('/returns/show', 'admin.sales.returns.show')->name('returns.show');
+            Route::prefix('returns')->name('returns.')->controller(ReturnController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/{return}', 'show')->name('show');
+                Route::patch('/{return}/status', 'updateStatus')->name('status');
+            });
         });
         // Customer routes...
         Route::prefix('customers')->name('customers.')->group(function () {

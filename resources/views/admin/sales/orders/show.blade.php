@@ -291,7 +291,7 @@
                     <div class="card-body">
                         @forelse ($order->returns as $return)
                             <p class="{{ ! $loop->last ? 'border-bottom pb-2 mb-2' : 'mb-0' }}">
-                                <strong>#{{ $return->return_number }}</strong> —
+                                <a href="{{ route('admin.sales.returns.show', $return) }}"><strong>#{{ $return->return_number }}</strong></a> —
                                 <span class="badge bg-secondary">{{ ucfirst($return->status) }}</span><br>
                                 <small class="text-muted">Refund: ₹{{ number_format((float) $return->refund_amount, 2) }}</small>
                             </p>

@@ -4,20 +4,32 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h4 class="mb-1">Return #RET-1001</h4>
+                <h4 class="mb-1">Return #{{ $return->return_number }}</h4>
                 <p class="text-muted mb-0">Review return request, refund details and activity</p>
             </div>
 
             <div>
-                <button class="btn btn-success me-2">
-                    <i class="ph ph-check me-1"></i>
-                    Approve
-                </button>
+                @if ($return->status === 'requested')
+                    <form action="{{ route('admin.sales.returns.status', $return) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="status" value="approved">
+                        <button type="submit" class="btn btn-success me-2">
+                            <i class="ph ph-check me-1"></i>
+                            Approve
+                        </button>
+                    </form>
 
-                <button class="btn btn-danger me-2">
-                    <i class="ph ph-x me-1"></i>
-                    Reject
-                </button>
+                    <form action="{{ route('admin.sales.returns.status', $return) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="status" value="rejected">
+                        <button type="submit" class="btn btn-danger me-2">
+                            <i class="ph ph-x me-1"></i>
+                            Reject
+                        </button>
+                    </form>
+                @endif
 
                 <a href="{{ route('admin.sales.returns.index') }}" class="btn btn-light">
                     <i class="ph ph-arrow-left me-1"></i>
@@ -25,6 +37,10 @@
                 </a>
             </div>
         </div>
+
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
         <div class="mb-3">
             <a href="{{ route('admin.dashboard') }}">Dashboard</a>
@@ -55,21 +71,25 @@
                                         <th>SKU</th>
                                         <th>Qty</th>
                                         <th>Refund Amount</th>
-                                        <th>Condition</th>
+                                        <th>Item Reason</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
-                                    <tr>
-                                        <td><strong>Cold Pressed Mustard Oil</strong></td>
-                                        <td>1 Litre</td>
-                                        <td>OIL-1L</td>
-                                        <td>1</td>
-                                        <td>₹650.00</td>
-                                        <td>
-                                            <span class="badge bg-warning text-dark">Damaged</span>
-                                        </td>
-                                    </tr>
+                                    @forelse ($return->items as $item)
+                                        <tr>
+                                            <td><strong>{{ $item->orderItem->product_name ?? '—' }}</strong></td>
+                                            <td>{{ $item->orderItem->variant_size ?? $item->orderItem->variant_color ?? $item->orderItem->variant_pack_quantity ?? '—' }}</td>
+                                            <td>{{ $item->orderItem->variant_sku ?? '—' }}</td>
+                                            <td>{{ $item->quantity }}</td>
+                                            <td>₹{{ number_format((float) $item->refund_amount, 2) }}</td>
+                                            <td>{{ $item->reason ?? '—' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">No items on this return.</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -82,10 +102,7 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-2"><strong>Reason:</strong> Damaged Product</p>
-                        <p class="mb-0">
-                            Customer reported that the bottle was leaked and packaging was damaged during delivery.
-                        </p>
+                        <p class="mb-0">{{ $return->reason }}</p>
                     </div>
                 </div>
 
@@ -95,19 +112,7 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <img src="https://placehold.co/180x140"
-                                     class="img-fluid rounded border"
-                                     alt="Proof Image">
-                            </div>
-
-                            <div class="col-md-3 mb-3">
-                                <img src="https://placehold.co/180x140"
-                                     class="img-fluid rounded border"
-                                     alt="Proof Image">
-                            </div>
-                        </div>
+                        <p class="text-muted mb-0">Not available — this system doesn't store proof-image uploads for returns yet.</p>
                     </div>
                 </div>
 
@@ -117,31 +122,53 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="d-flex justify-content-between text-center">
-                            <div>
-                                <span class="badge bg-success rounded-pill mb-2">✓</span>
-                                <p class="mb-0 fw-bold">Requested</p>
-                                <small>26 Jun 2026</small>
-                            </div>
+                        @if ($return->status === 'rejected')
+                            <p class="text-danger mb-0"><strong>Return Rejected</strong></p>
+                        @else
+                            @php
+                                $reachedPickedUp = in_array($return->status, ['picked_up', 'received', 'refunded']);
+                                $reachedReceived = in_array($return->status, ['received', 'refunded']);
+                            @endphp
+                            <div class="d-flex justify-content-between text-center">
+                                <div>
+                                    <span class="badge bg-success rounded-pill mb-2">✓</span>
+                                    <p class="mb-0 fw-bold">Requested</p>
+                                    <small>{{ $return->created_at->format('d M Y') }}</small>
+                                </div>
 
-                            <div>
-                                <span class="badge bg-primary rounded-pill mb-2">●</span>
-                                <p class="mb-0 fw-bold">Under Review</p>
-                                <small>Pending</small>
-                            </div>
+                                <div>
+                                    <span class="badge {{ $return->approved_at ? 'bg-success' : 'bg-light text-dark' }} rounded-pill mb-2">
+                                        {{ $return->approved_at ? '✓' : '○' }}
+                                    </span>
+                                    <p class="mb-0 fw-bold">Approved</p>
+                                    <small>{{ $return->approved_at ? $return->approved_at->format('d M Y') : 'Pending' }}</small>
+                                </div>
 
-                            <div>
-                                <span class="badge bg-light text-dark rounded-pill mb-2">○</span>
-                                <p class="mb-0 fw-bold">Approved</p>
-                                <small>Pending</small>
-                            </div>
+                                <div>
+                                    <span class="badge {{ $reachedPickedUp ? 'bg-success' : 'bg-light text-dark' }} rounded-pill mb-2">
+                                        {{ $reachedPickedUp ? '✓' : '○' }}
+                                    </span>
+                                    <p class="mb-0 fw-bold">Picked Up</p>
+                                    <small>{{ $reachedPickedUp ? 'Done' : 'Pending' }}</small>
+                                </div>
 
-                            <div>
-                                <span class="badge bg-light text-dark rounded-pill mb-2">○</span>
-                                <p class="mb-0 fw-bold">Refunded</p>
-                                <small>Pending</small>
+                                <div>
+                                    <span class="badge {{ $reachedReceived ? 'bg-success' : 'bg-light text-dark' }} rounded-pill mb-2">
+                                        {{ $reachedReceived ? '✓' : '○' }}
+                                    </span>
+                                    <p class="mb-0 fw-bold">Received</p>
+                                    <small>{{ $reachedReceived ? 'Done' : 'Pending' }}</small>
+                                </div>
+
+                                <div>
+                                    <span class="badge {{ $return->refunded_at ? 'bg-success' : 'bg-light text-dark' }} rounded-pill mb-2">
+                                        {{ $return->refunded_at ? '✓' : '○' }}
+                                    </span>
+                                    <p class="mb-0 fw-bold">Refunded</p>
+                                    <small>{{ $return->refunded_at ? $return->refunded_at->format('d M Y') : 'Pending' }}</small>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -151,17 +178,11 @@
                     </div>
 
                     <div class="card-body">
-                        <textarea class="form-control mb-3" rows="4" placeholder="Add internal note"></textarea>
-
-                        <button class="btn btn-primary">
-                            <i class="ph ph-plus me-1"></i>
-                            Add Note
-                        </button>
-
-                        <hr>
-
-                        <p class="mb-1"><strong>Admin:</strong> Need to verify product damage images before approval.</p>
-                        <small class="text-muted">26 Jun 2026, 11:00 AM</small>
+                        @if ($return->admin_note)
+                            <p class="mb-0">{{ $return->admin_note }}</p>
+                        @else
+                            <p class="text-muted mb-0">No notes on this return.</p>
+                        @endif
                     </div>
                 </div>
 
@@ -175,11 +196,23 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-2"><strong>Return ID:</strong> #RET-1001</p>
-                        <p class="mb-2"><strong>Order ID:</strong> #ORD-1001</p>
-                        <p class="mb-2"><strong>Status:</strong> <span class="badge bg-warning text-dark">Pending</span></p>
-                        <p class="mb-2"><strong>Requested Date:</strong> 26 Jun 2026</p>
-                        <p class="mb-0"><strong>Refund Amount:</strong> ₹650.00</p>
+                        <p class="mb-2"><strong>Return ID:</strong> #{{ $return->return_number }}</p>
+                        <p class="mb-2"><strong>Order ID:</strong> #{{ $return->order->order_number ?? '—' }}</p>
+                        <p class="mb-2">
+                            <strong>Status:</strong>
+                            @php
+                                $summaryBadge = match ($return->status) {
+                                    'approved' => 'bg-primary',
+                                    'rejected' => 'bg-danger',
+                                    'picked_up', 'received' => 'bg-info',
+                                    'refunded' => 'bg-success',
+                                    default => 'bg-warning text-dark',
+                                };
+                            @endphp
+                            <span class="badge {{ $summaryBadge }}">{{ ucwords(str_replace('_', ' ', $return->status)) }}</span>
+                        </p>
+                        <p class="mb-2"><strong>Requested Date:</strong> {{ $return->created_at->format('d M Y') }}</p>
+                        <p class="mb-0"><strong>Refund Amount:</strong> ₹{{ number_format((float) $return->refund_amount, 2) }}</p>
                     </div>
                 </div>
 
@@ -189,9 +222,9 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-1"><strong>Rahul Sharma</strong></p>
-                        <p class="mb-1">rahul@email.com</p>
-                        <p class="mb-0">+91 9876543210</p>
+                        <p class="mb-1"><strong>{{ $return->user->name ?? '—' }}</strong></p>
+                        <p class="mb-1">{{ $return->user->email ?? '—' }}</p>
+                        <p class="mb-0">{{ $return->user->phone ?? '—' }}</p>
                     </div>
                 </div>
 
@@ -201,14 +234,11 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-2"><strong>Refund Method:</strong> Original Payment Method</p>
-                        <p class="mb-2"><strong>Refund Amount:</strong> ₹650.00</p>
-                        <p class="mb-2"><strong>Refund Status:</strong> <span class="badge bg-secondary">Not Initiated</span></p>
-
-                        <button class="btn btn-light-danger w-100 mt-2">
-                            <i class="ph ph-arrow-counter-clockwise me-1"></i>
-                            Initiate Refund
-                        </button>
+                        <p class="mb-2"><strong>Refund Amount:</strong> ₹{{ number_format((float) $return->refund_amount, 2) }}</p>
+                        <p class="mb-0">
+                            <strong>Refunded At:</strong>
+                            {{ $return->refunded_at ? $return->refunded_at->format('d M Y, h:i A') : 'Not yet refunded' }}
+                        </p>
                     </div>
                 </div>
 
@@ -218,14 +248,7 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-2"><strong>Pickup Status:</strong> Not Scheduled</p>
-                        <p class="mb-2"><strong>Courier:</strong> --</p>
-                        <p class="mb-0"><strong>Tracking No:</strong> --</p>
-
-                        <button class="btn btn-light-primary w-100 mt-3">
-                            <i class="ph ph-truck me-1"></i>
-                            Schedule Pickup
-                        </button>
+                        <p class="text-muted mb-0">Not available — this system doesn't track courier/pickup details for returns yet.</p>
                     </div>
                 </div>
 
@@ -235,13 +258,7 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-1"><strong>Return Requested</strong></p>
-                        <small class="text-muted">26 Jun 2026, 10:45 AM</small>
-
-                        <hr>
-
-                        <p class="mb-1"><strong>Proof images uploaded</strong></p>
-                        <small class="text-muted">26 Jun 2026, 10:50 AM</small>
+                        <p class="text-muted mb-0">Not available — no activity log is recorded for returns in this system yet.</p>
                     </div>
                 </div>
 

@@ -30,24 +30,35 @@
 
             <div class="card-body">
 
-                <div class="row mb-4">
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-                    <div class="col-md-4">
-                        <input class="form-control"
-                               placeholder="Search Order / Return ID / Customer">
+                <form method="GET" action="{{ route('admin.sales.returns.index') }}">
+                    <div class="row mb-4">
+
+                        <div class="col-md-4">
+                            <input name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search Order / Return ID / Customer">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                @foreach (['requested' => 'Requested', 'approved' => 'Approved', 'rejected' => 'Rejected', 'picked_up' => 'Picked Up', 'received' => 'Received', 'refunded' => 'Refunded'] as $value => $label)
+                                    <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Search</button>
+                        </div>
+
                     </div>
-
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>Pending</option>
-                            <option>Approved</option>
-                            <option>Rejected</option>
-                            <option>Refunded</option>
-                        </select>
-                    </div>
-
-                </div>
+                </form>
 
                 <div class="table-responsive">
 
@@ -81,76 +92,62 @@
 
                         <tbody>
 
-                        <tr>
+                        @forelse ($returns as $return)
+                            <tr>
 
-                            <td>1</td>
+                                <td>{{ $return->id }}</td>
 
-                            <td>#RET-1001</td>
+                                <td>#{{ $return->return_number }}</td>
 
-                            <td>#ORD-1001</td>
+                                <td>#{{ $return->order->order_number ?? '—' }}</td>
 
-                            <td>Rahul Sharma</td>
+                                <td>{{ $return->user->name ?? '—' }}</td>
 
-                            <td>Damaged Product</td>
+                                <td>{{ \Illuminate\Support\Str::limit($return->reason, 40) }}</td>
 
-                            <td>₹650</td>
+                                <td>₹{{ number_format((float) $return->refund_amount, 2) }}</td>
 
-                            <td>
-                                <span class="badge bg-warning">
-                                    Pending
-                                </span>
-                            </td>
+                                <td>
+                                    @php
+                                        $statusBadge = match ($return->status) {
+                                            'approved' => 'bg-primary',
+                                            'rejected' => 'bg-danger',
+                                            'picked_up', 'received' => 'bg-info',
+                                            'refunded' => 'bg-success',
+                                            default => 'bg-warning',
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $statusBadge }}">
+                                        {{ ucwords(str_replace('_', ' ', $return->status)) }}
+                                    </span>
+                                </td>
 
-                            <td>26 Jun 2026</td>
+                                <td>{{ $return->created_at->format('d M Y') }}</td>
 
-                            <td>
+                                <td>
 
-                                <a href="{{ route('admin.sales.returns.show') }}"
-                                   class="btn btn-sm btn-info">
-                                    <i class="ph ph-eye"></i>
-                                </a>
+                                    <a href="{{ route('admin.sales.returns.show', $return) }}"
+                                       class="btn btn-sm btn-info">
+                                        <i class="ph ph-eye"></i>
+                                    </a>
 
-                            </td>
+                                </td>
 
-                        </tr>
-
-                        <tr>
-
-                            <td>2</td>
-
-                            <td>#RET-1002</td>
-
-                            <td>#ORD-1005</td>
-
-                            <td>Amit Verma</td>
-
-                            <td>Wrong Item</td>
-
-                            <td>₹299</td>
-
-                            <td>
-                                <span class="badge bg-success">
-                                    Refunded
-                                </span>
-                            </td>
-
-                            <td>25 Jun 2026</td>
-
-                            <td>
-
-                                <a href="{{ route('admin.sales.returns.show') }}"
-                                   class="btn btn-sm btn-info">
-                                    <i class="ph ph-eye"></i>
-                                </a>
-
-                            </td>
-
-                        </tr>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">No return requests found.</td>
+                            </tr>
+                        @endforelse
 
                         </tbody>
 
                     </table>
 
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $returns->links() }}
                 </div>
 
             </div>
