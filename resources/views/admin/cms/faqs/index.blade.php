@@ -27,19 +27,35 @@
             </div>
 
             <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Search question">
-                    </div>
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>Active</option>
-                            <option>Inactive</option>
-                        </select>
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+
+                <form method="GET" action="{{ route('admin.cms.faqs.index') }}">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search question"
+                                   onchange="this.form.submit()">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Status</option>
+                                <option value="active" @selected(request('status') === 'active')>Active</option>
+                                <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -47,7 +63,6 @@
                             <tr>
                                 <th>#</th>
                                 <th>Question</th>
-                                <th>Category</th>
                                 <th>Sort Order</th>
                                 <th>Status</th>
                                 <th width="130">Action</th>
@@ -55,41 +70,41 @@
                         </thead>
 
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><strong>How can I track my order?</strong></td>
-                                <td>Orders</td>
-                                <td>1</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <a href="{{ route('admin.cms.faqs.edit') }}" class="btn btn-sm btn-warning">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
+                            @forelse ($faqs as $faq)
+                                <tr>
+                                    <td>{{ $faq->id }}</td>
+                                    <td><strong>{{ $faq->question }}</strong></td>
+                                    <td>{{ $faq->sort_order }}</td>
+                                    <td>
+                                        <span class="badge {{ $faq->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                            {{ ucfirst($faq->status) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('admin.cms.faqs.edit', $faq) }}" class="btn btn-sm btn-warning" title="Edit FAQ">
+                                            <i class="ph ph-pencil-simple"></i>
+                                        </a>
 
-                                    <button class="btn btn-sm btn-danger">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>2</td>
-                                <td><strong>What is your return policy?</strong></td>
-                                <td>Returns</td>
-                                <td>2</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <a href="{{ route('admin.cms.faqs.edit') }}" class="btn btn-sm btn-warning">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                        <form action="{{ route('admin.cms.faqs.destroy', $faq) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this FAQ?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete FAQ">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">No FAQs found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $faqs->links() }}
                 </div>
 
             </div>

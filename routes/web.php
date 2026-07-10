@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerAddressController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerWishlistController;
+use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
@@ -259,10 +260,13 @@ Route::prefix('admin')
                 Route::put('/{blogTag}', 'update')->name('update');
                 Route::delete('/{blogTag}', 'destroy')->name('destroy');
             });
-            Route::prefix('faqs')->name('faqs.')->group(function () {
-                Route::view('/', 'admin.cms.faqs.index')->name('index');
-                Route::view('/create', 'admin.cms.faqs.create')->name('create');
-                Route::view('/edit', 'admin.cms.faqs.edit')->name('edit');
+            Route::prefix('faqs')->name('faqs.')->controller(FaqController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{faq}/edit', 'edit')->name('edit');
+                Route::put('/{faq}', 'update')->name('update');
+                Route::delete('/{faq}', 'destroy')->name('destroy');
             });
             Route::prefix('team-members')->name('team-members.')->group(function () {
                 Route::view('/', 'admin.cms.team-members.index')->name('index');
