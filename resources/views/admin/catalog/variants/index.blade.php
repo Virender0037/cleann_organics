@@ -38,27 +38,46 @@
         </div>
 
         <div class="card-body">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="Search variant">
-                </div>
 
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">Filter by Product</option>
-                        <option>Organic Honey</option>
-                        <option>Cold Pressed Oil</option>
-                    </select>
-                </div>
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
 
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">Filter by Stock</option>
-                        <option>In Stock</option>
-                        <option>Out of Stock</option>
-                    </select>
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            <form method="GET" action="{{ route('admin.catalog.variants.index') }}">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="{{ request('search') }}"
+                               placeholder="Search variant"
+                               onchange="this.form.submit()">
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="product_id" class="form-select" onchange="this.form.submit()">
+                            <option value="">Filter by Product</option>
+                            @foreach ($products as $product)
+                                <option value="{{ $product->id }}" @selected((int) request('product_id') === $product->id)>
+                                    {{ $product->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="stock_status" class="form-select" onchange="this.form.submit()">
+                            <option value="">Filter by Stock</option>
+                            <option value="in_stock" @selected(request('stock_status') === 'in_stock')>In Stock</option>
+                            <option value="out_of_stock" @selected(request('stock_status') === 'out_of_stock')>Out of Stock</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
+            </form>
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -78,57 +97,75 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>1</td>
+                        @forelse ($variants as $variant)
+                            <tr>
+                                <td>{{ $variant->id }}</td>
 
-                            <td>
-                                <img src="https://placehold.co/50x50"
-                                     width="50"
-                                     height="50"
-                                     class="rounded"
-                                     alt="Variant">
-                            </td>
+                                <td>
+                                    <img src="{{ $variant->primaryImage ? \Illuminate\Support\Facades\Storage::url($variant->primaryImage->image) : 'https://placehold.co/50x50' }}"
+                                         width="50"
+                                         height="50"
+                                         class="rounded"
+                                         alt="Variant">
+                                </td>
 
-                            <td>
-                                <strong>Organic Honey</strong>
-                            </td>
+                                <td>
+                                    <strong>{{ $variant->product->name ?? '—' }}</strong>
+                                </td>
 
-                            <td>
-                                500g
-                                <br>
-                                <small class="text-muted">Default Variant</small>
-                            </td>
+                                <td>
+                                    {{ $variant->variant_name ?? '—' }}
+                                    @if ($variant->is_default)
+                                        <br>
+                                        <small class="text-muted">Default Variant</small>
+                                    @endif
+                                </td>
 
-                            <td>HON-500</td>
+                                <td>{{ $variant->sku ?? '—' }}</td>
 
-                            <td>gram</td>
+                                <td>{{ $variant->unit ?? '—' }}</td>
 
-                            <td>
-                                <span class="badge bg-success">120</span>
-                            </td>
+                                <td>
+                                    <span class="badge {{ $variant->stock_status === 'in_stock' ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $variant->stock_quantity }}
+                                    </span>
+                                </td>
 
-                            <td>₹299</td>
+                                <td>{{ $variant->single_price !== null ? '₹'.$variant->single_price : '—' }}</td>
 
-                            <td>
-                                <span class="badge bg-success">Active</span>
-                            </td>
+                                <td>
+                                    <span class="badge {{ $variant->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ ucfirst($variant->status) }}
+                                    </span>
+                                </td>
 
-                            <td>
-                                <a href="{{ route('admin.catalog.variants.edit') }}"
-                                   class="btn btn-sm btn-info"
-                                   title="Edit Variant">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
+                                <td>
+                                    <a href="{{ route('admin.catalog.variants.edit', $variant) }}"
+                                       class="btn btn-sm btn-info"
+                                       title="Edit Variant">
+                                        <i class="ph ph-pencil-simple"></i>
+                                    </a>
 
-                                <a href="#"
-                                   class="btn btn-sm btn-danger"
-                                   title="Delete Variant">
-                                    <i class="ph ph-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
+                                    <form action="{{ route('admin.catalog.variants.destroy', $variant) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this variant?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Variant">
+                                            <i class="ph ph-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" class="text-center text-muted">No variants found.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                {{ $variants->links() }}
             </div>
 
         </div>

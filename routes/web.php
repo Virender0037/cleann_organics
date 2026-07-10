@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -109,9 +110,15 @@ Route::prefix('admin')
                 Route::delete('/{product}', 'destroy')->name('destroy');
             });
             // Variants
-            Route::view('/variants', 'admin.catalog.variants.index')->name('variants.index');
-            Route::view('/variants/create', 'admin.catalog.variants.create')->name('variants.create');
-            Route::view('/variants/edit', 'admin.catalog.variants.edit')->name('variants.edit');
+            Route::prefix('variants')->name('variants.')->controller(ProductVariantController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{variant}/edit', 'edit')->name('edit');
+                Route::put('/{variant}', 'update')->name('update');
+                Route::delete('/{variant}', 'destroy')->name('destroy');
+                Route::delete('/{variant}/images/{image}', 'destroyImage')->name('images.destroy');
+            });
             // Reviews
             Route::view('/reviews', 'admin.catalog.reviews.index')->name('reviews.index');
             // Tax Rates
