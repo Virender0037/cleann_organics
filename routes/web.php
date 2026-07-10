@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\ReturnController;
 use App\Http\Controllers\Admin\SalesOrderController;
 use App\Http\Controllers\Admin\SalesPaymentController;
+use App\Http\Controllers\Admin\ShippingRateController;
+use App\Http\Controllers\Admin\ShippingZoneController;
 use App\Http\Controllers\Admin\TaxRateController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -196,17 +198,27 @@ Route::prefix('admin')
         // Shipping routes...
         Route::prefix('shipping')->name('shipping.')->group(function () {
             // Zones
-            Route::view('/zones', 'admin.shipping.zones.index')->name('zones.index');
-            Route::view('/zones/create', 'admin.shipping.zones.create')->name('zones.create');
-            Route::view('/zones/edit', 'admin.shipping.zones.edit')->name('zones.edit');
+            Route::prefix('zones')->name('zones.')->controller(ShippingZoneController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{zone}/edit', 'edit')->name('edit');
+                Route::put('/{zone}', 'update')->name('update');
+                Route::delete('/{zone}', 'destroy')->name('destroy');
+            });
             // Methods
             Route::view('/methods', 'admin.shipping.methods.index')->name('methods.index');
             Route::view('/methods/create', 'admin.shipping.methods.create')->name('methods.create');
             Route::view('/methods/edit', 'admin.shipping.methods.edit')->name('methods.edit');
             // Rates
-            Route::view('/rates', 'admin.shipping.rates.index')->name('rates.index');
-            Route::view('/rates/create', 'admin.shipping.rates.create')->name('rates.create');
-            Route::view('/rates/edit', 'admin.shipping.rates.edit')->name('rates.edit');
+            Route::prefix('rates')->name('rates.')->controller(ShippingRateController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{rate}/edit', 'edit')->name('edit');
+                Route::put('/{rate}', 'update')->name('update');
+                Route::delete('/{rate}', 'destroy')->name('destroy');
+            });
         });
 
         // CMS routes...

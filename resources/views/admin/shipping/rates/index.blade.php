@@ -29,27 +29,45 @@
 
             <div class="card-body">
 
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Search zone">
-                    </div>
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Zones</option>
-                            <option>Gujarat Zone</option>
-                            <option>Maharashtra Zone</option>
-                        </select>
-                    </div>
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>Active</option>
-                            <option>Inactive</option>
-                        </select>
+                <form method="GET" action="{{ route('admin.shipping.rates.index') }}">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search zone"
+                                   onchange="this.form.submit()">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="zone_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Zones</option>
+                                @foreach ($zones as $zoneOption)
+                                    <option value="{{ $zoneOption->id }}" @selected((int) request('zone_id') === $zoneOption->id)>
+                                        {{ $zoneOption->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Status</option>
+                                <option value="active" @selected(request('status') === 'active')>Active</option>
+                                <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -66,44 +84,44 @@
                         </thead>
 
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><strong>Gujarat Zone</strong></td>
-                                <td>0 kg - 2 kg</td>
-                                <td>₹50.00</td>
-                                <td>₹999.00</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <a href="{{ route('admin.shipping.rates.edit') }}" class="btn btn-sm btn-warning" title="Edit Rate">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
+                            @forelse ($rates as $rate)
+                                <tr>
+                                    <td>{{ $rate->id }}</td>
+                                    <td><strong>{{ $rate->zone->name ?? '—' }}</strong></td>
+                                    <td>{{ number_format((float) $rate->min_weight, 2) }} kg - {{ $rate->max_weight !== null ? number_format((float) $rate->max_weight, 2).' kg' : 'and above' }}</td>
+                                    <td>₹{{ number_format((float) $rate->shipping_charge, 2) }}</td>
+                                    <td>{{ $rate->free_shipping_above !== null ? '₹'.number_format((float) $rate->free_shipping_above, 2) : '—' }}</td>
+                                    <td>
+                                        <span class="badge {{ $rate->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                            {{ ucfirst($rate->status) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('admin.shipping.rates.edit', $rate) }}" class="btn btn-sm btn-warning" title="Edit Rate">
+                                            <i class="ph ph-pencil-simple"></i>
+                                        </a>
 
-                                    <button class="btn btn-sm btn-danger" title="Delete Rate">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>2</td>
-                                <td><strong>Maharashtra Zone</strong></td>
-                                <td>2 kg - 5 kg</td>
-                                <td>₹90.00</td>
-                                <td>₹1499.00</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <a href="{{ route('admin.shipping.rates.edit') }}" class="btn btn-sm btn-warning" title="Edit Rate">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger" title="Delete Rate">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                        <form action="{{ route('admin.shipping.rates.destroy', $rate) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this rate?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Rate">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No shipping rates found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
 
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $rates->links() }}
                 </div>
 
             </div>
