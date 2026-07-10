@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\TaxRateController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -127,9 +128,14 @@ Route::prefix('admin')
                 Route::delete('/{review}', 'destroy')->name('destroy');
             });
             // Tax Rates
-            Route::view('/tax-rates', 'admin.catalog.tax-rates.index')->name('tax-rates.index');
-            Route::view('/tax-rates/create', 'admin.catalog.tax-rates.create')->name('tax-rates.create');
-            Route::view('/tax-rates/edit', 'admin.catalog.tax-rates.edit')->name('tax-rates.edit');
+            Route::prefix('tax-rates')->name('tax-rates.')->controller(TaxRateController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{taxRate}/edit', 'edit')->name('edit');
+                Route::put('/{taxRate}', 'update')->name('update');
+                Route::delete('/{taxRate}', 'destroy')->name('destroy');
+            });
         });
         // Inventory routes...
         Route::prefix('inventory')->name('inventory.')->group(function () {

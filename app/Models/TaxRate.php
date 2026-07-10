@@ -8,12 +8,12 @@ class TaxRate extends Model
 {
     protected $fillable = [
         'name',
-        'rate',
+        'percentage',
         'status',
     ];
 
     protected $casts = [
-        'rate' => 'decimal:2',
+        'percentage' => 'decimal:2',
     ];
 
     public function products()

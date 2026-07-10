@@ -29,19 +29,34 @@
 
         <div class="card-body">
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="Search tax rate">
-                </div>
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
 
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            <form method="GET" action="{{ route('admin.catalog.tax-rates.index') }}">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="{{ request('search') }}"
+                               placeholder="Search tax rate"
+                               onchange="this.form.submit()">
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="active" @selected(request('status') === 'active')>Active</option>
+                            <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
+            </form>
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -57,86 +72,50 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>1</td>
+                        @forelse ($taxRates as $taxRate)
+                            <tr>
+                                <td>{{ $taxRate->id }}</td>
 
-                            <td>
-                                <strong>GST 5%</strong>
-                            </td>
+                                <td>
+                                    <strong>{{ $taxRate->name }}</strong>
+                                </td>
 
-                            <td>5.00%</td>
+                                <td>{{ number_format((float) $taxRate->percentage, 2) }}%</td>
 
-                            <td>
-                                <span class="badge bg-success">Active</span>
-                            </td>
+                                <td>
+                                    <span class="badge {{ $taxRate->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ ucfirst($taxRate->status) }}
+                                    </span>
+                                </td>
 
-                            <td>12</td>
+                                <td>{{ $taxRate->products_count }}</td>
 
-                            <td>
-                                <a href="{{ route('admin.catalog.tax-rates.edit') }}" class="btn btn-sm btn-info" title="Edit Tax Rate">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
+                                <td>
+                                    <a href="{{ route('admin.catalog.tax-rates.edit', $taxRate) }}" class="btn btn-sm btn-info" title="Edit Tax Rate">
+                                        <i class="ph ph-pencil-simple"></i>
+                                    </a>
 
-                                <a href="#" class="btn btn-sm btn-danger" title="Delete Tax Rate">
-                                    <i class="ph ph-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>2</td>
-
-                            <td>
-                                <strong>GST 12%</strong>
-                            </td>
-
-                            <td>12.00%</td>
-
-                            <td>
-                                <span class="badge bg-success">Active</span>
-                            </td>
-
-                            <td>8</td>
-
-                            <td>
-                                <a href="#" class="btn btn-sm btn-info" title="Edit Tax Rate">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-
-                                <a href="#" class="btn btn-sm btn-danger" title="Delete Tax Rate">
-                                    <i class="ph ph-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>3</td>
-
-                            <td>
-                                <strong>GST 18%</strong>
-                            </td>
-
-                            <td>18.00%</td>
-
-                            <td>
-                                <span class="badge bg-success">Active</span>
-                            </td>
-
-                            <td>5</td>
-
-                            <td>
-                                <a href="#" class="btn btn-sm btn-info" title="Edit Tax Rate">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-
-                                <a href="#" class="btn btn-sm btn-danger" title="Delete Tax Rate">
-                                    <i class="ph ph-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
+                                    <form action="{{ route('admin.catalog.tax-rates.destroy', $taxRate) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this tax rate?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Tax Rate">
+                                            <i class="ph ph-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No tax rates found.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
 
                 </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                {{ $taxRates->links() }}
             </div>
 
         </div>

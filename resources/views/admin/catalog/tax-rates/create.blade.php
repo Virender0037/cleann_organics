@@ -28,27 +28,30 @@
         </div>
 
         <div class="card-body">
-            <form action="#" method="POST">
+            <form action="{{ route('admin.catalog.tax-rates.store') }}" method="POST">
                 @csrf
 
                 <div class="row">
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Tax Name <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" placeholder="GST 5%">
+                        <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" placeholder="GST 5%">
+                        @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Rate (%) <span class="text-danger">*</span></label>
-                        <input type="number" step="0.01" name="rate" class="form-control" placeholder="5.00">
+                        <input type="number" step="0.01" min="0" max="100" name="percentage" class="form-control @error('percentage') is-invalid @enderror" value="{{ old('percentage') }}" placeholder="5.00">
+                        @error('percentage') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Status</label>
-                        <select name="status" class="form-select">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                        <select name="status" class="form-select @error('status') is-invalid @enderror">
+                            <option value="active" @selected(old('status', 'active') === 'active')>Active</option>
+                            <option value="inactive" @selected(old('status') === 'inactive')>Inactive</option>
                         </select>
+                        @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                 </div>
