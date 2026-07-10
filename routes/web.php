@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductVariantController;
@@ -138,10 +139,10 @@ Route::prefix('admin')
             });
         });
         // Inventory routes...
-        Route::prefix('inventory')->name('inventory.')->group(function () {
-            Route::view('/stock-levels', 'admin.inventory.stock-levels.index')->name('stock-levels.index');
-            Route::view('/low-stock', 'admin.inventory.low-stock.index')->name('low-stock.index');
-            Route::view('/out-of-stock', 'admin.inventory.out-of-stock.index')->name('out-of-stock.index');
+        Route::prefix('inventory')->name('inventory.')->controller(InventoryController::class)->group(function () {
+            Route::get('/stock-levels', 'stockLevels')->name('stock-levels.index');
+            Route::get('/low-stock', 'lowStock')->name('low-stock.index');
+            Route::get('/out-of-stock', 'outOfStock')->name('out-of-stock.index');
         });
         // Sales routes...
         Route::prefix('sales')->name('sales.')->group(function () {

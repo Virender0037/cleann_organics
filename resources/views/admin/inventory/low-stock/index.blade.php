@@ -29,19 +29,33 @@
 
         <div class="card-body">
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="Search product, variant or SKU">
-                </div>
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
 
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">All Products</option>
-                        <option>Organic Honey</option>
-                        <option>Cold Pressed Mustard Oil</option>
-                    </select>
+            <form method="GET" action="{{ route('admin.inventory.low-stock.index') }}">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="{{ request('search') }}"
+                               placeholder="Search product, variant or SKU"
+                               onchange="this.form.submit()">
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="product_id" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Products</option>
+                            @foreach ($products as $product)
+                                <option value="{{ $product->id }}" @selected((int) request('product_id') === $product->id)>
+                                    {{ $product->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
+            </form>
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -61,92 +75,60 @@
                     </thead>
 
                     <tbody>
-                        <tr class="table-warning">
-                            <td>1</td>
+                        @forelse ($variants as $variant)
+                            <tr class="table-warning">
+                                <td>{{ $variant->id }}</td>
 
-                            <td>
-                                <img src="https://placehold.co/50x50"
-                                     width="50"
-                                     height="50"
-                                     class="rounded"
-                                     alt="Product">
-                            </td>
+                                <td>
+                                    <img src="{{ $variant->primaryImage ? \Illuminate\Support\Facades\Storage::url($variant->primaryImage->image) : 'https://placehold.co/50x50' }}"
+                                         width="50"
+                                         height="50"
+                                         class="rounded"
+                                         alt="Product">
+                                </td>
 
-                            <td>
-                                <strong>Cold Pressed Mustard Oil</strong>
-                            </td>
+                                <td>
+                                    <strong>{{ $variant->product->name ?? '—' }}</strong>
+                                </td>
 
-                            <td>1 Litre</td>
+                                <td>{{ $variant->variant_name ?? '—' }}</td>
 
-                            <td>OIL-1L</td>
+                                <td>{{ $variant->sku ?? '—' }}</td>
 
-                            <td>
-                                <span class="fw-bold text-warning">4</span>
-                            </td>
+                                <td>
+                                    <span class="fw-bold text-warning">{{ $variant->stock_quantity }}</span>
+                                </td>
 
-                            <td>5</td>
+                                <td>{{ $variant->low_stock_quantity }}</td>
 
-                            <td>
-                                <span class="badge bg-warning">1 Required</span>
-                            </td>
+                                <td>
+                                    <span class="badge bg-warning">{{ $variant->low_stock_quantity - $variant->stock_quantity }} Required</span>
+                                </td>
 
-                            <td>
-                                <span class="badge bg-warning">Low Stock</span>
-                            </td>
+                                <td>
+                                    <span class="badge bg-warning">Low Stock</span>
+                                </td>
 
-                            <td>
-                                <a href="{{ route('admin.catalog.variants.edit') }}"
-                                   class="btn btn-sm btn-info"
-                                   title="Edit Variant">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-                            </td>
-                        </tr>
-
-                        <tr class="table-warning">
-                            <td>2</td>
-
-                            <td>
-                                <img src="https://placehold.co/50x50"
-                                     width="50"
-                                     height="50"
-                                     class="rounded"
-                                     alt="Product">
-                            </td>
-
-                            <td>
-                                <strong>Organic Honey</strong>
-                            </td>
-
-                            <td>1kg</td>
-
-                            <td>HON-1KG</td>
-
-                            <td>
-                                <span class="fw-bold text-warning">8</span>
-                            </td>
-
-                            <td>10</td>
-
-                            <td>
-                                <span class="badge bg-warning">2 Required</span>
-                            </td>
-
-                            <td>
-                                <span class="badge bg-warning">Low Stock</span>
-                            </td>
-
-                            <td>
-                                <a href="{{ route('admin.catalog.variants.edit') }}"
-                                   class="btn btn-sm btn-info"
-                                   title="Edit Variant">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-                            </td>
-                        </tr>
+                                <td>
+                                    <a href="{{ route('admin.catalog.variants.edit', $variant) }}"
+                                       class="btn btn-sm btn-info"
+                                       title="Edit Variant">
+                                        <i class="ph ph-pencil-simple"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" class="text-center text-muted">No low-stock variants found.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
 
                 </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                {{ $variants->links() }}
             </div>
 
         </div>

@@ -29,27 +29,41 @@
 
         <div class="card-body">
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="Search product, variant or SKU">
-                </div>
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
 
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">All Stock Status</option>
-                        <option value="in_stock">In Stock</option>
-                        <option value="out_of_stock">Out of Stock</option>
-                    </select>
-                </div>
+            <form method="GET" action="{{ route('admin.inventory.stock-levels.index') }}">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="{{ request('search') }}"
+                               placeholder="Search product, variant or SKU"
+                               onchange="this.form.submit()">
+                    </div>
 
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">All Products</option>
-                        <option>Organic Honey</option>
-                        <option>Cold Pressed Mustard Oil</option>
-                    </select>
+                    <div class="col-md-3">
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Stock Status</option>
+                            <option value="in_stock" @selected(request('status') === 'in_stock')>In Stock</option>
+                            <option value="out_of_stock" @selected(request('status') === 'out_of_stock')>Out of Stock</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="product_id" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Products</option>
+                            @foreach ($products as $product)
+                                <option value="{{ $product->id }}" @selected((int) request('product_id') === $product->id)>
+                                    {{ $product->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-            </div>
+            </form>
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -69,128 +83,70 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>1</td>
+                        @forelse ($variants as $variant)
+                            @php
+                                $isOutOfStock = $variant->stock_quantity == 0 || $variant->stock_status === 'out_of_stock';
+                                $isLowStock = ! $isOutOfStock && $variant->stock_quantity <= $variant->low_stock_quantity;
+                                $rowClass = $isOutOfStock ? 'table-danger' : ($isLowStock ? 'table-warning' : '');
+                                $stockTextClass = $isOutOfStock ? 'text-danger' : ($isLowStock ? 'text-warning' : 'text-success');
+                            @endphp
+                            <tr class="{{ $rowClass }}">
+                                <td>{{ $variant->id }}</td>
 
-                            <td>
-                                <img src="https://placehold.co/50x50"
-                                     width="50"
-                                     height="50"
-                                     class="rounded"
-                                     alt="Product">
-                            </td>
+                                <td>
+                                    <img src="{{ $variant->primaryImage ? \Illuminate\Support\Facades\Storage::url($variant->primaryImage->image) : 'https://placehold.co/50x50' }}"
+                                         width="50"
+                                         height="50"
+                                         class="rounded"
+                                         alt="Product">
+                                </td>
 
-                            <td>
-                                <strong>Organic Honey</strong>
-                            </td>
+                                <td>
+                                    <strong>{{ $variant->product->name ?? '—' }}</strong>
+                                </td>
 
-                            <td>500g</td>
+                                <td>{{ $variant->variant_name ?? '—' }}</td>
 
-                            <td>HON-500</td>
+                                <td>{{ $variant->sku ?? '—' }}</td>
 
-                            <td>
-                                <span class="fw-bold text-success">120</span>
-                            </td>
+                                <td>
+                                    <span class="fw-bold {{ $stockTextClass }}">{{ $variant->stock_quantity }}</span>
+                                </td>
 
-                            <td>10</td>
+                                <td>{{ $variant->low_stock_quantity }}</td>
 
-                            <td>
-                                <span class="badge bg-success">In Stock</span>
-                            </td>
+                                <td>
+                                    @if ($isOutOfStock)
+                                        <span class="badge bg-danger">Out of Stock</span>
+                                    @elseif ($isLowStock)
+                                        <span class="badge bg-warning">Low Stock</span>
+                                    @else
+                                        <span class="badge bg-success">In Stock</span>
+                                    @endif
+                                </td>
 
-                            <td>26 Jun 2026</td>
+                                <td>{{ $variant->updated_at->format('d M Y') }}</td>
 
-                            <td>
-                                <a href="{{ route('admin.catalog.variants.edit') }}"
-                                   class="btn btn-sm btn-info"
-                                   title="Edit Variant">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-                            </td>
-                        </tr>
-
-                        <tr class="table-warning">
-                            <td>2</td>
-
-                            <td>
-                                <img src="https://placehold.co/50x50"
-                                     width="50"
-                                     height="50"
-                                     class="rounded"
-                                     alt="Product">
-                            </td>
-
-                            <td>
-                                <strong>Cold Pressed Oil</strong>
-                            </td>
-
-                            <td>1 Litre</td>
-
-                            <td>OIL-1L</td>
-
-                            <td>
-                                <span class="fw-bold text-warning">4</span>
-                            </td>
-
-                            <td>5</td>
-
-                            <td>
-                                <span class="badge bg-warning">Low Stock</span>
-                            </td>
-
-                            <td>26 Jun 2026</td>
-
-                            <td>
-                                <a href="{{ route('admin.catalog.variants.edit') }}"
-                                   class="btn btn-sm btn-info"
-                                   title="Edit Variant">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-                            </td>
-                        </tr>
-
-                        <tr class="table-danger">
-                            <td>3</td>
-
-                            <td>
-                                <img src="https://placehold.co/50x50"
-                                     width="50"
-                                     height="50"
-                                     class="rounded"
-                                     alt="Product">
-                            </td>
-
-                            <td>
-                                <strong>Organic Jaggery</strong>
-                            </td>
-
-                            <td>1kg</td>
-
-                            <td>JAG-1KG</td>
-
-                            <td>
-                                <span class="fw-bold text-danger">0</span>
-                            </td>
-
-                            <td>5</td>
-
-                            <td>
-                                <span class="badge bg-danger">Out of Stock</span>
-                            </td>
-
-                            <td>26 Jun 2026</td>
-
-                            <td>
-                                <a href="{{ route('admin.catalog.variants.edit') }}"
-                                   class="btn btn-sm btn-info"
-                                   title="Edit Variant">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-                            </td>
-                        </tr>
+                                <td>
+                                    <a href="{{ route('admin.catalog.variants.edit', $variant) }}"
+                                       class="btn btn-sm btn-info"
+                                       title="Edit Variant">
+                                        <i class="ph ph-pencil-simple"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="10" class="text-center text-muted">No variants found.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
 
                 </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                {{ $variants->links() }}
             </div>
 
         </div>
