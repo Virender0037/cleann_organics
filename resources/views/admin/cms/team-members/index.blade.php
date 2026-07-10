@@ -28,19 +28,34 @@
 
             <div class="card-body">
 
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Search name or designation">
-                    </div>
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>Active</option>
-                            <option>Inactive</option>
-                        </select>
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+
+                <form method="GET" action="{{ route('admin.cms.team-members.index') }}">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search name or designation"
+                                   onchange="this.form.submit()">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Status</option>
+                                <option value="active" @selected(request('status') === 'active')>Active</option>
+                                <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -58,88 +73,62 @@
                         </thead>
 
                         <tbody>
-                            <tr>
-                                <td>1</td>
+                            @forelse ($teamMembers as $teamMember)
+                                <tr>
+                                    <td>{{ $teamMember->id }}</td>
 
-                                <td>
-                                    <img src="https://placehold.co/60x60"
-                                         class="rounded-circle border"
-                                         width="60"
-                                         height="60"
-                                         alt="Team Member">
-                                </td>
+                                    <td>
+                                        <img src="{{ $teamMember->image ? \Illuminate\Support\Facades\Storage::url($teamMember->image) : 'https://placehold.co/60x60' }}"
+                                             class="rounded-circle border"
+                                             width="60"
+                                             height="60"
+                                             alt="Team Member">
+                                    </td>
 
-                                <td>
-                                    <strong>Rahul Sharma</strong>
-                                    <br>
-                                    <small class="text-muted">Operations Team</small>
-                                </td>
+                                    <td>
+                                        <strong>{{ $teamMember->name }}</strong>
+                                    </td>
 
-                                <td>Operations Manager</td>
+                                    <td>{{ $teamMember->designation }}</td>
 
-                                <td>rahul@example.com</td>
+                                    <td>{{ $teamMember->email ?? '—' }}</td>
 
-                                <td>1</td>
+                                    <td>{{ $teamMember->sort_order }}</td>
 
-                                <td>
-                                    <span class="badge bg-success">Active</span>
-                                </td>
+                                    <td>
+                                        <span class="badge {{ $teamMember->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                            {{ ucfirst($teamMember->status) }}
+                                        </span>
+                                    </td>
 
-                                <td>
-                                    <a href="{{ route('admin.cms.team-members.edit') }}"
-                                       class="btn btn-sm btn-warning"
-                                       title="Edit Team Member">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
+                                    <td>
+                                        <a href="{{ route('admin.cms.team-members.edit', $teamMember) }}"
+                                           class="btn btn-sm btn-warning"
+                                           title="Edit Team Member">
+                                            <i class="ph ph-pencil-simple"></i>
+                                        </a>
 
-                                    <button class="btn btn-sm btn-danger" title="Delete Team Member">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>2</td>
-
-                                <td>
-                                    <img src="https://placehold.co/60x60"
-                                         class="rounded-circle border"
-                                         width="60"
-                                         height="60"
-                                         alt="Team Member">
-                                </td>
-
-                                <td>
-                                    <strong>Priya Patel</strong>
-                                    <br>
-                                    <small class="text-muted">Marketing Team</small>
-                                </td>
-
-                                <td>Marketing Head</td>
-
-                                <td>priya@example.com</td>
-
-                                <td>2</td>
-
-                                <td>
-                                    <span class="badge bg-success">Active</span>
-                                </td>
-
-                                <td>
-                                    <a href="{{ route('admin.cms.team-members.edit') }}"
-                                       class="btn btn-sm btn-warning"
-                                       title="Edit Team Member">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger" title="Delete Team Member">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                        <form action="{{ route('admin.cms.team-members.destroy', $teamMember) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this team member?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Team Member">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">No team members found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
 
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $teamMembers->links() }}
                 </div>
 
             </div>
