@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\SalesOrderController;
+use App\Http\Controllers\Admin\SalesPaymentController;
 use App\Http\Controllers\Admin\TaxRateController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -149,10 +151,10 @@ Route::prefix('admin')
         });
         // Sales routes...
         Route::prefix('sales')->name('sales.')->group(function () {
-            Route::view('/orders', 'admin.sales.orders.index')->name('orders.index');
-            Route::view('/orders/show', 'admin.sales.orders.show')->name('orders.show');
-            Route::view('/payments', 'admin.sales.payments.index')->name('payments.index');
-            Route::view('/payments/show', 'admin.sales.payments.show')->name('payments.show');
+            Route::get('/orders', [SalesOrderController::class, 'index'])->name('orders.index');
+            Route::get('/orders/{order}', [SalesOrderController::class, 'show'])->name('orders.show');
+            Route::get('/payments', [SalesPaymentController::class, 'index'])->name('payments.index');
+            Route::get('/payments/{payment}', [SalesPaymentController::class, 'show'])->name('payments.show');
             Route::view('/coupons', 'admin.sales.coupons.index')->name('coupons.index');
             Route::view('/coupons/create', 'admin.sales.coupons.create')->name('coupons.create');
             Route::view('/coupons/edit', 'admin.sales.coupons.edit')->name('coupons.edit');

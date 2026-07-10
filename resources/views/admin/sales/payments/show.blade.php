@@ -38,47 +38,52 @@
 
                             <div class="col-md-6 mb-3">
                                 <label class="text-muted">Transaction ID</label>
-                                <p class="fw-bold mb-0">TXN458965214</p>
+                                <p class="fw-bold mb-0">{{ $payment->transaction_id ?? '—' }}</p>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="text-muted">Order Number</label>
-                                <p class="fw-bold mb-0">#ORD-1001</p>
+                                <p class="fw-bold mb-0">#{{ $payment->order->order_number ?? '—' }}</p>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="text-muted">Payment Method</label>
                                 <p class="mb-0">
-                                    <span class="badge bg-primary">Razorpay</span>
+                                    <span class="badge bg-info">{{ strtoupper($payment->payment_method) }}</span>
                                 </p>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="text-muted">Payment Status</label>
                                 <p class="mb-0">
-                                    <span class="badge bg-success">Paid</span>
+                                    @php
+                                        $statusBadge = match ($payment->status) {
+                                            'paid' => 'bg-success',
+                                            'failed' => 'bg-danger',
+                                            'refunded' => 'bg-secondary',
+                                            default => 'bg-warning text-dark',
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $statusBadge }}">{{ ucfirst($payment->status) }}</span>
                                 </p>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="text-muted">Amount</label>
-                                <p class="fw-bold mb-0">₹1,250.00</p>
+                                <p class="fw-bold mb-0">₹{{ number_format((float) $payment->amount, 2) }}</p>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="text-muted">Paid At</label>
-                                <p class="mb-0">26 Jun 2026, 10:45 AM</p>
+                                <p class="mb-0">{{ $payment->paid_at ? $payment->paid_at->format('d M Y, h:i A') : '—' }}</p>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="text-muted">Gateway Reference</label>
-                                <p class="mb-0">pay_NhT8bC1245</p>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="text-muted">Currency</label>
-                                <p class="mb-0">INR</p>
-                            </div>
+                            @if ($payment->admin_note)
+                                <div class="col-md-12 mb-3">
+                                    <label class="text-muted">Admin Note</label>
+                                    <p class="mb-0">{{ $payment->admin_note }}</p>
+                                </div>
+                            @endif
 
                         </div>
                     </div>
@@ -90,13 +95,7 @@
                     </div>
 
                     <div class="card-body">
-                        <pre class="bg-light p-3 rounded mb-0">{
-  "status": "captured",
-  "method": "upi",
-  "bank": "HDFC",
-  "vpa": "rahul@upi",
-  "response_code": "SUCCESS"
-}</pre>
+                        <p class="text-muted mb-0">Not available — this system doesn't record raw gateway response payloads.</p>
                     </div>
                 </div>
 
@@ -110,9 +109,9 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-1"><strong>Rahul Sharma</strong></p>
-                        <p class="mb-1">rahul@email.com</p>
-                        <p class="mb-0">+91 9876543210</p>
+                        <p class="mb-1"><strong>{{ $payment->order->user->name ?? '—' }}</strong></p>
+                        <p class="mb-1">{{ $payment->order->user->email ?? '—' }}</p>
+                        <p class="mb-0">{{ $payment->order->user->phone ?? '—' }}</p>
                     </div>
                 </div>
 
@@ -124,17 +123,17 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Order Total</span>
-                            <strong>₹1,250.00</strong>
+                            <strong>₹{{ number_format((float) ($payment->order->grand_total ?? 0), 2) }}</strong>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
-                            <span>Payment Received</span>
-                            <strong class="text-success">₹1,250.00</strong>
+                            <span>Payment Recorded</span>
+                            <strong class="text-success">₹{{ number_format((float) $payment->amount, 2) }}</strong>
                         </div>
 
                         <div class="d-flex justify-content-between">
                             <span>Balance</span>
-                            <strong>₹0.00</strong>
+                            <strong>₹{{ number_format((float) (($payment->order->grand_total ?? 0) - $payment->amount), 2) }}</strong>
                         </div>
                     </div>
                 </div>
@@ -145,17 +144,17 @@
                     </div>
 
                     <div class="card-body d-grid gap-2">
-                        <button class="btn btn-light-primary">
+                        <button class="btn btn-light-primary" disabled>
                             <i class="ph ph-download-simple me-1"></i>
                             Download Receipt
                         </button>
 
-                        <button class="btn btn-light-secondary">
+                        <button class="btn btn-light-secondary" disabled>
                             <i class="ph ph-printer me-1"></i>
                             Print Receipt
                         </button>
 
-                        <button class="btn btn-light-danger">
+                        <button class="btn btn-light-danger" disabled>
                             <i class="ph ph-arrow-counter-clockwise me-1"></i>
                             Refund Payment
                         </button>

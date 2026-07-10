@@ -29,33 +29,47 @@
 
         <div class="card-body">
 
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="Search order number or customer">
-                </div>
+            <form method="GET" action="{{ route('admin.sales.orders.index') }}">
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="{{ request('search') }}"
+                               placeholder="Search order number or customer">
+                    </div>
 
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">All Order Status</option>
-                        <option>Pending</option>
-                        <option>Confirmed</option>
-                        <option>Packed</option>
-                        <option>Shipped</option>
-                        <option>Delivered</option>
-                        <option>Cancelled</option>
-                    </select>
-                </div>
+                    <div class="col-md-2">
+                        <select name="order_status" class="form-select">
+                            <option value="">All Order Status</option>
+                            @foreach (['pending' => 'Pending', 'confirmed' => 'Confirmed', 'packed' => 'Packed', 'shipped' => 'Shipped', 'delivered' => 'Delivered', 'cancelled' => 'Cancelled'] as $value => $label)
+                                <option value="{{ $value }}" @selected(request('order_status') === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option value="">All Payment Status</option>
-                        <option>Pending</option>
-                        <option>Paid</option>
-                        <option>Failed</option>
-                        <option>Refunded</option>
-                    </select>
+                    <div class="col-md-2">
+                        <select name="payment_status" class="form-select">
+                            <option value="">All Payment Status</option>
+                            @foreach (['pending' => 'Pending', 'paid' => 'Paid', 'failed' => 'Failed', 'refunded' => 'Refunded'] as $value => $label)
+                                <option value="{{ $value }}" @selected(request('payment_status') === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <input type="date" name="from" class="form-control" value="{{ request('from') }}" title="From date">
+                    </div>
+
+                    <div class="col-md-2">
+                        <input type="date" name="to" class="form-control" value="{{ request('to') }}" title="To date">
+                    </div>
+
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary w-100">Go</button>
+                    </div>
                 </div>
-            </div>
+            </form>
 
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -73,100 +87,80 @@
                     </thead>
 
                     <tbody>
-                        <tr>
-                            <td>1</td>
+                        @forelse ($orders as $order)
+                            <tr>
+                                <td>{{ $order->id }}</td>
 
-                            <td>
-                                <strong>#ORD-1001</strong>
-                            </td>
+                                <td>
+                                    <strong>#{{ $order->order_number }}</strong>
+                                </td>
 
-                            <td>
-                                Rahul Sharma
-                                <br>
-                                <small class="text-muted">rahul@email.com</small>
-                            </td>
+                                <td>
+                                    {{ $order->user->name ?? '—' }}
+                                    <br>
+                                    <small class="text-muted">{{ $order->user->email ?? '' }}</small>
+                                </td>
 
-                            <td>₹1,250.00</td>
+                                <td>₹{{ number_format((float) $order->grand_total, 2) }}</td>
 
-                            <td>
-                                <span class="badge bg-success">Paid</span>
-                                <br>
-                                <small class="text-muted">UPI</small>
-                            </td>
+                                <td>
+                                    @php
+                                        $paymentBadge = match ($order->payment_status) {
+                                            'paid' => 'bg-success',
+                                            'failed' => 'bg-danger',
+                                            'refunded' => 'bg-secondary',
+                                            default => 'bg-warning',
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $paymentBadge }}">{{ ucfirst($order->payment_status) }}</span>
+                                    <br>
+                                    <small class="text-muted">{{ strtoupper($order->payment_method) }}</small>
+                                </td>
 
-                            <td>
-                                <span class="badge bg-primary">Confirmed</span>
-                            </td>
+                                <td>
+                                    @php
+                                        $statusBadge = match ($order->order_status) {
+                                            'delivered' => 'bg-success',
+                                            'cancelled' => 'bg-danger',
+                                            'pending' => 'bg-warning',
+                                            default => 'bg-primary',
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $statusBadge }}">{{ ucfirst($order->order_status) }}</span>
+                                </td>
 
-                            <td>26 Jun 2026</td>
+                                <td>{{ $order->created_at->format('d M Y') }}</td>
 
-                            <td>
-                                <a href="{{ route('admin.sales.orders.show') }}"
-                                class="btn btn-sm btn-info"
-                                title="View Order">
-                                    <i class="ph ph-eye"></i>
-                                </a>
+                                <td>
+                                    <a href="{{ route('admin.sales.orders.show', $order) }}"
+                                    class="btn btn-sm btn-info"
+                                    title="View Order">
+                                        <i class="ph ph-eye"></i>
+                                    </a>
 
-                                <button class="btn btn-sm btn-success"
-                                        title="Print Invoice">
-                                    <i class="ph ph-printer"></i>
-                                </button>
+                                    <button class="btn btn-sm btn-success"
+                                            title="Print Invoice" disabled>
+                                        <i class="ph ph-printer"></i>
+                                    </button>
 
-                                <button class="btn btn-sm btn-warning"
-                                        title="Update Status">
-                                    <i class="ph ph-arrows-clockwise"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>2</td>
-
-                            <td>
-                                <strong>#ORD-1002</strong>
-                            </td>
-
-                            <td>
-                                Amit Verma
-                                <br>
-                                <small class="text-muted">amit@email.com</small>
-                            </td>
-
-                            <td>₹799.00</td>
-
-                            <td>
-                                <span class="badge bg-warning">Pending</span>
-                                <br>
-                                <small class="text-muted">COD</small>
-                            </td>
-
-                            <td>
-                                <span class="badge bg-warning">Pending</span>
-                            </td>
-
-                            <td>26 Jun 2026</td>
-
-                            <td>
-                               <a href="{{ route('admin.sales.orders.show') }}"
-                                class="btn btn-sm btn-info"
-                                title="View Order">
-                                    <i class="ph ph-eye"></i>
-                                </a>
-
-                                <button class="btn btn-sm btn-success"
-                                        title="Print Invoice">
-                                    <i class="ph ph-printer"></i>
-                                </button>
-
-                                <button class="btn btn-sm btn-warning"
-                                        title="Update Status">
-                                    <i class="ph ph-arrows-clockwise"></i>
-                                </button>
-                            </td>
-                        </tr>
+                                    <button class="btn btn-sm btn-warning"
+                                            title="Update Status" disabled>
+                                        <i class="ph ph-arrows-clockwise"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No orders found.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
 
                 </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                {{ $orders->links() }}
             </div>
 
         </div>

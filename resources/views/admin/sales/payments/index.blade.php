@@ -32,43 +32,45 @@
 
             <div class="card-body">
 
-                <div class="row mb-4">
+                <form method="GET" action="{{ route('admin.sales.payments.index') }}">
+                    <div class="row mb-4">
 
-                    <div class="col-md-4">
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Search Order / Customer / Transaction">
+                        <div class="col-md-4">
+                            <input
+                                type="text"
+                                name="search"
+                                class="form-control"
+                                value="{{ request('search') }}"
+                                placeholder="Search Order / Customer / Transaction">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="payment_method" class="form-select">
+                                <option value="">All Payment Methods</option>
+                                <option value="upi" @selected(request('payment_method') === 'upi')>UPI</option>
+                                <option value="cod" @selected(request('payment_method') === 'cod')>COD</option>
+                                <option value="bank_transfer" @selected(request('payment_method') === 'bank_transfer')>Bank Transfer</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="paid" @selected(request('status') === 'paid')>Paid</option>
+                                <option value="pending" @selected(request('status') === 'pending')>Pending</option>
+                                <option value="failed" @selected(request('status') === 'failed')>Failed</option>
+                                <option value="refunded" @selected(request('status') === 'refunded')>Refunded</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                Search
+                            </button>
+                        </div>
+
                     </div>
-
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Payment Methods</option>
-                            <option>Razorpay</option>
-                            <option>Stripe</option>
-                            <option>UPI</option>
-                            <option>COD</option>
-                            <option>Cashfree</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>Paid</option>
-                            <option>Pending</option>
-                            <option>Failed</option>
-                            <option>Refunded</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-2">
-                        <button class="btn btn-primary w-100">
-                            Search
-                        </button>
-                    </div>
-
-                </div>
+                </form>
 
                 <div class="table-responsive">
 
@@ -92,174 +94,90 @@
 
                         <tbody>
 
-                            <tr>
+                            @forelse ($payments as $payment)
+                                <tr>
 
-                                <td>1</td>
+                                    <td>{{ $payment->id }}</td>
 
-                                <td>
-                                    <strong>#ORD-1001</strong>
-                                </td>
+                                    <td>
+                                        <strong>#{{ $payment->order->order_number ?? '—' }}</strong>
+                                    </td>
 
-                                <td>
-                                    Rahul Sharma
-                                    <br>
-                                    <small class="text-muted">
-                                        rahul@email.com
-                                    </small>
-                                </td>
+                                    <td>
+                                        {{ $payment->order->user->name ?? '—' }}
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ $payment->order->user->email ?? '' }}
+                                        </small>
+                                    </td>
 
-                                <td>
-                                    TXN458965214
-                                </td>
+                                    <td>
+                                        {{ $payment->transaction_id ?? '—' }}
+                                    </td>
 
-                                <td>
-                                    <span class="badge bg-primary">
-                                        Razorpay
-                                    </span>
-                                </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ strtoupper($payment->payment_method) }}
+                                        </span>
+                                    </td>
 
-                                <td>
-                                    ₹1,250.00
-                                </td>
+                                    <td>
+                                        ₹{{ number_format((float) $payment->amount, 2) }}
+                                    </td>
 
-                                <td>
-                                    <span class="badge bg-success">
-                                        Paid
-                                    </span>
-                                </td>
+                                    <td>
+                                        @php
+                                            $statusBadge = match ($payment->status) {
+                                                'paid' => 'bg-success',
+                                                'failed' => 'bg-danger',
+                                                'refunded' => 'bg-secondary',
+                                                default => 'bg-warning text-dark',
+                                            };
+                                        @endphp
+                                        <span class="badge {{ $statusBadge }}">
+                                            {{ ucfirst($payment->status) }}
+                                        </span>
+                                    </td>
 
-                                <td>
-                                    26 Jun 2026
-                                    <br>
-                                    <small class="text-muted">
-                                        10:45 AM
-                                    </small>
-                                </td>
+                                    <td>
+                                        @if ($payment->paid_at)
+                                            {{ $payment->paid_at->format('d M Y') }}
+                                            <br>
+                                            <small class="text-muted">{{ $payment->paid_at->format('h:i A') }}</small>
+                                        @else
+                                            --
+                                        @endif
+                                    </td>
 
-                                <td>
+                                    <td>
 
-                                    <a href="{{ route('admin.sales.payments.show') }}"
-                                    class="btn btn-info btn-sm"
-                                    title="View Payment">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
+                                        <a href="{{ route('admin.sales.payments.show', $payment) }}"
+                                        class="btn btn-info btn-sm"
+                                        title="View Payment">
+                                            <i class="ph ph-eye"></i>
+                                        </a>
 
-                                    <button class="btn btn-success btn-sm" title="Download Receipt">
-                                        <i class="ph ph-download-simple"></i>
-                                    </button>
+                                        <button class="btn btn-success btn-sm" title="Download Receipt" disabled>
+                                            <i class="ph ph-download-simple"></i>
+                                        </button>
 
-                                </td>
+                                    </td>
 
-                            </tr>
-
-                            <tr>
-
-                                <td>2</td>
-
-                                <td>
-                                    <strong>#ORD-1002</strong>
-                                </td>
-
-                                <td>
-                                    Amit Verma
-                                    <br>
-                                    <small class="text-muted">
-                                        amit@email.com
-                                    </small>
-                                </td>
-
-                                <td>
-                                    TXN458965215
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-warning text-dark">
-                                        COD
-                                    </span>
-                                </td>
-
-                                <td>
-                                    ₹799.00
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-warning text-dark">
-                                        Pending
-                                    </span>
-                                </td>
-
-                                <td>
-                                    --
-                                </td>
-
-                                <td>
-
-                                    <a href="{{ route('admin.sales.payments.show') }}"
-                                    class="btn btn-info btn-sm"
-                                    title="View Payment">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <td>3</td>
-
-                                <td>
-                                    <strong>#ORD-1003</strong>
-                                </td>
-
-                                <td>
-                                    Priya Patel
-                                    <br>
-                                    <small class="text-muted">
-                                        priya@email.com
-                                    </small>
-                                </td>
-
-                                <td>
-                                    TXN458965216
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-info">
-                                        UPI
-                                    </span>
-                                </td>
-
-                                <td>
-                                    ₹2,350.00
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-danger">
-                                        Failed
-                                    </span>
-                                </td>
-
-                                <td>
-                                    25 Jun 2026
-                                </td>
-
-                                <td>
-
-                                    <a href="{{ route('admin.sales.payments.show') }}"
-                                    class="btn btn-info btn-sm"
-                                    title="View Payment">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
-
-                                </td>
-
-                            </tr>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">No payments found.</td>
+                                </tr>
+                            @endforelse
 
                         </tbody>
 
                     </table>
 
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $payments->links() }}
                 </div>
 
             </div>

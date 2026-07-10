@@ -3,22 +3,22 @@
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h4 class="mb-1">Order #ORD-1001</h4>
+                <h4 class="mb-1">Order #{{ $order->order_number }}</h4>
                 <p class="text-muted mb-0">Complete order details and activity</p>
             </div>
 
             <div>
-                <button class="btn btn-light-secondary me-2">
+                <button class="btn btn-light-secondary me-2" disabled>
                     <i class="ph ph-download-simple me-1"></i>
                     Invoice
                 </button>
 
-                <button class="btn btn-success me-2">
+                <button class="btn btn-success me-2" disabled>
                     <i class="ph ph-printer me-1"></i>
                     Print
                 </button>
 
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" disabled>
                     <i class="ph ph-arrows-clockwise me-1"></i>
                     Update Status
                 </button>
@@ -45,37 +45,38 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="d-flex justify-content-between text-center">
-                            <div>
-                                <span class="badge bg-success rounded-pill mb-2">✓</span>
-                                <p class="mb-0 fw-bold">Placed</p>
-                                <small>25 Jun 2026</small>
+                        @if ($order->order_status === 'cancelled')
+                            <p class="text-danger mb-0">
+                                <strong>Order Cancelled</strong>
+                                @if ($order->cancelled_at)
+                                    — {{ $order->cancelled_at->format('d M Y, h:i A') }}
+                                @endif
+                            </p>
+                            @if ($order->cancellation_reason)
+                                <p class="text-muted mb-0 mt-2">{{ $order->cancellation_reason }}</p>
+                            @endif
+                        @else
+                            @php
+                                $stages = [
+                                    'Placed' => $order->created_at,
+                                    'Confirmed' => $order->confirmed_at,
+                                    'Packed' => $order->packed_at,
+                                    'Shipped' => $order->shipped_at,
+                                    'Delivered' => $order->delivered_at,
+                                ];
+                            @endphp
+                            <div class="d-flex justify-content-between text-center">
+                                @foreach ($stages as $label => $timestamp)
+                                    <div>
+                                        <span class="badge {{ $timestamp ? 'bg-success' : 'bg-light text-dark' }} rounded-pill mb-2">
+                                            {{ $timestamp ? '✓' : '○' }}
+                                        </span>
+                                        <p class="mb-0 fw-bold">{{ $label }}</p>
+                                        <small>{{ $timestamp ? $timestamp->format('d M Y') : 'Pending' }}</small>
+                                    </div>
+                                @endforeach
                             </div>
-
-                            <div>
-                                <span class="badge bg-success rounded-pill mb-2">✓</span>
-                                <p class="mb-0 fw-bold">Confirmed</p>
-                                <small>25 Jun 2026</small>
-                            </div>
-
-                            <div>
-                                <span class="badge bg-success rounded-pill mb-2">✓</span>
-                                <p class="mb-0 fw-bold">Packed</p>
-                                <small>26 Jun 2026</small>
-                            </div>
-
-                            <div>
-                                <span class="badge bg-primary rounded-pill mb-2">●</span>
-                                <p class="mb-0 fw-bold">Shipped</p>
-                                <small>26 Jun 2026</small>
-                            </div>
-
-                            <div>
-                                <span class="badge bg-light text-dark rounded-pill mb-2">○</span>
-                                <p class="mb-0 fw-bold">Delivered</p>
-                                <small>Pending</small>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -100,29 +101,23 @@
                                 </thead>
 
                                 <tbody>
-                                    <tr>
-                                        <td>
-                                            <strong>Organic Honey</strong>
-                                        </td>
-                                        <td>500g</td>
-                                        <td>HON-500</td>
-                                        <td>2</td>
-                                        <td>₹299.00</td>
-                                        <td>₹30.00</td>
-                                        <td>₹598.00</td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                            <strong>Cold Pressed Mustard Oil</strong>
-                                        </td>
-                                        <td>1 Litre</td>
-                                        <td>OIL-1L</td>
-                                        <td>1</td>
-                                        <td>₹650.00</td>
-                                        <td>₹32.00</td>
-                                        <td>₹650.00</td>
-                                    </tr>
+                                    @forelse ($order->items as $item)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $item->product_name }}</strong>
+                                            </td>
+                                            <td>{{ $item->variant_size ?? $item->variant_color ?? $item->variant_pack_quantity ?? '—' }}</td>
+                                            <td>{{ $item->variant_sku ?? '—' }}</td>
+                                            <td>{{ $item->quantity }}</td>
+                                            <td>₹{{ number_format((float) $item->unit_price, 2) }}</td>
+                                            <td>₹{{ number_format((float) $item->tax_amount, 2) }}</td>
+                                            <td>₹{{ number_format((float) $item->total_price, 2) }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted">No items on this order.</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -138,11 +133,15 @@
                             </div>
 
                             <div class="card-body">
-                                <p><strong>Payment Method:</strong> UPI</p>
-                                <p><strong>Transaction ID:</strong> TXN123456789</p>
-                                <p><strong>Amount:</strong> ₹1,260.00</p>
-                                <p><strong>Status:</strong> <span class="badge bg-success">Paid</span></p>
-                                <p class="mb-0"><strong>Paid At:</strong> 25 Jun 2026, 09:16 AM</p>
+                                @if ($order->payment)
+                                    <p><strong>Payment Method:</strong> {{ strtoupper($order->payment->payment_method) }}</p>
+                                    <p><strong>Transaction ID:</strong> {{ $order->payment->transaction_id ?? '—' }}</p>
+                                    <p><strong>Amount:</strong> ₹{{ number_format((float) $order->payment->amount, 2) }}</p>
+                                    <p><strong>Status:</strong> <span class="badge {{ $order->payment->status === 'paid' ? 'bg-success' : 'bg-warning' }}">{{ ucfirst($order->payment->status) }}</span></p>
+                                    <p class="mb-0"><strong>Paid At:</strong> {{ $order->payment->paid_at ? $order->payment->paid_at->format('d M Y, h:i A') : '—' }}</p>
+                                @else
+                                    <p class="text-muted mb-0">No payment record found.</p>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -154,11 +153,7 @@
                             </div>
 
                             <div class="card-body">
-                                <p><strong>Courier:</strong> Delhivery</p>
-                                <p><strong>Tracking No:</strong> DL123456789IN</p>
-                                <p><strong>AWB:</strong> AWB987654321</p>
-                                <p><strong>Dispatch Date:</strong> 26 Jun 2026</p>
-                                <p class="mb-0"><strong>Status:</strong> <span class="badge bg-primary">Shipped</span></p>
+                                <p class="text-muted mb-0">Not available — no shipment tracking is recorded for orders in this system yet.</p>
                             </div>
                         </div>
                     </div>
@@ -171,17 +166,11 @@
                     </div>
 
                     <div class="card-body">
-                        <textarea class="form-control mb-3" rows="4" placeholder="Add internal note"></textarea>
-
-                        <button class="btn btn-primary">
-                            <i class="ph ph-plus me-1"></i>
-                            Add Note
-                        </button>
-
-                        <hr>
-
-                        <p class="mb-1"><strong>Admin:</strong> Customer requested fast delivery.</p>
-                        <small class="text-muted">26 Jun 2026, 10:30 AM</small>
+                        @if ($order->notes)
+                            <p class="mb-0">{{ $order->notes }}</p>
+                        @else
+                            <p class="text-muted mb-0">No notes on this order.</p>
+                        @endif
                     </div>
                 </div>
 
@@ -191,32 +180,7 @@
                     </div>
 
                     <div class="card-body">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Subject</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                <tr>
-                                    <td>25 Jun 2026</td>
-                                    <td>Email</td>
-                                    <td>Order Confirmation Sent</td>
-                                    <td><span class="badge bg-success">Sent</span></td>
-                                </tr>
-
-                                <tr>
-                                    <td>26 Jun 2026</td>
-                                    <td>SMS</td>
-                                    <td>Shipment Update Sent</td>
-                                    <td><span class="badge bg-success">Sent</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <p class="text-muted mb-0">Not available — no communication log is recorded for orders in this system yet.</p>
                     </div>
                 </div>
 
@@ -232,29 +196,29 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal</span>
-                            <strong>₹1,248.00</strong>
+                            <strong>₹{{ number_format((float) $order->subtotal, 2) }}</strong>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Discount</span>
-                            <strong class="text-success">-₹100.00</strong>
+                            <strong class="text-success">-₹{{ number_format((float) $order->discount_amount, 2) }}</strong>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Shipping</span>
-                            <strong>₹50.00</strong>
+                            <strong>₹{{ number_format((float) $order->shipping_amount, 2) }}</strong>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Tax</span>
-                            <strong>₹62.00</strong>
+                            <strong>₹{{ number_format((float) $order->tax_amount, 2) }}</strong>
                         </div>
 
                         <hr>
 
                         <div class="d-flex justify-content-between">
                             <h5>Total</h5>
-                            <h5>₹1,260.00</h5>
+                            <h5>₹{{ number_format((float) $order->grand_total, 2) }}</h5>
                         </div>
                     </div>
                 </div>
@@ -265,39 +229,28 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-1"><strong>Rahul Sharma</strong></p>
-                        <p class="mb-1">rahul@email.com</p>
-                        <p class="mb-0">+91 9876543210</p>
+                        <p class="mb-1"><strong>{{ $order->user->name ?? '—' }}</strong></p>
+                        <p class="mb-1">{{ $order->user->email ?? '—' }}</p>
+                        <p class="mb-0">{{ $order->user->phone ?? '—' }}</p>
                     </div>
                 </div>
 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5>Shipping Address</h5>
+                        <h5>{{ $order->address && $order->address->type === 'billing' ? 'Billing Address' : 'Delivery Address' }}</h5>
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-0">
-                            Rahul Sharma<br>
-                            101, ABC Apartment<br>
-                            Ahmedabad, Gujarat<br>
-                            India - 380015
-                        </p>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Billing Address</h5>
-                    </div>
-
-                    <div class="card-body">
-                        <p class="mb-0">
-                            Rahul Sharma<br>
-                            101, ABC Apartment<br>
-                            Ahmedabad, Gujarat<br>
-                            India - 380015
-                        </p>
+                        @if ($order->address)
+                            <p class="mb-0">
+                                {{ $order->address->name }}<br>
+                                {{ $order->address->address_line_1 }}@if ($order->address->address_line_2), {{ $order->address->address_line_2 }}@endif<br>
+                                {{ $order->address->city }}, {{ $order->address->state }}<br>
+                                {{ $order->address->country }} - {{ $order->address->pincode }}
+                            </p>
+                        @else
+                            <p class="text-muted mb-0">No address on file for this order.</p>
+                        @endif
                     </div>
                 </div>
 
@@ -306,21 +259,27 @@
                         <h5>Documents</h5>
                     </div>
 
-                    <div class="card-body d-grid gap-2">
-                        <button class="btn btn-light-primary">
-                            <i class="ph ph-file-pdf me-1"></i>
-                            Download Invoice
-                        </button>
+                    <div class="card-body">
+                        <p class="mb-3">
+                            <strong>Invoice Number:</strong> {{ $order->invoice_number ?? '—' }}<br>
+                            <strong>Invoice Date:</strong> {{ $order->invoice_date ? $order->invoice_date->format('d M Y') : '—' }}
+                        </p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-light-primary" disabled>
+                                <i class="ph ph-file-pdf me-1"></i>
+                                Download Invoice
+                            </button>
 
-                        <button class="btn btn-light-secondary">
-                            <i class="ph ph-package me-1"></i>
-                            Packing Slip
-                        </button>
+                            <button class="btn btn-light-secondary" disabled>
+                                <i class="ph ph-package me-1"></i>
+                                Packing Slip
+                            </button>
 
-                        <button class="btn btn-light-secondary">
-                            <i class="ph ph-truck me-1"></i>
-                            Shipping Label
-                        </button>
+                            <button class="btn btn-light-secondary" disabled>
+                                <i class="ph ph-truck me-1"></i>
+                                Shipping Label
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -330,7 +289,15 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="text-muted mb-0">No return or refund request found.</p>
+                        @forelse ($order->returns as $return)
+                            <p class="{{ ! $loop->last ? 'border-bottom pb-2 mb-2' : 'mb-0' }}">
+                                <strong>#{{ $return->return_number }}</strong> —
+                                <span class="badge bg-secondary">{{ ucfirst($return->status) }}</span><br>
+                                <small class="text-muted">Refund: ₹{{ number_format((float) $return->refund_amount, 2) }}</small>
+                            </p>
+                        @empty
+                            <p class="text-muted mb-0">No return or refund request found.</p>
+                        @endforelse
                     </div>
                 </div>
 
@@ -340,18 +307,7 @@
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-1"><strong>Order Created</strong></p>
-                        <small class="text-muted">25 Jun 2026, 09:15 AM</small>
-
-                        <hr>
-
-                        <p class="mb-1"><strong>Status changed to Confirmed</strong></p>
-                        <small class="text-muted">25 Jun 2026, 10:02 AM</small>
-
-                        <hr>
-
-                        <p class="mb-1"><strong>Status changed to Shipped</strong></p>
-                        <small class="text-muted">26 Jun 2026, 09:10 AM</small>
+                        <p class="text-muted mb-0">Not available — no activity log is recorded for orders in this system yet.</p>
                     </div>
                 </div>
 

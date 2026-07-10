@@ -137,7 +137,7 @@
                                         </td>
                                         <td><span class="badge bg-primary">{{ ucfirst($order->order_status) }}</span></td>
                                         <td>
-                                            <a href="{{ route('admin.sales.orders.show') }}"
+                                            <a href="{{ route('admin.sales.orders.show', $order) }}"
                                                class="btn btn-sm btn-info">
                                                 <i class="ph ph-eye"></i>
                                             </a>
