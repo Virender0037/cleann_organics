@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -120,7 +121,11 @@ Route::prefix('admin')
                 Route::delete('/{variant}/images/{image}', 'destroyImage')->name('images.destroy');
             });
             // Reviews
-            Route::view('/reviews', 'admin.catalog.reviews.index')->name('reviews.index');
+            Route::prefix('reviews')->name('reviews.')->controller(ProductReviewController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::patch('/{review}/status', 'updateStatus')->name('status');
+                Route::delete('/{review}', 'destroy')->name('destroy');
+            });
             // Tax Rates
             Route::view('/tax-rates', 'admin.catalog.tax-rates.index')->name('tax-rates.index');
             Route::view('/tax-rates/create', 'admin.catalog.tax-rates.create')->name('tax-rates.create');
