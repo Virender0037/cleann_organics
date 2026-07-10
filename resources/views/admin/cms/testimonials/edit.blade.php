@@ -13,7 +13,7 @@
             </a>
         </div>
 
-        <form action="#" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.cms.testimonials.update', $testimonial) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -27,54 +27,76 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Customer Name <span class="text-danger">*</span></label>
-                            <input type="text" name="customer_name" class="form-control" value="Rahul Sharma">
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $testimonial->name) }}">
+                            @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Location</label>
-                            <input type="text" name="location" class="form-control" value="Ahmedabad">
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Rating</label>
-                            <select name="rating" class="form-select">
-                                <option value="5" selected>5 Stars</option>
-                                <option value="4">4 Stars</option>
-                                <option value="3">3 Stars</option>
-                                <option value="2">2 Stars</option>
-                                <option value="1">1 Star</option>
+                            <label class="form-label">Rating <span class="text-danger">*</span></label>
+                            <select name="rating" class="form-select @error('rating') is-invalid @enderror">
+                                <option value="5" @selected(old('rating', $testimonial->rating) == 5)>5 Stars</option>
+                                <option value="4" @selected(old('rating', $testimonial->rating) == 4)>4 Stars</option>
+                                <option value="3" @selected(old('rating', $testimonial->rating) == 3)>3 Stars</option>
+                                <option value="2" @selected(old('rating', $testimonial->rating) == 2)>2 Stars</option>
+                                <option value="1" @selected(old('rating', $testimonial->rating) == 1)>1 Star</option>
                             </select>
+                            @error('rating') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Designation</label>
+                            <input type="text" name="designation" class="form-control @error('designation') is-invalid @enderror" value="{{ old('designation', $testimonial->designation) }}">
+                            @error('designation') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Company</label>
+                            <input type="text" name="company" class="form-control @error('company') is-invalid @enderror" value="{{ old('company', $testimonial->company) }}">
+                            @error('company') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Customer Photo</label>
-                            <input type="file" name="photo" class="form-control">
+                            <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
+                            @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror
 
-                            <div class="mt-2">
-                                <img src="https://placehold.co/90x90"
-                                     class="rounded-circle border"
-                                     width="90"
-                                     height="90"
-                                     alt="Customer">
-                            </div>
+                            @if ($testimonial->image)
+                                <div class="mt-2">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($testimonial->image) }}"
+                                         class="rounded-circle border"
+                                         width="90"
+                                         height="90"
+                                         alt="Customer">
+                                </div>
+                            @endif
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Sort Order</label>
-                            <input type="number" name="sort_order" class="form-control" value="1">
+                            <input type="number" name="sort_order" class="form-control @error('sort_order') is-invalid @enderror" value="{{ old('sort_order', $testimonial->sort_order) }}">
+                            @error('sort_order') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="active" selected>Active</option>
-                                <option value="inactive">Inactive</option>
+                            <select name="status" class="form-select @error('status') is-invalid @enderror">
+                                <option value="active" @selected(old('status', $testimonial->status) === 'active')>Active</option>
+                                <option value="inactive" @selected(old('status', $testimonial->status) === 'inactive')>Inactive</option>
                             </select>
+                            @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3 d-flex align-items-end">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_featured" value="1" class="form-check-input" id="is_featured" @checked(old('is_featured', $testimonial->is_featured))>
+                                <label class="form-check-label" for="is_featured">Featured Testimonial</label>
+                            </div>
                         </div>
 
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Message <span class="text-danger">*</span></label>
-                            <textarea name="message" class="form-control" rows="5">Very good quality organic products and fast delivery.</textarea>
+                            <textarea name="message" class="form-control @error('message') is-invalid @enderror" rows="5">{{ old('message', $testimonial->message) }}</textarea>
+                            @error('message') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                     </div>

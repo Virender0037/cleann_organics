@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\ShippingRateController;
 use App\Http\Controllers\Admin\ShippingZoneController;
 use App\Http\Controllers\Admin\TaxRateController;
 use App\Http\Controllers\Admin\TeamMemberController;
+use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -277,10 +278,13 @@ Route::prefix('admin')
                 Route::put('/{teamMember}', 'update')->name('update');
                 Route::delete('/{teamMember}', 'destroy')->name('destroy');
             });
-            Route::prefix('testimonials')->name('testimonials.')->group(function () {
-                Route::view('/', 'admin.cms.testimonials.index')->name('index');
-                Route::view('/create', 'admin.cms.testimonials.create')->name('create');
-                Route::view('/edit', 'admin.cms.testimonials.edit')->name('edit');
+            Route::prefix('testimonials')->name('testimonials.')->controller(TestimonialController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{testimonial}/edit', 'edit')->name('edit');
+                Route::put('/{testimonial}', 'update')->name('update');
+                Route::delete('/{testimonial}', 'destroy')->name('destroy');
             });
             Route::prefix('contact-messages')->name('contact-messages.')->group(function () {
                 Route::view('/', 'admin.cms.contact-messages.index')->name('index');

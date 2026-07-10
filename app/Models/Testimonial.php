@@ -18,9 +18,11 @@ class Testimonial extends Model
 
         'rating',
 
-        'testimonial',
+        'message',
 
         'sort_order',
+
+        'is_featured',
 
         'status',
     ];
@@ -28,5 +30,6 @@ class Testimonial extends Model
     protected $casts = [
         'rating' => 'integer',
         'sort_order' => 'integer',
+        'is_featured' => 'boolean',
     ];
 }

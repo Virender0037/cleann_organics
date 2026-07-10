@@ -28,19 +28,34 @@
 
             <div class="card-body">
 
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Search customer name">
-                    </div>
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>Active</option>
-                            <option>Inactive</option>
-                        </select>
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+
+                <form method="GET" action="{{ route('admin.cms.testimonials.index') }}">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search customer name"
+                                   onchange="this.form.submit()">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Status</option>
+                                <option value="active" @selected(request('status') === 'active')>Active</option>
+                                <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -51,6 +66,7 @@
                                 <th>Customer</th>
                                 <th>Rating</th>
                                 <th>Message</th>
+                                <th>Featured</th>
                                 <th>Sort Order</th>
                                 <th>Status</th>
                                 <th width="130">Action</th>
@@ -58,92 +74,76 @@
                         </thead>
 
                         <tbody>
-                            <tr>
-                                <td>1</td>
+                            @forelse ($testimonials as $testimonial)
+                                <tr>
+                                    <td>{{ $testimonial->id }}</td>
 
-                                <td>
-                                    <img src="https://placehold.co/60x60"
-                                         class="rounded-circle border"
-                                         width="60"
-                                         height="60"
-                                         alt="Customer">
-                                </td>
+                                    <td>
+                                        <img src="{{ $testimonial->image ? \Illuminate\Support\Facades\Storage::url($testimonial->image) : 'https://placehold.co/60x60' }}"
+                                             class="rounded-circle border"
+                                             width="60"
+                                             height="60"
+                                             alt="Customer">
+                                    </td>
 
-                                <td>
-                                    <strong>Rahul Sharma</strong>
-                                    <br>
-                                    <small class="text-muted">Ahmedabad</small>
-                                </td>
+                                    <td>
+                                        <strong>{{ $testimonial->name }}</strong>
+                                        @if ($testimonial->designation || $testimonial->company)
+                                            <br>
+                                            <small class="text-muted">{{ collect([$testimonial->designation, $testimonial->company])->filter()->implode(', ') }}</small>
+                                        @endif
+                                    </td>
 
-                                <td>⭐⭐⭐⭐⭐</td>
+                                    <td>{{ str_repeat('⭐', $testimonial->rating) }}</td>
 
-                                <td style="max-width: 300px;">
-                                    Very good quality organic products and fast delivery.
-                                </td>
+                                    <td style="max-width: 300px;">
+                                        {{ \Illuminate\Support\Str::limit($testimonial->message, 80) }}
+                                    </td>
 
-                                <td>1</td>
+                                    <td>
+                                        @if ($testimonial->is_featured)
+                                            <span class="badge bg-primary">Featured</span>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
 
-                                <td>
-                                    <span class="badge bg-success">Active</span>
-                                </td>
+                                    <td>{{ $testimonial->sort_order }}</td>
 
-                                <td>
-                                    <a href="{{ route('admin.cms.testimonials.edit') }}"
-                                       class="btn btn-sm btn-warning"
-                                       title="Edit Testimonial">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
+                                    <td>
+                                        <span class="badge {{ $testimonial->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                            {{ ucfirst($testimonial->status) }}
+                                        </span>
+                                    </td>
 
-                                    <button class="btn btn-sm btn-danger" title="Delete Testimonial">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                    <td>
+                                        <a href="{{ route('admin.cms.testimonials.edit', $testimonial) }}"
+                                           class="btn btn-sm btn-warning"
+                                           title="Edit Testimonial">
+                                            <i class="ph ph-pencil-simple"></i>
+                                        </a>
 
-                            <tr>
-                                <td>2</td>
-
-                                <td>
-                                    <img src="https://placehold.co/60x60"
-                                         class="rounded-circle border"
-                                         width="60"
-                                         height="60"
-                                         alt="Customer">
-                                </td>
-
-                                <td>
-                                    <strong>Priya Patel</strong>
-                                    <br>
-                                    <small class="text-muted">Mumbai</small>
-                                </td>
-
-                                <td>⭐⭐⭐⭐</td>
-
-                                <td style="max-width: 300px;">
-                                    Fresh products and nice packaging. Highly recommended.
-                                </td>
-
-                                <td>2</td>
-
-                                <td>
-                                    <span class="badge bg-success">Active</span>
-                                </td>
-
-                                <td>
-                                    <a href="{{ route('admin.cms.testimonials.edit') }}"
-                                       class="btn btn-sm btn-warning"
-                                       title="Edit Testimonial">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger" title="Delete Testimonial">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                        <form action="{{ route('admin.cms.testimonials.destroy', $testimonial) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this testimonial?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Testimonial">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">No testimonials found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
 
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $testimonials->links() }}
                 </div>
 
             </div>
