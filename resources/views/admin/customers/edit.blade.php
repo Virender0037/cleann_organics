@@ -22,7 +22,7 @@
             <span>Edit Customer</span>
         </div>
 
-        <form action="#" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('admin.customers.update', $customer) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -37,34 +37,38 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Customer Name</label>
-                            <input type="text" name="name" class="form-control" value="Rahul Sharma">
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $customer->name) }}">
+                            @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" value="rahul@email.com">
+                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $customer->email) }}">
+                            @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Phone</label>
-                            <input type="text" name="phone" class="form-control" value="+91 9876543210">
+                            <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone', $customer->phone) }}">
+                            @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="active" selected>Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="blocked">Blocked</option>
+                            <select name="status" class="form-select @error('status') is-invalid @enderror">
+                                <option value="active" @selected(old('status', $customer->status) === 'active')>Active</option>
+                                <option value="inactive" @selected(old('status', $customer->status) === 'inactive')>Inactive</option>
                             </select>
+                            @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Profile Image</label>
-                            <input type="file" name="avatar" class="form-control">
+                            <input type="file" name="avatar" class="form-control @error('avatar') is-invalid @enderror">
+                            @error('avatar') <div class="invalid-feedback">{{ $message }}</div> @enderror
 
                             <div class="mt-2">
-                                <img src="https://placehold.co/90x90"
+                                <img src="{{ $customer->avatar ? \Illuminate\Support\Facades\Storage::url($customer->avatar) : 'https://placehold.co/90x90' }}"
                                      class="rounded border"
                                      width="90"
                                      height="90"

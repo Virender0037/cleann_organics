@@ -14,6 +14,10 @@
             </a>
         </div>
 
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
         <div class="mb-3">
             <a href="{{ route('admin.dashboard') }}">Dashboard</a>
             <span class="mx-2">›</span>
@@ -28,22 +32,23 @@
 
                 <div class="card mb-4">
                     <div class="card-body text-center">
-                        <img src="https://placehold.co/120x120"
+                        <img src="{{ $customer->avatar ? \Illuminate\Support\Facades\Storage::url($customer->avatar) : 'https://placehold.co/120x120' }}"
                              class="rounded-circle mb-3"
                              width="120"
                              height="120"
                              alt="Customer">
 
-                        <h5 class="mb-1">Rahul Sharma</h5>
-                        <p class="text-muted mb-2">rahul@email.com</p>
+                        <h5 class="mb-1">{{ $customer->name }}</h5>
+                        <p class="text-muted mb-2">{{ $customer->email }}</p>
 
-                        <span class="badge bg-success">Active</span>
+                        <span class="badge {{ $customer->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                            {{ ucfirst($customer->status) }}
+                        </span>
 
                         <hr>
 
-                        <p class="mb-1"><strong>Phone:</strong> +91 9876543210</p>
-                        <p class="mb-1"><strong>Joined:</strong> 12 Jan 2026</p>
-                        <p class="mb-0"><strong>Last Login:</strong> 26 Jun 2026</p>
+                        <p class="mb-1"><strong>Phone:</strong> {{ $customer->phone ?? '—' }}</p>
+                        <p class="mb-0"><strong>Joined:</strong> {{ $customer->created_at->format('d M Y') }}</p>
                     </div>
                 </div>
 
@@ -55,38 +60,45 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Total Orders</span>
-                            <strong>18</strong>
+                            <strong>{{ $customer->orders_count }}</strong>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Total Spent</span>
-                            <strong>₹18,450</strong>
+                            <strong>₹{{ number_format((float) ($customer->total_spent ?? 0), 2) }}</strong>
                         </div>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Wishlist Items</span>
-                            <strong>6</strong>
+                            <strong>{{ $customer->wishlists->count() }}</strong>
                         </div>
 
                         <div class="d-flex justify-content-between">
                             <span>Reviews</span>
-                            <strong>4</strong>
+                            <strong>{{ $customer->reviews->count() }}</strong>
                         </div>
                     </div>
                 </div>
 
                 <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Default Address</h5>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Default Address</h5>
+                        <a href="{{ route('admin.customers.addresses.index', $customer) }}" class="btn btn-sm btn-light">
+                            <i class="ph ph-map-pin"></i>
+                        </a>
                     </div>
 
                     <div class="card-body">
-                        <p class="mb-0">
-                            Rahul Sharma<br>
-                            101, ABC Apartment<br>
-                            Ahmedabad, Gujarat<br>
-                            India - 380015
-                        </p>
+                        @if ($defaultAddress)
+                            <p class="mb-0">
+                                {{ $defaultAddress->name }}<br>
+                                {{ $defaultAddress->address_line_1 }}@if ($defaultAddress->address_line_2), {{ $defaultAddress->address_line_2 }}@endif<br>
+                                {{ $defaultAddress->city }}, {{ $defaultAddress->state }}<br>
+                                {{ $defaultAddress->country }} - {{ $defaultAddress->pincode }}
+                            </p>
+                        @else
+                            <p class="mb-0 text-muted">No default address set.</p>
+                        @endif
                     </div>
                 </div>
 
@@ -113,33 +125,29 @@
                             </thead>
 
                             <tbody>
-                                <tr>
-                                    <td>#ORD-1001</td>
-                                    <td>26 Jun 2026</td>
-                                    <td>₹1,250</td>
-                                    <td><span class="badge bg-success">Paid</span></td>
-                                    <td><span class="badge bg-primary">Shipped</span></td>
-                                    <td>
-                                        <a href="{{ route('admin.sales.orders.show') }}"
-                                           class="btn btn-sm btn-info">
-                                            <i class="ph ph-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>#ORD-0998</td>
-                                    <td>20 Jun 2026</td>
-                                    <td>₹799</td>
-                                    <td><span class="badge bg-success">Paid</span></td>
-                                    <td><span class="badge bg-success">Delivered</span></td>
-                                    <td>
-                                        <a href="{{ route('admin.sales.orders.show') }}"
-                                           class="btn btn-sm btn-info">
-                                            <i class="ph ph-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                                @forelse ($customer->orders as $order)
+                                    <tr>
+                                        <td>#{{ $order->order_number }}</td>
+                                        <td>{{ $order->created_at->format('d M Y') }}</td>
+                                        <td>₹{{ number_format((float) $order->total_amount, 2) }}</td>
+                                        <td>
+                                            <span class="badge {{ $order->payment_status === 'paid' ? 'bg-success' : 'bg-warning' }}">
+                                                {{ ucfirst($order->payment_status) }}
+                                            </span>
+                                        </td>
+                                        <td><span class="badge bg-primary">{{ ucfirst($order->order_status) }}</span></td>
+                                        <td>
+                                            <a href="{{ route('admin.sales.orders.show') }}"
+                                               class="btn btn-sm btn-info">
+                                                <i class="ph ph-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">No orders yet.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -161,17 +169,17 @@
                             </thead>
 
                             <tbody>
-                                <tr>
-                                    <td>Organic Honey</td>
-                                    <td>Organic Foods</td>
-                                    <td>22 Jun 2026</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Cold Pressed Oil</td>
-                                    <td>Organic Oils</td>
-                                    <td>20 Jun 2026</td>
-                                </tr>
+                                @forelse ($customer->wishlists as $wishlist)
+                                    <tr>
+                                        <td>{{ $wishlist->product->name ?? '—' }}</td>
+                                        <td>{{ $wishlist->product->category->name ?? '—' }}</td>
+                                        <td>{{ $wishlist->created_at->format('d M Y') }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">No wishlist items.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -183,52 +191,15 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="border-bottom pb-3 mb-3">
-                            <strong>Organic Honey</strong>
-                            <p class="mb-1">⭐⭐⭐⭐⭐</p>
-                            <p class="mb-0">Very good quality product.</p>
-                        </div>
-
-                        <div>
-                            <strong>Cold Pressed Oil</strong>
-                            <p class="mb-1">⭐⭐⭐⭐</p>
-                            <p class="mb-0">Packaging was good and delivery was fast.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Communication History</h5>
-                    </div>
-
-                    <div class="card-body table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Subject</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                <tr>
-                                    <td>26 Jun 2026</td>
-                                    <td>Email</td>
-                                    <td>Order shipped notification</td>
-                                    <td><span class="badge bg-success">Sent</span></td>
-                                </tr>
-
-                                <tr>
-                                    <td>25 Jun 2026</td>
-                                    <td>SMS</td>
-                                    <td>Payment confirmation</td>
-                                    <td><span class="badge bg-success">Sent</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        @forelse ($customer->reviews as $review)
+                            <div class="{{ ! $loop->last ? 'border-bottom pb-3 mb-3' : '' }}">
+                                <strong>{{ $review->product->name ?? '—' }}</strong>
+                                <p class="mb-1">{{ str_repeat('⭐', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}</p>
+                                <p class="mb-0">{{ $review->review }}</p>
+                            </div>
+                        @empty
+                            <p class="text-muted mb-0">No reviews yet.</p>
+                        @endforelse
                     </div>
                 </div>
 

@@ -42,48 +42,45 @@
 
             <div class="card-body">
 
-                <div class="row mb-4">
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-                    <div class="col-md-4">
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
 
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Search customer">
+                <form method="GET" action="{{ route('admin.customers.index') }}">
+                    <div class="row mb-4">
 
-                    </div>
+                        <div class="col-md-4">
 
-                    <div class="col-md-3">
+                            <input
+                                type="text"
+                                name="search"
+                                class="form-control"
+                                value="{{ request('search') }}"
+                                placeholder="Search customer"
+                                onchange="this.form.submit()">
 
-                        <select class="form-select">
+                        </div>
 
-                            <option>All Status</option>
+                        <div class="col-md-3">
 
-                            <option>Active</option>
+                            <select name="status" class="form-select" onchange="this.form.submit()">
 
-                            <option>Inactive</option>
+                                <option value="">All Status</option>
 
-                            <option>Blocked</option>
+                                <option value="active" @selected(request('status') === 'active')>Active</option>
 
-                        </select>
+                                <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
 
-                    </div>
+                            </select>
 
-                    <div class="col-md-3">
-
-                        <select class="form-select">
-
-                            <option>All Customers</option>
-
-                            <option>New Customers</option>
-
-                            <option>Returning Customers</option>
-
-                        </select>
+                        </div>
 
                     </div>
-
-                </div>
+                </form>
 
                 <div class="table-responsive">
 
@@ -115,148 +112,92 @@
 
                         <tbody>
 
-                        <tr>
+                        @forelse ($customers as $customer)
+                            <tr>
 
-                            <td>1</td>
+                                <td>{{ $customer->id }}</td>
 
-                            <td>
+                                <td>
 
-                                <strong>Rahul Sharma</strong>
+                                    <strong>{{ $customer->name }}</strong>
 
-                                <br>
+                                    <br>
 
-                                <small class="text-muted">
-                                    rahul@email.com
-                                </small>
+                                    <small class="text-muted">
+                                        {{ $customer->email }}
+                                    </small>
 
-                            </td>
+                                </td>
 
-                            <td>
+                                <td>
 
-                                +91 9876543210
+                                    {{ $customer->phone ?? '—' }}
 
-                            </td>
+                                </td>
 
-                            <td>
+                                <td>
 
-                                18
+                                    {{ $customer->orders_count }}
 
-                            </td>
+                                </td>
 
-                            <td>
+                                <td>
 
-                                ₹18,450
+                                    ₹{{ number_format((float) ($customer->total_spent ?? 0), 2) }}
 
-                            </td>
+                                </td>
 
-                            <td>
+                                <td>
 
-                                26 Jun 2026
+                                    {{ $customer->last_order_at ? \Illuminate\Support\Carbon::parse($customer->last_order_at)->format('d M Y') : '—' }}
 
-                            </td>
+                                </td>
 
-                            <td>
+                                <td>
 
-                                <span class="badge bg-success">
-                                    Active
-                                </span>
+                                    <span class="badge {{ $customer->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ ucfirst($customer->status) }}
+                                    </span>
 
-                            </td>
+                                </td>
 
-                            <td>
+                                <td>
 
-                                <a href="{{ route('admin.customers.show') }}"
-                                   class="btn btn-sm btn-info">
-                                    <i class="ph ph-eye"></i>
-                                </a>
+                                    <a href="{{ route('admin.customers.show', $customer) }}"
+                                       class="btn btn-sm btn-info">
+                                        <i class="ph ph-eye"></i>
+                                    </a>
 
-                                <a href="{{ route('admin.customers.edit') }}"
-                                class="btn btn-sm btn-warning">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
+                                    <a href="{{ route('admin.customers.edit', $customer) }}"
+                                    class="btn btn-sm btn-warning">
+                                        <i class="ph ph-pencil-simple"></i>
+                                    </a>
 
-                                <button class="btn btn-sm btn-danger"
-                                        title="Delete Customer">
-                                    <i class="ph ph-trash"></i>
-                                </button>
+                                    <form action="{{ route('admin.customers.destroy', $customer) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this customer?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Customer">
+                                            <i class="ph ph-trash"></i>
+                                        </button>
+                                    </form>
 
-                            </td>
+                                </td>
 
-                        </tr>
-
-                        <tr>
-
-                            <td>2</td>
-
-                            <td>
-
-                                <strong>Amit Verma</strong>
-
-                                <br>
-
-                                <small class="text-muted">
-                                    amit@email.com
-                                </small>
-
-                            </td>
-
-                            <td>
-
-                                +91 9988776655
-
-                            </td>
-
-                            <td>
-
-                                6
-
-                            </td>
-
-                            <td>
-
-                                ₹6,250
-
-                            </td>
-
-                            <td>
-
-                                21 Jun 2026
-
-                            </td>
-
-                            <td>
-
-                                <span class="badge bg-success">
-                                    Active
-                                </span>
-
-                            </td>
-
-                            <td>
-
-                                <a href="{{ route('admin.customers.show') }}"
-                                   class="btn btn-sm btn-info">
-                                    <i class="ph ph-eye"></i>
-                                </a>
-
-                                <a href="{{ route('admin.customers.edit') }}"
-                                class="btn btn-sm btn-warning">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-
-                                <button class="btn btn-sm btn-danger"
-                                        title="Delete Customer">
-                                    <i class="ph ph-trash"></i>
-                                </button>
-
-                            </td>
-
-                        </tr>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No customers found.</td>
+                            </tr>
+                        @endforelse
 
                         </tbody>
 
                     </table>
 
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $customers->links() }}
                 </div>
 
             </div>

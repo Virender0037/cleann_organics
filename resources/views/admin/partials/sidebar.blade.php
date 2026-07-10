@@ -193,7 +193,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="{{route('admin.customers.addresses.index')}}">
+                    <a class="pc-link" href="{{route('admin.customers.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-map-pin-line"></i>
                         </span>
@@ -202,7 +202,7 @@
                 </li>
 
                 <li class="pc-item">
-                    <a class="pc-link" href="{{route('admin.customers.wishlists.index')}}">
+                    <a class="pc-link" href="{{route('admin.customers.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-heart"></i>
                         </span>

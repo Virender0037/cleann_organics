@@ -10,7 +10,7 @@
                 </p>
             </div>
 
-            <a href="{{ route('admin.customers.show') }}" class="btn btn-light">
+            <a href="{{ route('admin.customers.show', $customer) }}" class="btn btn-light">
                 <i class="ph ph-arrow-left me-1"></i>
                 Back
             </a>
@@ -26,15 +26,24 @@
             <span>Wishlist</span>
         </div>
 
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
+        @php
+            $inStockCount = $wishlists->filter(fn ($w) => $w->product?->defaultVariant?->stock_status === 'in_stock')->count();
+            $outOfStockCount = $wishlists->filter(fn ($w) => ($w->product?->defaultVariant?->stock_status ?? 'out_of_stock') === 'out_of_stock')->count();
+        @endphp
+
         <div class="row mb-4">
 
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
                         <h6 class="mb-1">Customer</h6>
-                        <h5 class="mb-1">Rahul Sharma</h5>
-                        <p class="text-muted mb-0">rahul@email.com</p>
-                        <small>+91 9876543210</small>
+                        <h5 class="mb-1">{{ $customer->name }}</h5>
+                        <p class="text-muted mb-0">{{ $customer->email }}</p>
+                        <small>{{ $customer->phone ?? '—' }}</small>
                     </div>
                 </div>
             </div>
@@ -43,7 +52,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h6 class="mb-1">Wishlist Items</h6>
-                        <h4 class="mb-0">6</h4>
+                        <h4 class="mb-0">{{ $wishlists->total() }}</h4>
                     </div>
                 </div>
             </div>
@@ -51,8 +60,8 @@
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
-                        <h6 class="mb-1">In Stock</h6>
-                        <h4 class="text-success mb-0">4</h4>
+                        <h6 class="mb-1">In Stock (this page)</h6>
+                        <h4 class="text-success mb-0">{{ $inStockCount }}</h4>
                     </div>
                 </div>
             </div>
@@ -60,8 +69,8 @@
             <div class="col-md-3">
                 <div class="card">
                     <div class="card-body">
-                        <h6 class="mb-1">Out of Stock</h6>
-                        <h4 class="text-danger mb-0">1</h4>
+                        <h6 class="mb-1">Out of Stock (this page)</h6>
+                        <h4 class="text-danger mb-0">{{ $outOfStockCount }}</h4>
                     </div>
                 </div>
             </div>
@@ -74,43 +83,48 @@
                 <h5 class="mb-0">Wishlist Items</h5>
 
                 <span class="badge bg-primary">
-                    Total Items : 6
+                    Total Items : {{ $wishlists->total() }}
                 </span>
             </div>
 
             <div class="card-body">
 
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <input type="text"
-                               class="form-control"
-                               placeholder="Search product name or SKU">
-                    </div>
+                <form method="GET" action="{{ route('admin.customers.wishlists.index', $customer) }}">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search product name or SKU">
+                        </div>
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Categories</option>
-                            <option>Organic Foods</option>
-                            <option>Organic Oils</option>
-                            <option>Spices</option>
-                        </select>
-                    </div>
+                        <div class="col-md-3">
+                            <select name="category_id" class="form-select">
+                                <option value="">All Categories</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}" @selected((int) request('category_id') === $category->id)>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Stock Status</option>
-                            <option>In Stock</option>
-                            <option>Low Stock</option>
-                            <option>Out of Stock</option>
-                        </select>
-                    </div>
+                        <div class="col-md-3">
+                            <select name="stock_status" class="form-select">
+                                <option value="">All Stock Status</option>
+                                <option value="in_stock" @selected(request('stock_status') === 'in_stock')>In Stock</option>
+                                <option value="out_of_stock" @selected(request('stock_status') === 'out_of_stock')>Out of Stock</option>
+                            </select>
+                        </div>
 
-                    <div class="col-md-2">
-                        <button class="btn btn-primary w-100">
-                            Search
-                        </button>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                Search
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="table-responsive">
 
@@ -132,139 +146,75 @@
 
                         <tbody>
 
-                            <tr>
-                                <td>1</td>
+                            @forelse ($wishlists as $wishlist)
+                                @php $variant = $wishlist->product?->defaultVariant; @endphp
+                                <tr>
+                                    <td>{{ $wishlist->id }}</td>
 
-                                <td>
-                                    <img src="https://placehold.co/60x60"
-                                         class="rounded border"
-                                         width="60"
-                                         height="60"
-                                         alt="Organic Honey">
-                                </td>
+                                    <td>
+                                        <img src="{{ $variant?->primaryImage ? \Illuminate\Support\Facades\Storage::url($variant->primaryImage->image) : 'https://placehold.co/60x60' }}"
+                                             class="rounded border"
+                                             width="60"
+                                             height="60"
+                                             alt="{{ $wishlist->product->name ?? 'Product' }}">
+                                    </td>
 
-                                <td>
-                                    <strong>Organic Honey</strong>
-                                    <br>
-                                    <small class="text-muted">SKU : HON-500</small>
-                                </td>
+                                    <td>
+                                        <strong>{{ $wishlist->product->name ?? '—' }}</strong>
+                                        <br>
+                                        <small class="text-muted">SKU : {{ $variant->sku ?? '—' }}</small>
+                                    </td>
 
-                                <td>Organic Foods</td>
+                                    <td>{{ $wishlist->product->category->name ?? '—' }}</td>
 
-                                <td>500gm</td>
+                                    <td>{{ $variant->variant_name ?? '—' }}</td>
 
-                                <td>₹299.00</td>
+                                    <td>{{ $variant && $variant->single_price !== null ? '₹'.number_format((float) $variant->single_price, 2) : '—' }}</td>
 
-                                <td>
-                                    <span class="badge bg-success">In Stock</span>
-                                </td>
+                                    <td>
+                                        @if (! $variant)
+                                            <span class="badge bg-secondary">—</span>
+                                        @elseif ($variant->stock_status === 'in_stock')
+                                            <span class="badge bg-success">In Stock</span>
+                                        @else
+                                            <span class="badge bg-danger">Out of Stock</span>
+                                        @endif
+                                    </td>
 
-                                <td>22 Jun 2026</td>
+                                    <td>{{ $wishlist->created_at->format('d M Y') }}</td>
 
-                                <td>
-                                    <a href="{{ route('admin.catalog.products.edit') }}"
-                                       class="btn btn-sm btn-info"
-                                       title="View Product">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
+                                    <td>
+                                        @if ($wishlist->product)
+                                            <a href="{{ route('admin.catalog.products.edit', $wishlist->product) }}"
+                                               class="btn btn-sm btn-info"
+                                               title="View Product">
+                                                <i class="ph ph-eye"></i>
+                                            </a>
+                                        @endif
 
-                                    <button class="btn btn-sm btn-danger"
-                                            title="Remove from Wishlist">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>2</td>
-
-                                <td>
-                                    <img src="https://placehold.co/60x60"
-                                         class="rounded border"
-                                         width="60"
-                                         height="60"
-                                         alt="Cold Pressed Oil">
-                                </td>
-
-                                <td>
-                                    <strong>Cold Pressed Oil</strong>
-                                    <br>
-                                    <small class="text-muted">SKU : OIL-1L</small>
-                                </td>
-
-                                <td>Organic Oils</td>
-
-                                <td>1 Litre</td>
-
-                                <td>₹650.00</td>
-
-                                <td>
-                                    <span class="badge bg-warning text-dark">Low Stock</span>
-                                </td>
-
-                                <td>20 Jun 2026</td>
-
-                                <td>
-                                    <a href="{{ route('admin.catalog.products.edit') }}"
-                                       class="btn btn-sm btn-info"
-                                       title="View Product">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger"
-                                            title="Remove from Wishlist">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>3</td>
-
-                                <td>
-                                    <img src="https://placehold.co/60x60"
-                                         class="rounded border"
-                                         width="60"
-                                         height="60"
-                                         alt="Organic Turmeric Powder">
-                                </td>
-
-                                <td>
-                                    <strong>Organic Turmeric Powder</strong>
-                                    <br>
-                                    <small class="text-muted">SKU : TUR-250</small>
-                                </td>
-
-                                <td>Spices</td>
-
-                                <td>250gm</td>
-
-                                <td>₹180.00</td>
-
-                                <td>
-                                    <span class="badge bg-danger">Out of Stock</span>
-                                </td>
-
-                                <td>18 Jun 2026</td>
-
-                                <td>
-                                    <a href="{{ route('admin.catalog.products.edit') }}"
-                                       class="btn btn-sm btn-info"
-                                       title="View Product">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger"
-                                            title="Remove from Wishlist">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                        <form action="{{ route('admin.customers.wishlists.destroy', [$customer, $wishlist]) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove from wishlist?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Remove from Wishlist">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">No wishlist items.</td>
+                                </tr>
+                            @endforelse
 
                         </tbody>
 
                     </table>
 
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $wishlists->links() }}
                 </div>
 
             </div>

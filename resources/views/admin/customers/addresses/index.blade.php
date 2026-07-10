@@ -10,7 +10,7 @@
                 </p>
             </div>
 
-            <a href="{{ route('admin.customers.show') }}" class="btn btn-light">
+            <a href="{{ route('admin.customers.show', $customer) }}" class="btn btn-light">
                 <i class="ph ph-arrow-left me-1"></i>
                 Back
             </a>
@@ -23,6 +23,10 @@
             <span class="mx-2">›</span>
             <span>Addresses</span>
         </div>
+
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
         <div class="row">
 
@@ -37,37 +41,33 @@
                             Billing Address
                         </h5>
 
-                       <a href="{{ route('admin.customers.addresses.edit') }}"
-                        class="btn btn-sm btn-warning"
-                        title="Edit Address">
-                            <i class="ph ph-pencil-simple"></i>
-                       </a>
+                        @if ($billingAddress)
+                            <a href="{{ route('admin.customers.addresses.edit', [$customer, $billingAddress]) }}"
+                             class="btn btn-sm btn-warning"
+                             title="Edit Address">
+                                <i class="ph ph-pencil-simple"></i>
+                            </a>
+                        @endif
                     </div>
 
                     <div class="card-body">
+                        @if ($billingAddress)
+                            <p class="mb-1"><strong>{{ $billingAddress->name }}</strong></p>
 
-                        <p class="mb-1"><strong>Rahul Sharma</strong></p>
+                            <p class="mb-1">{{ $billingAddress->address_line_1 }}</p>
 
-                        <p class="mb-1">
-                            101, ABC Apartment
-                        </p>
+                            @if ($billingAddress->address_line_2)
+                                <p class="mb-1">{{ $billingAddress->address_line_2 }}</p>
+                            @endif
 
-                        <p class="mb-1">
-                            Satellite Road
-                        </p>
+                            <p class="mb-1">{{ $billingAddress->city }}, {{ $billingAddress->state }}</p>
 
-                        <p class="mb-1">
-                            Ahmedabad, Gujarat
-                        </p>
+                            <p class="mb-1">{{ $billingAddress->country }} - {{ $billingAddress->pincode }}</p>
 
-                        <p class="mb-1">
-                            India - 380015
-                        </p>
-
-                        <p class="mb-0">
-                            Mobile : +91 9876543210
-                        </p>
-
+                            <p class="mb-0">Mobile : {{ $billingAddress->phone }}</p>
+                        @else
+                            <p class="text-muted mb-0">No billing address on file.</p>
+                        @endif
                     </div>
 
                 </div>
@@ -85,37 +85,33 @@
                             Shipping Address
                         </h5>
 
-                        <a href="{{ route('admin.customers.addresses.edit') }}"
-                        class="btn btn-sm btn-warning"
-                        title="Edit Address">
-                            <i class="ph ph-pencil-simple"></i>
-                        </a>
+                        @if ($shippingAddress)
+                            <a href="{{ route('admin.customers.addresses.edit', [$customer, $shippingAddress]) }}"
+                            class="btn btn-sm btn-warning"
+                            title="Edit Address">
+                                <i class="ph ph-pencil-simple"></i>
+                            </a>
+                        @endif
                     </div>
 
                     <div class="card-body">
+                        @if ($shippingAddress)
+                            <p class="mb-1"><strong>{{ $shippingAddress->name }}</strong></p>
 
-                        <p class="mb-1"><strong>Rahul Sharma</strong></p>
+                            <p class="mb-1">{{ $shippingAddress->address_line_1 }}</p>
 
-                        <p class="mb-1">
-                            B-204 Green Residency
-                        </p>
+                            @if ($shippingAddress->address_line_2)
+                                <p class="mb-1">{{ $shippingAddress->address_line_2 }}</p>
+                            @endif
 
-                        <p class="mb-1">
-                            SG Highway
-                        </p>
+                            <p class="mb-1">{{ $shippingAddress->city }}, {{ $shippingAddress->state }}</p>
 
-                        <p class="mb-1">
-                            Ahmedabad, Gujarat
-                        </p>
+                            <p class="mb-1">{{ $shippingAddress->country }} - {{ $shippingAddress->pincode }}</p>
 
-                        <p class="mb-1">
-                            India - 380054
-                        </p>
-
-                        <p class="mb-0">
-                            Mobile : +91 9876543210
-                        </p>
-
+                            <p class="mb-0">Mobile : {{ $shippingAddress->phone }}</p>
+                        @else
+                            <p class="text-muted mb-0">No shipping address on file.</p>
+                        @endif
                     </div>
 
                 </div>
@@ -132,7 +128,7 @@
 
                 <h5 class="mb-0">Saved Addresses</h5>
 
-                <a href="{{ route('admin.customers.addresses.create') }}"
+                <a href="{{ route('admin.customers.addresses.create', $customer) }}"
                 class="btn btn-primary btn-sm">
                     <i class="ph ph-plus me-1"></i>
                     Add Address
@@ -172,85 +168,55 @@
 
                         <tbody>
 
-                        <tr>
+                        @forelse ($addresses as $address)
+                            <tr>
 
-                            <td>1</td>
+                                <td>{{ $address->id }}</td>
 
-                            <td>
-                                <span class="badge bg-primary">
-                                    Home
-                                </span>
-                            </td>
+                                <td>
+                                    <span class="badge {{ $address->type === 'billing' ? 'bg-info' : 'bg-primary' }}">
+                                        {{ ucfirst($address->type) }}
+                                    </span>
+                                </td>
 
-                            <td>Rahul Sharma</td>
+                                <td>{{ $address->name }}</td>
 
-                            <td>Ahmedabad</td>
+                                <td>{{ $address->city }}</td>
 
-                            <td>Gujarat</td>
+                                <td>{{ $address->state }}</td>
 
-                            <td>India</td>
+                                <td>{{ $address->country }}</td>
 
-                            <td>
-                                <span class="badge bg-success">
-                                    Yes
-                                </span>
-                            </td>
+                                <td>
+                                    <span class="badge {{ $address->is_default ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ $address->is_default ? 'Yes' : 'No' }}
+                                    </span>
+                                </td>
 
-                            <td>
+                                <td>
 
-                                <a href="{{ route('admin.customers.addresses.edit') }}"
-                                class="btn btn-sm btn-warning"
-                                title="Edit Address">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
+                                    <a href="{{ route('admin.customers.addresses.edit', [$customer, $address]) }}"
+                                    class="btn btn-sm btn-warning"
+                                    title="Edit Address">
+                                        <i class="ph ph-pencil-simple"></i>
+                                    </a>
 
-                                <button class="btn btn-sm btn-danger" title="Delete">
-                                    <i class="ph ph-trash"></i>
-                                </button>
+                                    <form action="{{ route('admin.customers.addresses.destroy', [$customer, $address]) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this address?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="ph ph-trash"></i>
+                                        </button>
+                                    </form>
 
-                            </td>
+                                </td>
 
-                        </tr>
-
-                        <tr>
-
-                            <td>2</td>
-
-                            <td>
-                                <span class="badge bg-info">
-                                    Office
-                                </span>
-                            </td>
-
-                            <td>Rahul Sharma</td>
-
-                            <td>Ahmedabad</td>
-
-                            <td>Gujarat</td>
-
-                            <td>India</td>
-
-                            <td>
-                                <span class="badge bg-secondary">
-                                    No
-                                </span>
-                            </td>
-
-                            <td>
-
-                                <a href="{{ route('admin.customers.addresses.edit') }}"
-                                class="btn btn-sm btn-warning"
-                                title="Edit Address">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-
-                                <button class="btn btn-sm btn-danger">
-                                    <i class="ph ph-trash"></i>
-                                </button>
-
-                            </td>
-
-                        </tr>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No saved addresses.</td>
+                            </tr>
+                        @endforelse
 
                         </tbody>
 

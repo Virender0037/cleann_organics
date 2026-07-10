@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CustomerAddressController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\CustomerWishlistController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductReviewController;
@@ -158,13 +161,25 @@ Route::prefix('admin')
         });
         // Customer routes...
         Route::prefix('customers')->name('customers.')->group(function () {
-            Route::view('/', 'admin.customers.index')->name('index');
-            Route::view('/show', 'admin.customers.show')->name('show');
-            Route::view('/edit', 'admin.customers.edit')->name('edit');
-            Route::view('/addresses', 'admin.customers.addresses.index')->name('addresses.index');
-            Route::view('/wishlists', 'admin.customers.wishlists.index')->name('wishlists.index');
-            Route::view('/addresses/create', 'admin.customers.addresses.create')->name('addresses.create');
-            Route::view('/addresses/edit', 'admin.customers.addresses.edit')->name('addresses.edit');
+            Route::get('/', [CustomerController::class, 'index'])->name('index');
+            Route::get('/{customer}', [CustomerController::class, 'show'])->name('show');
+            Route::get('/{customer}/edit', [CustomerController::class, 'edit'])->name('edit');
+            Route::put('/{customer}', [CustomerController::class, 'update'])->name('update');
+            Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('destroy');
+
+            Route::prefix('{customer}/addresses')->name('addresses.')->controller(CustomerAddressController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{address}/edit', 'edit')->name('edit');
+                Route::put('/{address}', 'update')->name('update');
+                Route::delete('/{address}', 'destroy')->name('destroy');
+            });
+
+            Route::prefix('{customer}/wishlists')->name('wishlists.')->controller(CustomerWishlistController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::delete('/{wishlist}', 'destroy')->name('destroy');
+            });
         });
         // Shipping routes...
         Route::prefix('shipping')->name('shipping.')->group(function () {
