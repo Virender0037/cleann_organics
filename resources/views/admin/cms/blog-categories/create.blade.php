@@ -16,7 +16,8 @@ Back
 
 </div>
 
-<form>
+<form action="{{ route('admin.cms.blog-categories.store') }}" method="POST">
+@csrf
 
 <div class="card">
 
@@ -31,13 +32,16 @@ Back
 <div class="col-md-6 mb-3">
 
 <label class="form-label">
-Category Name
+Category Name <span class="text-danger">*</span>
 </label>
 
 <input
 type="text"
-class="form-control"
+name="name"
+class="form-control @error('name') is-invalid @enderror"
+value="{{ old('name') }}"
 placeholder="Health">
+@error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
 
 </div>
 
@@ -49,8 +53,11 @@ Slug
 
 <input
 type="text"
-class="form-control"
+name="slug"
+class="form-control @error('slug') is-invalid @enderror"
+value="{{ old('slug') }}"
 placeholder="health">
+@error('slug') <div class="invalid-feedback">{{ $message }}</div> @enderror
 
 </div>
 
@@ -62,8 +69,10 @@ Sort Order
 
 <input
 type="number"
-class="form-control"
-value="0">
+name="sort_order"
+class="form-control @error('sort_order') is-invalid @enderror"
+value="{{ old('sort_order', 0) }}">
+@error('sort_order') <div class="invalid-feedback">{{ $message }}</div> @enderror
 
 </div>
 
@@ -73,25 +82,62 @@ value="0">
 Status
 </label>
 
-<select class="form-select">
+<select name="status" class="form-select @error('status') is-invalid @enderror">
 
-<option>Active</option>
-<option>Inactive</option>
+<option value="active" @selected(old('status', 'active') === 'active')>Active</option>
+<option value="inactive" @selected(old('status') === 'inactive')>Inactive</option>
 
 </select>
+@error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
 
 </div>
 
-<div class="col-md-12">
+<div class="col-md-12 mb-3">
 
 <label class="form-label">
 Description
 </label>
 
 <textarea
+name="description"
 rows="4"
-class="form-control"></textarea>
+class="form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
+@error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
 
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card mt-4">
+
+<div class="card-header">
+<h5>SEO Information</h5>
+</div>
+
+<div class="card-body">
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Meta Title</label>
+<input type="text" name="meta_title" class="form-control @error('meta_title') is-invalid @enderror" value="{{ old('meta_title') }}" placeholder="Meta title">
+@error('meta_title') <div class="invalid-feedback">{{ $message }}</div> @enderror
+</div>
+
+<div class="col-md-6 mb-3">
+<label class="form-label">Canonical URL</label>
+<input type="text" name="canonical_url" class="form-control @error('canonical_url') is-invalid @enderror" value="{{ old('canonical_url') }}" placeholder="https://example.com/blog/category/health">
+@error('canonical_url') <div class="invalid-feedback">{{ $message }}</div> @enderror
+</div>
+
+<div class="col-md-12 mb-3">
+<label class="form-label">Meta Description</label>
+<textarea name="meta_description" class="form-control @error('meta_description') is-invalid @enderror" rows="3" placeholder="Meta description">{{ old('meta_description') }}</textarea>
+@error('meta_description') <div class="invalid-feedback">{{ $message }}</div> @enderror
 </div>
 
 </div>
@@ -107,7 +153,7 @@ class="btn btn-light">
 Cancel
 </a>
 
-<button class="btn btn-primary">
+<button type="submit" class="btn btn-primary">
 <i class="ph ph-floppy-disk me-1"></i>
 Create Category
 </button>

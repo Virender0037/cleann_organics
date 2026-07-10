@@ -30,23 +30,36 @@
 
         <div class="card-body">
 
-            <div class="row mb-4">
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
 
-                <div class="col-md-4">
-                    <input type="text"
-                           class="form-control"
-                           placeholder="Search category">
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            <form method="GET" action="{{ route('admin.cms.blog-categories.index') }}">
+                <div class="row mb-4">
+
+                    <div class="col-md-4">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="{{ request('search') }}"
+                               placeholder="Search category"
+                               onchange="this.form.submit()">
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="active" @selected(request('status') === 'active')>Active</option>
+                            <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+                        </select>
+                    </div>
+
                 </div>
-
-                <div class="col-md-3">
-                    <select class="form-select">
-                        <option>All Status</option>
-                        <option>Active</option>
-                        <option>Inactive</option>
-                    </select>
-                </div>
-
-            </div>
+            </form>
 
             <div class="table-responsive">
 
@@ -67,72 +80,57 @@
 
                     <tbody>
 
-                    <tr>
+                    @forelse ($blogCategories as $blogCategory)
+                        <tr>
 
-                        <td>1</td>
+                            <td>{{ $blogCategory->id }}</td>
 
-                        <td>
-                            <strong>Health</strong>
-                        </td>
+                            <td>
+                                <strong>{{ $blogCategory->name }}</strong>
+                            </td>
 
-                        <td>health</td>
+                            <td>{{ $blogCategory->slug }}</td>
 
-                        <td>12 Blogs</td>
+                            <td>{{ $blogCategory->blogs_count }} Blogs</td>
 
-                        <td>
-                            <span class="badge bg-success">Active</span>
-                        </td>
+                            <td>
+                                <span class="badge {{ $blogCategory->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
+                                    {{ ucfirst($blogCategory->status) }}
+                                </span>
+                            </td>
 
-                        <td>
+                            <td>
 
-                            <a href="{{ route('admin.cms.blog-categories.edit') }}"
-                               class="btn btn-sm btn-warning">
-                                <i class="ph ph-pencil-simple"></i>
-                            </a>
+                                <a href="{{ route('admin.cms.blog-categories.edit', $blogCategory) }}"
+                                   class="btn btn-sm btn-warning" title="Edit Category">
+                                    <i class="ph ph-pencil-simple"></i>
+                                </a>
 
-                            <button class="btn btn-sm btn-danger">
-                                <i class="ph ph-trash"></i>
-                            </button>
+                                <form action="{{ route('admin.cms.blog-categories.destroy', $blogCategory) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this category?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete Category">
+                                        <i class="ph ph-trash"></i>
+                                    </button>
+                                </form>
 
-                        </td>
+                            </td>
 
-                    </tr>
-
-                    <tr>
-
-                        <td>2</td>
-
-                        <td>
-                            <strong>Recipes</strong>
-                        </td>
-
-                        <td>recipes</td>
-
-                        <td>8 Blogs</td>
-
-                        <td>
-                            <span class="badge bg-success">Active</span>
-                        </td>
-
-                        <td>
-
-                            <a href="{{ route('admin.cms.blog-categories.edit') }}"
-                               class="btn btn-sm btn-warning">
-                                <i class="ph ph-pencil-simple"></i>
-                            </a>
-
-                            <button class="btn btn-sm btn-danger">
-                                <i class="ph ph-trash"></i>
-                            </button>
-
-                        </td>
-
-                    </tr>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No blog categories found.</td>
+                        </tr>
+                    @endforelse
 
                     </tbody>
 
                 </table>
 
+            </div>
+
+            <div class="d-flex justify-content-end">
+                {{ $blogCategories->links() }}
             </div>
 
         </div>
