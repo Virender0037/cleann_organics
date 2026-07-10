@@ -14,7 +14,7 @@
             </a>
         </div>
 
-        <form action="#" method="POST">
+        <form action="{{ route('admin.cms.pages.update', $page) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -28,26 +28,40 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Page Title <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" value="About Us">
+                            <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $page->title) }}">
+                            @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Slug <span class="text-danger">*</span></label>
-                            <input type="text" name="slug" class="form-control" value="about-us">
+                            <label class="form-label">Slug</label>
+                            <input type="text" name="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug', $page->slug) }}">
+                            @error('slug') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Featured Image</label>
+                            @if ($page->featured_image)
+                                <div class="mb-2">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($page->featured_image) }}" alt="{{ $page->title }}" width="90" class="rounded">
+                                </div>
+                            @endif
+                            <input type="file" name="featured_image" class="form-control @error('featured_image') is-invalid @enderror" accept="image/*">
+                            @error('featured_image') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="published" selected>Published</option>
-                                <option value="draft">Draft</option>
-                                <option value="inactive">Inactive</option>
+                            <select name="status" class="form-select @error('status') is-invalid @enderror">
+                                <option value="active" @selected(old('status', $page->status) === 'active')>Active</option>
+                                <option value="inactive" @selected(old('status', $page->status) === 'inactive')>Inactive</option>
                             </select>
+                            @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Page Content</label>
-                            <textarea name="content" class="form-control" rows="8">This is the about us page content.</textarea>
+                            <textarea name="content" class="form-control @error('content') is-invalid @enderror" rows="8">{{ old('content', $page->content) }}</textarea>
+                            @error('content') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                     </div>
@@ -64,17 +78,20 @@
 
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Meta Title</label>
-                            <input type="text" name="meta_title" class="form-control" value="About Us">
+                            <input type="text" name="meta_title" class="form-control @error('meta_title') is-invalid @enderror" value="{{ old('meta_title', $page->meta_title) }}">
+                            @error('meta_title') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Meta Keywords</label>
-                            <input type="text" name="meta_keywords" class="form-control" value="about us, cleann organics">
+                            <label class="form-label">Canonical URL</label>
+                            <input type="text" name="canonical_url" class="form-control @error('canonical_url') is-invalid @enderror" value="{{ old('canonical_url', $page->canonical_url) }}">
+                            @error('canonical_url') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Meta Description</label>
-                            <textarea name="meta_description" class="form-control" rows="3">Learn more about Cleann Organics.</textarea>
+                            <textarea name="meta_description" class="form-control @error('meta_description') is-invalid @enderror" rows="3">{{ old('meta_description', $page->meta_description) }}</textarea>
+                            @error('meta_description') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                     </div>

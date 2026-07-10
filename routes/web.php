@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CustomerAddressController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerWishlistController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductVariantController;
@@ -223,10 +224,13 @@ Route::prefix('admin')
 
         // CMS routes...
         Route::prefix('cms')->name('cms.')->group(function () {
-            Route::prefix('pages')->name('pages.')->group(function () {
-                Route::view('/', 'admin.cms.pages.index')->name('index');
-                Route::view('/create', 'admin.cms.pages.create')->name('create');
-                Route::view('/edit', 'admin.cms.pages.edit')->name('edit');
+            Route::prefix('pages')->name('pages.')->controller(PageController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{page}/edit', 'edit')->name('edit');
+                Route::put('/{page}', 'update')->name('update');
+                Route::delete('/{page}', 'destroy')->name('destroy');
             });
             Route::prefix('blogs')->name('blogs.')->group(function () {
                 Route::view('/', 'admin.cms.blogs.index')->name('index');
