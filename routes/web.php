@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\BlogCategoryController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BlogTagController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
@@ -234,10 +235,13 @@ Route::prefix('admin')
                 Route::put('/{page}', 'update')->name('update');
                 Route::delete('/{page}', 'destroy')->name('destroy');
             });
-            Route::prefix('blogs')->name('blogs.')->group(function () {
-                Route::view('/', 'admin.cms.blogs.index')->name('index');
-                Route::view('/create', 'admin.cms.blogs.create')->name('create');
-                Route::view('/edit', 'admin.cms.blogs.edit')->name('edit');
+            Route::prefix('blogs')->name('blogs.')->controller(BlogController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{blog}/edit', 'edit')->name('edit');
+                Route::put('/{blog}', 'update')->name('update');
+                Route::delete('/{blog}', 'destroy')->name('destroy');
             });
             Route::prefix('blog-categories')->name('blog-categories.')->controller(BlogCategoryController::class)->group(function () {
                 Route::get('/', 'index')->name('index');

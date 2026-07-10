@@ -29,20 +29,46 @@
 
             <div class="card-body">
 
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Search blog title or slug">
-                    </div>
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>Published</option>
-                            <option>Draft</option>
-                            <option>Inactive</option>
-                        </select>
+                @if (session('error'))
+                    <div class="alert alert-danger">{{ session('error') }}</div>
+                @endif
+
+                <form method="GET" action="{{ route('admin.cms.blogs.index') }}">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search blog title or slug"
+                                   onchange="this.form.submit()">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="blog_category_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Categories</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}" @selected((int) request('blog_category_id') === $category->id)>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="status" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Status</option>
+                                <option value="published" @selected(request('status') === 'published')>Published</option>
+                                <option value="draft" @selected(request('status') === 'draft')>Draft</option>
+                                <option value="archived" @selected(request('status') === 'archived')>Archived</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -59,36 +85,54 @@
                         </thead>
 
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>
-                                    <img src="https://placehold.co/60x60"
-                                         class="rounded border"
-                                         width="60"
-                                         height="60"
-                                         alt="Blog">
-                                </td>
-                                <td>
-                                    <strong>Benefits of Organic Food</strong>
-                                    <br>
-                                    <small class="text-muted">benefits-of-organic-food</small>
-                                </td>
-                                <td>Health</td>
-                                <td><span class="badge bg-success">Published</span></td>
-                                <td>08 Jul 2026</td>
-                                <td>
-                                    <a href="{{ route('admin.cms.blogs.edit') }}" class="btn btn-sm btn-warning" title="Edit Blog">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
+                            @forelse ($blogs as $blog)
+                                <tr>
+                                    <td>{{ $blog->id }}</td>
+                                    <td>
+                                        <img src="{{ $blog->featured_image ? \Illuminate\Support\Facades\Storage::url($blog->featured_image) : 'https://placehold.co/60x60' }}"
+                                             class="rounded border"
+                                             width="60"
+                                             height="60"
+                                             alt="Blog">
+                                    </td>
+                                    <td>
+                                        <strong>{{ $blog->title }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ $blog->slug }}</small>
+                                    </td>
+                                    <td>{{ $blog->category->name ?? '—' }}</td>
+                                    <td>
+                                        <span class="badge {{ match($blog->status) { 'published' => 'bg-success', 'draft' => 'bg-warning', default => 'bg-secondary' } }}">
+                                            {{ ucfirst($blog->status) }}
+                                        </span>
+                                    </td>
+                                    <td>{{ $blog->published_at?->format('d M Y') ?? '—' }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.cms.blogs.edit', $blog) }}" class="btn btn-sm btn-warning" title="Edit Blog">
+                                            <i class="ph ph-pencil-simple"></i>
+                                        </a>
 
-                                    <button class="btn btn-sm btn-danger" title="Delete Blog">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                        <form action="{{ route('admin.cms.blogs.destroy', $blog) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this blog?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Blog">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No blogs found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
 
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $blogs->links() }}
                 </div>
 
             </div>
