@@ -183,6 +183,7 @@ Route::prefix('admin')
             Route::get('/orders/export', [SalesOrderController::class, 'export'])->name('orders.export');
             Route::get('/orders/{order}', [SalesOrderController::class, 'show'])->name('orders.show');
             Route::get('/payments', [SalesPaymentController::class, 'index'])->name('payments.index');
+            Route::get('/payments/export', [SalesPaymentController::class, 'export'])->name('payments.export');
             Route::get('/payments/{payment}', [SalesPaymentController::class, 'show'])->name('payments.show');
             Route::prefix('coupons')->name('coupons.')->controller(CouponController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
