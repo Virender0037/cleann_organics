@@ -13,10 +13,10 @@
                         </p>
                     </div>
                     <div>
-                        <button class="btn btn-light-primary me-2">
+                        <a href="{{ route('admin.catalog.categories.import') }}" class="btn btn-light-primary me-2">
                             <i class="ph ph-upload-simple"></i>
                             Import
-                        </button>
+                        </a>
                         <a href="{{ route('admin.catalog.categories.export', request()->query()) }}" class="btn btn-light-secondary me-2">
                             <i class="ph ph-download-simple"></i>
                             Export

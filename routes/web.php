@@ -115,6 +115,9 @@ Route::prefix('admin')
             Route::prefix('categories')->name('categories.')->controller(CategoryController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/export', 'export')->name('export');
+                Route::get('/import', 'importForm')->name('import');
+                Route::post('/import', 'import')->name('import.store');
+                Route::get('/import/template', 'downloadTemplate')->name('import.template');
                 Route::get('/create', 'create')->name('create');
                 Route::post('/', 'store')->name('store');
                 Route::get('/{category}/edit', 'edit')->name('edit');

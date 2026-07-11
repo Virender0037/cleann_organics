@@ -51,6 +51,189 @@ class CategoryController extends Controller
         return $exporter->stream('categories.csv', $headers, $rows);
     }
 
+    public function importForm(): View
+    {
+        return view('admin.catalog.categories.import');
+    }
+
+    public function downloadTemplate(CsvExporter $exporter): StreamedResponse
+    {
+        $headers = ['name', 'slug', 'parent_slug', 'description', 'status', 'sort_order', 'meta_title', 'meta_keywords', 'meta_description'];
+
+        $exampleRows = [
+            ['Organic Foods', 'organic-foods', '', 'Certified organic food products', 'active', '1', 'Organic Foods', 'organic, foods', 'Shop organic foods'],
+            ['Organic Oils', 'organic-oils', 'organic-foods', 'Cold-pressed and natural oils', 'active', '1', '', '', ''],
+        ];
+
+        return $exporter->stream('categories-import-template.csv', $headers, $exampleRows);
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+        ]);
+
+        $handle = fopen($request->file('file')->getRealPath(), 'r');
+        $header = array_map('trim', fgetcsv($handle));
+
+        $missingColumns = array_diff(['name', 'status'], $header);
+
+        if (! empty($missingColumns)) {
+            fclose($handle);
+
+            return back()->with('error', 'Invalid CSV: missing required column(s): '.implode(', ', $missingColumns));
+        }
+
+        $rows = [];
+        $rowNumber = 1;
+
+        while (($line = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+
+            if (count($line) === 1 && trim((string) $line[0]) === '') {
+                continue;
+            }
+
+            $data = array_combine($header, array_pad($line, count($header), null));
+            $data = array_map(fn ($value) => blank($value) ? null : trim((string) $value), $data);
+
+            $rows[] = ['row' => $rowNumber, 'data' => $data];
+        }
+
+        fclose($handle);
+
+        $success = 0;
+        $skipped = [];
+        $errors = [];
+        $claimedSlugs = [];
+        $pending = [];
+
+        foreach ($rows as $entry) {
+            $rowNum = $entry['row'];
+            $data = $entry['data'];
+
+            $name = $data['name'] ?? null;
+            $status = $data['status'] ?? null;
+
+            if (blank($name)) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Missing required field: name'];
+
+                continue;
+            }
+
+            if (! in_array($status, ['active', 'inactive'], true)) {
+                $errors[] = ['row' => $rowNum, 'message' => "Invalid status '{$status}' (must be active or inactive)"];
+
+                continue;
+            }
+
+            $slug = blank($data['slug'] ?? null) ? Str::slug($name) : Str::slug($data['slug']);
+
+            if (blank($slug)) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Could not generate a valid slug from name'];
+
+                continue;
+            }
+
+            if (isset($claimedSlugs[$slug]) || Category::where('slug', $slug)->exists()) {
+                $skipped[] = ['row' => $rowNum, 'slug' => $slug, 'message' => 'Duplicate slug'];
+
+                continue;
+            }
+
+            $parentSlug = blank($data['parent_slug'] ?? null) ? null : Str::slug($data['parent_slug']);
+
+            if ($parentSlug !== null && $parentSlug === $slug) {
+                $errors[] = ['row' => $rowNum, 'message' => "Category '{$slug}' cannot be its own parent"];
+
+                continue;
+            }
+
+            $sortOrder = $data['sort_order'] ?? null;
+
+            if (! blank($sortOrder) && ! ctype_digit((string) $sortOrder)) {
+                $errors[] = ['row' => $rowNum, 'message' => "Invalid sort_order '{$sortOrder}' (must be a non-negative integer)"];
+
+                continue;
+            }
+
+            $claimedSlugs[$slug] = true;
+            $pending[] = [
+                'row' => $rowNum,
+                'slug' => $slug,
+                'parent_slug' => $parentSlug,
+                'name' => $name,
+                'status' => $status,
+                'description' => $data['description'] ?? null,
+                'sort_order' => blank($sortOrder) ? 0 : (int) $sortOrder,
+                'meta_title' => $data['meta_title'] ?? null,
+                'meta_keywords' => $data['meta_keywords'] ?? null,
+                'meta_description' => $data['meta_description'] ?? null,
+            ];
+        }
+
+        $createdSlugIds = [];
+        $madeProgress = true;
+
+        while ($madeProgress && ! empty($pending)) {
+            $madeProgress = false;
+            $stillPending = [];
+
+            foreach ($pending as $item) {
+                $parentId = null;
+
+                if ($item['parent_slug'] !== null) {
+                    if (isset($createdSlugIds[$item['parent_slug']])) {
+                        $parentId = $createdSlugIds[$item['parent_slug']];
+                    } else {
+                        $parent = Category::where('slug', $item['parent_slug'])->where('status', 'active')->first();
+
+                        if ($parent) {
+                            $parentId = $parent->id;
+                        } else {
+                            $stillPending[] = $item;
+
+                            continue;
+                        }
+                    }
+                }
+
+                $category = Category::create([
+                    'name' => $item['name'],
+                    'slug' => $item['slug'],
+                    'parent_id' => $parentId,
+                    'description' => $item['description'],
+                    'status' => $item['status'],
+                    'sort_order' => $item['sort_order'],
+                    'meta_title' => $item['meta_title'],
+                    'meta_keywords' => $item['meta_keywords'],
+                    'meta_description' => $item['meta_description'],
+                ]);
+
+                $createdSlugIds[$item['slug']] = $category->id;
+                $success++;
+                $madeProgress = true;
+            }
+
+            $pending = $stillPending;
+        }
+
+        foreach ($pending as $item) {
+            $errors[] = [
+                'row' => $item['row'],
+                'message' => "parent_slug '{$item['parent_slug']}' could not be resolved (not found among active categories or elsewhere in this file)",
+            ];
+        }
+
+        return redirect()->route('admin.catalog.categories.import')
+            ->with('import_results', [
+                'success' => $success,
+                'skipped' => $skipped,
+                'errors' => $errors,
+            ]);
+    }
+
     public function create(): View
     {
         $parentCategories = Category::ordered()->get();
