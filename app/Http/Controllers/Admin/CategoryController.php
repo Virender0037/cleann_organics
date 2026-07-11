@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Services\CsvExporter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CategoryController extends Controller
 {
@@ -24,6 +26,32 @@ class CategoryController extends Controller
             ->withQueryString();
 
         return view('admin.catalog.categories.index', compact('categories'));
+    }
+
+    public function export(Request $request, CsvExporter $exporter): StreamedResponse
+    {
+        $categories = Category::with('parent')
+            ->when($request->filled('search'), fn ($query) => $query->where('name', 'like', '%'.$request->string('search').'%'))
+            ->ordered()
+            ->lazy(200);
+
+        $headers = ['id', 'parent_slug', 'name', 'slug', 'description', 'status', 'sort_order', 'image', 'meta_title', 'meta_keywords', 'meta_description'];
+
+        $rows = $categories->map(fn (Category $category) => [
+            $category->id,
+            $category->parent?->slug,
+            $category->name,
+            $category->slug,
+            $category->description,
+            $category->status,
+            $category->sort_order,
+            $category->image,
+            $category->meta_title,
+            $category->meta_keywords,
+            $category->meta_description,
+        ]);
+
+        return $exporter->stream('categories.csv', $headers, $rows);
     }
 
     public function create(): View
