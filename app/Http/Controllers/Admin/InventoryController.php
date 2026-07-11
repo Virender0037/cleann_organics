@@ -70,6 +70,31 @@ class InventoryController extends Controller
         return view('admin.inventory.low-stock.index', compact('variants', 'products'));
     }
 
+    public function exportLowStock(Request $request, CsvExporter $exporter): StreamedResponse
+    {
+        $variants = $this->baseVariantQuery($request)
+            ->where('stock_quantity', '>', 0)
+            ->whereColumn('stock_quantity', '<=', 'low_stock_quantity')
+            ->where('stock_status', '!=', 'out_of_stock')
+            ->orderBy('stock_quantity')
+            ->lazy(200);
+
+        $headers = ['id', 'product_name', 'variant_name', 'sku', 'current_stock', 'low_stock_limit', 'required_stock', 'status'];
+
+        $rows = $variants->map(fn (ProductVariant $variant) => [
+            $variant->id,
+            $variant->product->name ?? null,
+            $variant->variant_name,
+            $variant->sku,
+            $variant->stock_quantity,
+            $variant->low_stock_quantity,
+            $variant->low_stock_quantity - $variant->stock_quantity,
+            'Low Stock',
+        ]);
+
+        return $exporter->stream('low-stock.csv', $headers, $rows);
+    }
+
     public function outOfStock(Request $request): View
     {
         $variants = $this->baseVariantQuery($request)
