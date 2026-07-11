@@ -180,6 +180,7 @@ Route::prefix('admin')
         // Sales routes...
         Route::prefix('sales')->name('sales.')->group(function () {
             Route::get('/orders', [SalesOrderController::class, 'index'])->name('orders.index');
+            Route::get('/orders/export', [SalesOrderController::class, 'export'])->name('orders.export');
             Route::get('/orders/{order}', [SalesOrderController::class, 'show'])->name('orders.show');
             Route::get('/payments', [SalesPaymentController::class, 'index'])->name('payments.index');
             Route::get('/payments/{payment}', [SalesPaymentController::class, 'show'])->name('payments.show');
