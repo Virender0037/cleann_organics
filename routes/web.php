@@ -145,6 +145,7 @@ Route::prefix('admin')
             // Reviews
             Route::prefix('reviews')->name('reviews.')->controller(ProductReviewController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
+                Route::get('/export', 'export')->name('export');
                 Route::patch('/{review}/status', 'updateStatus')->name('status');
                 Route::delete('/{review}', 'destroy')->name('destroy');
             });

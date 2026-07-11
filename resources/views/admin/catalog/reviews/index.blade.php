@@ -7,7 +7,7 @@
         </div>
 
         <div>
-            <a href="#" class="btn btn-light-secondary">
+            <a href="{{ route('admin.catalog.reviews.export', request()->query()) }}" class="btn btn-light-secondary">
                 <i class="ph ph-download-simple me-1"></i>
                 Export
             </a>
