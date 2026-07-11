@@ -30,25 +30,22 @@ class CategoryController extends Controller
 
     public function export(Request $request, CsvExporter $exporter): StreamedResponse
     {
-        $categories = Category::with('parent')
+        $categories = Category::withCount('products')
+            ->with('parent')
             ->when($request->filled('search'), fn ($query) => $query->where('name', 'like', '%'.$request->string('search').'%'))
             ->ordered()
             ->lazy(200);
 
-        $headers = ['id', 'parent_slug', 'name', 'slug', 'description', 'status', 'sort_order', 'image', 'meta_title', 'meta_keywords', 'meta_description'];
+        $headers = ['id', 'name', 'slug', 'parent_slug', 'sort_order', 'status', 'products_count'];
 
         $rows = $categories->map(fn (Category $category) => [
             $category->id,
-            $category->parent?->slug,
             $category->name,
             $category->slug,
-            $category->description,
-            $category->status,
+            $category->parent?->slug,
             $category->sort_order,
-            $category->image,
-            $category->meta_title,
-            $category->meta_keywords,
-            $category->meta_description,
+            $category->status,
+            $category->products_count,
         ]);
 
         return $exporter->stream('categories.csv', $headers, $rows);

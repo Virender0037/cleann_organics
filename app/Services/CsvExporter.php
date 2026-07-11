@@ -14,6 +14,7 @@ class CsvExporter
     {
         return response()->streamDownload(function () use ($headers, $rows) {
             $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
             fputcsv($handle, $headers);
 
             foreach ($rows as $row) {
