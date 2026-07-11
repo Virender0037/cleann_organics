@@ -108,6 +108,28 @@ class InventoryController extends Controller
         return view('admin.inventory.out-of-stock.index', compact('variants', 'products'));
     }
 
+    public function exportOutOfStock(Request $request, CsvExporter $exporter): StreamedResponse
+    {
+        $variants = $this->baseVariantQuery($request)
+            ->where(fn ($query) => $query->where('stock_quantity', 0)->orWhere('stock_status', 'out_of_stock'))
+            ->orderBy('updated_at', 'desc')
+            ->lazy(200);
+
+        $headers = ['id', 'product_name', 'variant_name', 'sku', 'current_stock', 'status', 'last_updated'];
+
+        $rows = $variants->map(fn (ProductVariant $variant) => [
+            $variant->id,
+            $variant->product->name ?? null,
+            $variant->variant_name,
+            $variant->sku,
+            $variant->stock_quantity,
+            'Out of Stock',
+            $variant->updated_at->format('d M Y'),
+        ]);
+
+        return $exporter->stream('out-of-stock.csv', $headers, $rows);
+    }
+
     private function baseVariantQuery(Request $request): Builder
     {
         return ProductVariant::with(['product', 'primaryImage'])

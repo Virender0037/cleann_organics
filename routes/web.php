@@ -172,6 +172,7 @@ Route::prefix('admin')
             Route::get('/low-stock', 'lowStock')->name('low-stock.index');
             Route::get('/low-stock/export', 'exportLowStock')->name('low-stock.export');
             Route::get('/out-of-stock', 'outOfStock')->name('out-of-stock.index');
+            Route::get('/out-of-stock/export', 'exportOutOfStock')->name('out-of-stock.export');
         });
         // Sales routes...
         Route::prefix('sales')->name('sales.')->group(function () {
