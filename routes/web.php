@@ -168,6 +168,7 @@ Route::prefix('admin')
         // Inventory routes...
         Route::prefix('inventory')->name('inventory.')->controller(InventoryController::class)->group(function () {
             Route::get('/stock-levels', 'stockLevels')->name('stock-levels.index');
+            Route::get('/stock-levels/export', 'exportStockLevels')->name('stock-levels.export');
             Route::get('/low-stock', 'lowStock')->name('low-stock.index');
             Route::get('/out-of-stock', 'outOfStock')->name('out-of-stock.index');
         });
