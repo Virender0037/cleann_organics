@@ -8,7 +8,7 @@
                 <p class="text-muted mb-0">Manage customer return requests and refunds</p>
             </div>
 
-            <a href="#" class="btn btn-light-secondary">
+            <a href="{{ route('admin.sales.returns.export', request()->query()) }}" class="btn btn-light-secondary">
                 <i class="ph ph-download-simple me-1"></i>
                 Export
             </a>

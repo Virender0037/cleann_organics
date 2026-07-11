@@ -195,6 +195,7 @@ Route::prefix('admin')
             });
             Route::prefix('returns')->name('returns.')->controller(ReturnController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
+                Route::get('/export', 'export')->name('export');
                 Route::get('/{return}', 'show')->name('show');
                 Route::patch('/{return}/status', 'updateStatus')->name('status');
             });

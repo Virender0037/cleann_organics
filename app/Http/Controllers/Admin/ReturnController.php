@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateReturnStatusRequest;
 use App\Models\ReturnRequest;
+use App\Services\CsvExporter;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReturnController extends Controller
 {
@@ -37,6 +39,28 @@ class ReturnController extends Controller
         ];
 
         return view('admin.reports.returns.index', compact('returns', 'stats'));
+    }
+
+    public function export(Request $request, CsvExporter $exporter): StreamedResponse
+    {
+        $returns = $this->baseQuery($request)
+            ->latest()
+            ->lazy(200);
+
+        $headers = ['id', 'return_number', 'order_number', 'customer_name', 'reason', 'refund_amount', 'status', 'date'];
+
+        $rows = $returns->map(fn (ReturnRequest $return) => [
+            $return->id,
+            $return->return_number,
+            $return->order->order_number ?? null,
+            $return->user->name ?? null,
+            $return->reason,
+            $return->refund_amount,
+            $return->status,
+            $return->created_at->format('d M Y'),
+        ]);
+
+        return $exporter->stream('sales-returns.csv', $headers, $rows);
     }
 
     private function baseQuery(Request $request): Builder
