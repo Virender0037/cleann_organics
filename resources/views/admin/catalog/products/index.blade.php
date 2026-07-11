@@ -7,7 +7,7 @@
         </div>
 
         <div>
-            <a href="#" class="btn btn-light-primary me-2">
+            <a href="{{ route('admin.catalog.products.import') }}" class="btn btn-light-primary me-2">
                 <i class="ph ph-upload-simple me-1"></i>
                 Import
             </a>

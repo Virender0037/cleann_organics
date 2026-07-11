@@ -80,6 +80,250 @@ class ProductController extends Controller
         return $exporter->stream('products.csv', $headers, $rows);
     }
 
+    public function importForm(): View
+    {
+        return view('admin.catalog.products.import');
+    }
+
+    public function downloadTemplate(CsvExporter $exporter): StreamedResponse
+    {
+        $headers = ['name', 'slug', 'category_slug', 'tax_rate_name', 'brand', 'short_description', 'description', 'status', 'is_returnable', 'return_days', 'is_featured', 'is_latest', 'is_best_seller', 'sort_order', 'meta_title', 'meta_keywords', 'meta_description', 'tags'];
+
+        $exampleRows = [
+            ['Organic Honey', 'organic-honey', 'organic-foods', 'GST 5%', 'Nature Farms', 'Pure organic honey', '100% raw organic honey', 'active', '1', '7', '1', '0', '1', '1', 'Organic Honey', 'honey, organic', 'Buy organic honey online', 'Organic, Bestseller'],
+            ['Cold Pressed Oil', 'cold-pressed-oil', 'organic-oils', '', 'Nature Farms', 'Cold pressed cooking oil', '', 'draft', '0', '', '0', '0', '0', '2', '', '', '', ''],
+        ];
+
+        return $exporter->stream('products-import-template.csv', $headers, $exampleRows);
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+        ]);
+
+        $handle = fopen($request->file('file')->getRealPath(), 'r');
+        $header = array_map('trim', fgetcsv($handle));
+
+        $missingColumns = array_diff(['name', 'status'], $header);
+
+        if (! empty($missingColumns)) {
+            fclose($handle);
+
+            return back()->with('error', 'Invalid CSV: missing required column(s): '.implode(', ', $missingColumns));
+        }
+
+        $rows = [];
+        $rowNumber = 1;
+
+        while (($line = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+
+            if (count($line) === 1 && trim((string) $line[0]) === '') {
+                continue;
+            }
+
+            $data = array_combine($header, array_pad($line, count($header), null));
+            $data = array_map(fn ($value) => blank($value) ? null : trim((string) $value), $data);
+
+            $rows[] = ['row' => $rowNumber, 'data' => $data];
+        }
+
+        fclose($handle);
+
+        $success = 0;
+        $skipped = [];
+        $errors = [];
+        $claimedSlugs = [];
+
+        foreach ($rows as $entry) {
+            $rowNum = $entry['row'];
+            $data = $entry['data'];
+
+            $name = $data['name'] ?? null;
+            $status = $data['status'] ?? null;
+
+            if (blank($name)) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Missing required field: name'];
+
+                continue;
+            }
+
+            if (! in_array($status, ['draft', 'active', 'inactive'], true)) {
+                $errors[] = ['row' => $rowNum, 'message' => "Invalid status '{$status}' (must be draft, active, or inactive)"];
+
+                continue;
+            }
+
+            $slug = blank($data['slug'] ?? null) ? Str::slug($name) : Str::slug($data['slug']);
+
+            if (blank($slug)) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Could not generate a valid slug from name'];
+
+                continue;
+            }
+
+            if (isset($claimedSlugs[$slug]) || Product::where('slug', $slug)->exists()) {
+                $skipped[] = ['row' => $rowNum, 'slug' => $slug, 'reason' => 'duplicate_slug'];
+
+                continue;
+            }
+
+            $categorySlug = $data['category_slug'] ?? null;
+
+            if (blank($categorySlug)) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Missing required field: category_slug'];
+
+                continue;
+            }
+
+            $category = Category::where('slug', $categorySlug)->where('status', 'active')->first();
+
+            if (! $category) {
+                $errors[] = ['row' => $rowNum, 'message' => "category_slug '{$categorySlug}' not found or inactive"];
+
+                continue;
+            }
+
+            $taxRateId = null;
+            $taxRateName = $data['tax_rate_name'] ?? null;
+
+            if (! blank($taxRateName)) {
+                $taxRate = TaxRate::where('name', $taxRateName)->where('status', 'active')->first();
+
+                if (! $taxRate) {
+                    $errors[] = ['row' => $rowNum, 'message' => "tax_rate_name '{$taxRateName}' not found or inactive"];
+
+                    continue;
+                }
+
+                $taxRateId = $taxRate->id;
+            }
+
+            $isReturnable = $this->parseCsvBoolean($data['is_returnable'] ?? null);
+            $isFeatured = $this->parseCsvBoolean($data['is_featured'] ?? null);
+            $isLatest = $this->parseCsvBoolean($data['is_latest'] ?? null);
+            $isBestSeller = $this->parseCsvBoolean($data['is_best_seller'] ?? null);
+
+            $booleanFields = ['is_returnable' => $isReturnable, 'is_featured' => $isFeatured, 'is_latest' => $isLatest, 'is_best_seller' => $isBestSeller];
+            $invalidBoolean = null;
+
+            foreach ($booleanFields as $field => $value) {
+                if ($value === null) {
+                    $invalidBoolean = $field;
+
+                    break;
+                }
+            }
+
+            if ($invalidBoolean !== null) {
+                $errors[] = ['row' => $rowNum, 'message' => "Missing or invalid required field: {$invalidBoolean} (must be 1/0, true/false, or yes/no)"];
+
+                continue;
+            }
+
+            $returnDays = $data['return_days'] ?? null;
+
+            if (! blank($returnDays) && (! ctype_digit((string) $returnDays) || (int) $returnDays > 255)) {
+                $errors[] = ['row' => $rowNum, 'message' => "Invalid return_days '{$returnDays}' (must be an integer between 0 and 255)"];
+
+                continue;
+            }
+
+            $sortOrder = $data['sort_order'] ?? null;
+
+            if (! blank($sortOrder) && ! ctype_digit((string) $sortOrder)) {
+                $errors[] = ['row' => $rowNum, 'message' => "Invalid sort_order '{$sortOrder}' (must be a non-negative integer)"];
+
+                continue;
+            }
+
+            $tagIds = [];
+            $missingTags = [];
+
+            if (! blank($data['tags'] ?? null)) {
+                $tagNames = array_filter(array_map('trim', explode(',', $data['tags'])));
+
+                foreach ($tagNames as $tagName) {
+                    $tag = Tag::where('name', $tagName)->where('status', 'active')->first();
+
+                    if ($tag) {
+                        $tagIds[] = $tag->id;
+                    } else {
+                        $missingTags[] = $tagName;
+                    }
+                }
+            }
+
+            if (! empty($missingTags)) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Unknown tag(s): '.implode(', ', $missingTags)];
+
+                continue;
+            }
+
+            try {
+                DB::transaction(function () use ($name, $slug, $category, $taxRateId, $data, $status, $isReturnable, $returnDays, $isFeatured, $isLatest, $isBestSeller, $sortOrder, $tagIds) {
+                    $productData = [
+                        'category_id' => $category->id,
+                        'tax_rate_id' => $taxRateId,
+                        'name' => $name,
+                        'slug' => $slug,
+                        'brand' => $data['brand'] ?? null,
+                        'short_description' => $data['short_description'] ?? null,
+                        'description' => $data['description'] ?? null,
+                        'status' => $status,
+                        'is_returnable' => $isReturnable,
+                        'is_featured' => $isFeatured,
+                        'is_latest' => $isLatest,
+                        'is_best_seller' => $isBestSeller,
+                        'sort_order' => blank($sortOrder) ? 0 : (int) $sortOrder,
+                        'meta_title' => $data['meta_title'] ?? null,
+                        'meta_keywords' => $data['meta_keywords'] ?? null,
+                        'meta_description' => $data['meta_description'] ?? null,
+                    ];
+
+                    if (! blank($returnDays)) {
+                        $productData['return_days'] = (int) $returnDays;
+                    }
+
+                    $product = Product::create($productData);
+
+                    if (! empty($tagIds)) {
+                        $product->tags()->sync($tagIds);
+                    }
+                });
+            } catch (\Throwable $e) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Failed to create product: '.$e->getMessage()];
+
+                continue;
+            }
+
+            $claimedSlugs[$slug] = true;
+            $success++;
+        }
+
+        return redirect()->route('admin.catalog.products.import')
+            ->with('import_results', [
+                'success' => $success,
+                'skipped' => $skipped,
+                'errors' => $errors,
+            ]);
+    }
+
+    private function parseCsvBoolean(?string $value): ?bool
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return match (strtolower(trim($value))) {
+            '1', 'true', 'yes' => true,
+            '0', 'false', 'no' => false,
+            default => null,
+        };
+    }
+
     public function create(): View
     {
         $categories = Category::ordered()->get();
