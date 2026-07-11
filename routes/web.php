@@ -321,6 +321,7 @@ Route::prefix('admin')
             Route::view('/payments', 'admin.reports.payments.index')->name('payments.index');
             Route::view('/coupons', 'admin.reports.coupons.index')->name('coupons.index');
             Route::get('/returns', [ReturnController::class, 'report'])->name('returns.index');
+            Route::get('/returns/export', [ReturnController::class, 'exportReport'])->name('returns.export');
         });
         Route::prefix('administration')->name('administration.')->group(function () {
             Route::prefix('users')->name('users.')->group(function () {

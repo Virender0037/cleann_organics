@@ -7,9 +7,9 @@
 <p class="text-muted">Track returned orders and refund requests</p>
 </div>
 
-<button class="btn btn-light-secondary">
+<a href="{{ route('admin.reports.returns.export', request()->query()) }}" class="btn btn-light-secondary">
 <i class="ph ph-download-simple me-1"></i>Export
-</button>
+</a>
 </div>
 
 <div class="row mb-4">

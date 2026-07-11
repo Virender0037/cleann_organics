@@ -63,6 +63,26 @@ class ReturnController extends Controller
         return $exporter->stream('sales-returns.csv', $headers, $rows);
     }
 
+    public function exportReport(Request $request, CsvExporter $exporter): StreamedResponse
+    {
+        $returns = $this->baseQuery($request)
+            ->latest()
+            ->lazy(200);
+
+        $headers = ['return_number', 'order_number', 'customer_name', 'reason', 'status', 'refund_amount'];
+
+        $rows = $returns->map(fn (ReturnRequest $return) => [
+            $return->return_number,
+            $return->order->order_number ?? null,
+            $return->user->name ?? null,
+            $return->reason,
+            $return->status,
+            $return->refund_amount,
+        ]);
+
+        return $exporter->stream('returns-report.csv', $headers, $rows);
+    }
+
     private function baseQuery(Request $request): Builder
     {
         return ReturnRequest::with(['order', 'user'])
