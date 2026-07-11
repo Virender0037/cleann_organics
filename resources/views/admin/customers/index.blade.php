@@ -13,10 +13,10 @@
 
             <div>
 
-                <button class="btn btn-light-secondary me-2">
+                <a href="{{ route('admin.customers.export', request()->query()) }}" class="btn btn-light-secondary me-2">
                     <i class="ph ph-download-simple me-1"></i>
                     Export
-                </button>
+                </a>
 
             </div>
 
