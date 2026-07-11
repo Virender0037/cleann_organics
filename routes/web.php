@@ -309,7 +309,7 @@ Route::prefix('admin')
             Route::view('/inventory', 'admin.reports.inventory.index')->name('inventory.index');
             Route::view('/payments', 'admin.reports.payments.index')->name('payments.index');
             Route::view('/coupons', 'admin.reports.coupons.index')->name('coupons.index');
-            Route::view('/returns', 'admin.reports.returns.index')->name('returns.index');
+            Route::get('/returns', [ReturnController::class, 'report'])->name('returns.index');
         });
         Route::prefix('administration')->name('administration.')->group(function () {
             Route::prefix('users')->name('users.')->group(function () {
