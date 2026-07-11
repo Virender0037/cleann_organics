@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BlogTagController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerAddressController;
 use App\Http\Controllers\Admin\CustomerController;
@@ -317,9 +318,11 @@ Route::prefix('admin')
                 Route::put('/{testimonial}', 'update')->name('update');
                 Route::delete('/{testimonial}', 'destroy')->name('destroy');
             });
-            Route::prefix('contact-messages')->name('contact-messages.')->group(function () {
-                Route::view('/', 'admin.cms.contact-messages.index')->name('index');
-                Route::view('/show', 'admin.cms.contact-messages.show')->name('show');
+            Route::prefix('contact-messages')->name('contact-messages.')->controller(ContactMessageController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/{message}', 'show')->name('show');
+                Route::put('/{message}/status', 'updateStatus')->name('update-status');
+                Route::delete('/{message}', 'destroy')->name('destroy');
             });
         });
         Route::prefix('reports')->name('reports.')->group(function () {

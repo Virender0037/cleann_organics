@@ -28,21 +28,30 @@
 
             <div class="card-body">
 
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Search name, email or subject">
-                    </div>
+                <form method="GET" action="{{ route('admin.cms.contact-messages.index') }}">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Search name, email or subject">
+                        </div>
 
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>New</option>
-                            <option>Read</option>
-                            <option>Replied</option>
-                            <option>Closed</option>
-                        </select>
+                        <div class="col-md-3">
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                @foreach (['unread' => 'Unread', 'read' => 'Read', 'replied' => 'Replied'] as $value => $label)
+                                    <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Search</button>
+                        </div>
                     </div>
-                </div>
+                </form>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -59,80 +68,68 @@
                         </thead>
 
                         <tbody>
-                            <tr>
-                                <td>1</td>
+                            @forelse ($messages as $message)
+                                <tr>
+                                    <td>{{ $message->id }}</td>
 
-                                <td>
-                                    <strong>Rahul Sharma</strong>
-                                    <br>
-                                    <small class="text-muted">rahul@email.com</small>
-                                </td>
+                                    <td>
+                                        <strong>{{ $message->name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ $message->email }}</small>
+                                    </td>
 
-                                <td>+91 9876543210</td>
+                                    <td>{{ $message->phone ?? '—' }}</td>
 
-                                <td>Product availability enquiry</td>
+                                    <td>{{ $message->subject ?? '—' }}</td>
 
-                                <td>
-                                    09 Jul 2026
-                                    <br>
-                                    <small class="text-muted">10:30 AM</small>
-                                </td>
+                                    <td>
+                                        {{ $message->created_at->format('d M Y') }}
+                                        <br>
+                                        <small class="text-muted">{{ $message->created_at->format('h:i A') }}</small>
+                                    </td>
 
-                                <td>
-                                    <span class="badge bg-warning text-dark">New</span>
-                                </td>
+                                    <td>
+                                        @php
+                                            $statusBadge = match ($message->status) {
+                                                'replied' => 'bg-success',
+                                                'read' => 'bg-info',
+                                                default => 'bg-warning text-dark',
+                                            };
+                                        @endphp
+                                        <span class="badge {{ $statusBadge }}">{{ ucfirst($message->status) }}</span>
+                                    </td>
 
-                                <td>
-                                    <a href="{{ route('admin.cms.contact-messages.show') }}"
-                                       class="btn btn-sm btn-info"
-                                       title="View Message">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
+                                    <td>
+                                        <a href="{{ route('admin.cms.contact-messages.show', $message) }}"
+                                           class="btn btn-sm btn-info"
+                                           title="View Message">
+                                            <i class="ph ph-eye"></i>
+                                        </a>
 
-                                    <button class="btn btn-sm btn-danger" title="Delete Message">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>2</td>
-
-                                <td>
-                                    <strong>Priya Patel</strong>
-                                    <br>
-                                    <small class="text-muted">priya@email.com</small>
-                                </td>
-
-                                <td>+91 9988776655</td>
-
-                                <td>Bulk order enquiry</td>
-
-                                <td>
-                                    08 Jul 2026
-                                    <br>
-                                    <small class="text-muted">04:15 PM</small>
-                                </td>
-
-                                <td>
-                                    <span class="badge bg-success">Replied</span>
-                                </td>
-
-                                <td>
-                                    <a href="{{ route('admin.cms.contact-messages.show') }}"
-                                       class="btn btn-sm btn-info"
-                                       title="View Message">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger" title="Delete Message">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                        <form action="{{ route('admin.cms.contact-messages.destroy', $message) }}"
+                                              method="POST"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Delete this message?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Message">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">No contact messages found.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
 
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    {{ $messages->links() }}
                 </div>
 
             </div>
