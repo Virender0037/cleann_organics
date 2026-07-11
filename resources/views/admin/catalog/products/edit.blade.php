@@ -168,6 +168,19 @@
                         @error('is_best_seller') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Tags</label>
+                        <div>
+                            @foreach ($tags as $tag)
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" name="tags[]" value="{{ $tag->id }}" class="form-check-input" id="tag-{{ $tag->id }}" @checked(collect(old('tags', $product->tags->pluck('id')))->contains($tag->id))>
+                                    <label class="form-check-label" for="tag-{{ $tag->id }}">{{ $tag->name }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+                        @error('tags') <div class="text-danger small">{{ $message }}</div> @enderror
+                    </div>
+
                 </div>
             </div>
         </div>

@@ -84,6 +84,14 @@
                     Tax Rates
                 </a>
             </li>
+            <li class="pc-item">
+                <a class="pc-link" href="{{ route('admin.catalog.tags.index')}}">
+                    <span class="pc-micon">
+                        <i class="ph ph-tag"></i>
+                    </span>
+                    Tags
+                </a>
+            </li>
         </ul>
           </li>
         <li class="pc-item pc-hasmenu">

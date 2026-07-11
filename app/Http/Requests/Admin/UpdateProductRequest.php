@@ -38,6 +38,8 @@ class UpdateProductRequest extends FormRequest
             'specifications' => ['nullable', 'array'],
             'specifications.*.title' => ['required', 'string', 'max:255'],
             'specifications.*.value' => ['nullable', 'string'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['integer', Rule::exists('tags', 'id')->whereNull('deleted_at')],
         ];
     }
 }

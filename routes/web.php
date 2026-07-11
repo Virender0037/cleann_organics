@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\SalesOrderController;
 use App\Http\Controllers\Admin\SalesPaymentController;
 use App\Http\Controllers\Admin\ShippingRateController;
 use App\Http\Controllers\Admin\ShippingZoneController;
+use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TaxRateController;
 use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\Admin\TestimonialController;
@@ -152,6 +153,15 @@ Route::prefix('admin')
                 Route::get('/{taxRate}/edit', 'edit')->name('edit');
                 Route::put('/{taxRate}', 'update')->name('update');
                 Route::delete('/{taxRate}', 'destroy')->name('destroy');
+            });
+            // Tags
+            Route::prefix('tags')->name('tags.')->controller(TagController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{tag}/edit', 'edit')->name('edit');
+                Route::put('/{tag}', 'update')->name('update');
+                Route::delete('/{tag}', 'destroy')->name('destroy');
             });
         });
         // Inventory routes...

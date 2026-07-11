@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Tag;
 use App\Models\TaxRate;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,20 +37,22 @@ class ProductController extends Controller
     {
         $categories = Category::ordered()->get();
         $taxRates = TaxRate::all();
+        $tags = Tag::orderBy('name')->get();
 
-        return view('admin.catalog.products.create', compact('categories', 'taxRates'));
+        return view('admin.catalog.products.create', compact('categories', 'taxRates', 'tags'));
     }
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
         DB::transaction(function () use ($request) {
-            $data = $request->safe()->except('specifications');
+            $data = $request->safe()->except(['specifications', 'tags']);
             $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
             $data['sort_order'] = $data['sort_order'] ?? 0;
 
             $product = Product::create($data);
 
             $this->syncSpecifications($product, $request->input('specifications', []));
+            $product->tags()->sync($request->input('tags', []));
         });
 
         return redirect()->route('admin.catalog.products.index')->with('success', 'Product created.');
@@ -57,23 +60,25 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $product->load(['specifications' => fn ($query) => $query->orderBy('sort_order')]);
+        $product->load(['specifications' => fn ($query) => $query->orderBy('sort_order'), 'tags']);
         $categories = Category::ordered()->get();
         $taxRates = TaxRate::all();
+        $tags = Tag::orderBy('name')->get();
 
-        return view('admin.catalog.products.edit', compact('product', 'categories', 'taxRates'));
+        return view('admin.catalog.products.edit', compact('product', 'categories', 'taxRates', 'tags'));
     }
 
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
         DB::transaction(function () use ($request, $product) {
-            $data = $request->safe()->except('specifications');
+            $data = $request->safe()->except(['specifications', 'tags']);
             $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['name']);
             $data['sort_order'] = $data['sort_order'] ?? 0;
 
             $product->update($data);
 
             $this->syncSpecifications($product, $request->input('specifications', []));
+            $product->tags()->sync($request->input('tags', []));
         });
 
         return redirect()->route('admin.catalog.products.index')->with('success', 'Product updated.');
