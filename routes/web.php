@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerAddressController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerWishlistController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\PageController;
@@ -108,7 +109,7 @@ Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
         Route::view('/', 'admin-dist.pages.login')->name('admin');
-        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         // Catalog routes...
         Route::prefix('catalog')->name('catalog.')->group(function () {
             // Categories

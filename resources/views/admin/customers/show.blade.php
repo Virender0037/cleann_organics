@@ -129,7 +129,7 @@
                                     <tr>
                                         <td>#{{ $order->order_number }}</td>
                                         <td>{{ $order->created_at->format('d M Y') }}</td>
-                                        <td>₹{{ number_format((float) $order->total_amount, 2) }}</td>
+                                        <td>₹{{ number_format((float) $order->grand_total, 2) }}</td>
                                         <td>
                                             <span class="badge {{ $order->payment_status === 'paid' ? 'bg-success' : 'bg-warning' }}">
                                                 {{ ucfirst($order->payment_status) }}

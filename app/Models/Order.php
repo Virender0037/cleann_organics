@@ -17,7 +17,7 @@ class Order extends Model
         'discount_amount',
         'shipping_amount',
         'tax_amount',
-        'total_amount',
+        'grand_total',
 
         'payment_method',
         'payment_status',
@@ -38,7 +38,7 @@ class Order extends Model
         'discount_amount' => 'decimal:2',
         'shipping_amount' => 'decimal:2',
         'tax_amount' => 'decimal:2',
-        'total_amount' => 'decimal:2',
+        'grand_total' => 'decimal:2',
 
         'confirmed_at' => 'datetime',
         'packed_at' => 'datetime',
