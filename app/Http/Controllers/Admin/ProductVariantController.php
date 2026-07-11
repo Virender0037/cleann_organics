@@ -8,12 +8,14 @@ use App\Http\Requests\Admin\UpdateProductVariantRequest;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ProductVariantImage;
+use App\Services\CsvExporter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProductVariantController extends Controller
 {
@@ -34,6 +36,36 @@ class ProductVariantController extends Controller
         $products = Product::orderBy('name')->get();
 
         return view('admin.catalog.variants.index', compact('variants', 'products'));
+    }
+
+    public function export(Request $request, CsvExporter $exporter): StreamedResponse
+    {
+        $variants = ProductVariant::with('product')
+            ->when($request->filled('search'), fn ($query) => $query->where(function ($query) use ($request) {
+                $query->where('variant_name', 'like', '%'.$request->string('search').'%')
+                    ->orWhere('sku', 'like', '%'.$request->string('search').'%');
+            }))
+            ->when($request->filled('product_id'), fn ($query) => $query->where('product_id', $request->integer('product_id')))
+            ->when($request->filled('stock_status'), fn ($query) => $query->where('stock_status', $request->string('stock_status')))
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->lazy(200);
+
+        $headers = ['id', 'product_name', 'variant_name', 'is_default', 'sku', 'unit', 'stock_quantity', 'price', 'status'];
+
+        $rows = $variants->map(fn (ProductVariant $variant) => [
+            $variant->id,
+            $variant->product->name ?? null,
+            $variant->variant_name,
+            (int) $variant->is_default,
+            $variant->sku,
+            $variant->unit,
+            $variant->stock_quantity,
+            $variant->single_price,
+            $variant->status,
+        ]);
+
+        return $exporter->stream('product-variants.csv', $headers, $rows);
     }
 
     public function create(): View
