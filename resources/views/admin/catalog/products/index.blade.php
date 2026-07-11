@@ -12,7 +12,7 @@
                 Import
             </a>
 
-            <a href="#" class="btn btn-light-secondary me-2">
+            <a href="{{ route('admin.catalog.products.export', request()->query()) }}" class="btn btn-light-secondary me-2">
                 <i class="ph ph-download-simple me-1"></i>
                 Export
             </a>

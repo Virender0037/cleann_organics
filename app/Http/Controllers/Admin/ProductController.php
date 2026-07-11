@@ -9,11 +9,13 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Tag;
 use App\Models\TaxRate;
+use App\Services\CsvExporter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProductController extends Controller
 {
@@ -31,6 +33,51 @@ class ProductController extends Controller
             ->withQueryString();
 
         return view('admin.catalog.products.index', compact('products'));
+    }
+
+    public function export(Request $request, CsvExporter $exporter): StreamedResponse
+    {
+        $products = Product::with('category')
+            ->withCount('variants')
+            ->withSum('variants', 'stock_quantity')
+            ->withMin('variants', 'single_price')
+            ->withMax('variants', 'single_price')
+            ->when($request->filled('search'), fn ($query) => $query->where('name', 'like', '%'.$request->string('search').'%'))
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->lazy(200);
+
+        $headers = ['id', 'name', 'slug', 'category_name', 'variants_count', 'status', 'is_featured', 'stock', 'price_range'];
+
+        $rows = $products->map(function (Product $product) {
+            if ($product->variants_count === 0) {
+                $stock = null;
+            } else {
+                $stock = $product->variants_sum_stock_quantity > 0 ? 'In Stock' : 'Out of Stock';
+            }
+
+            if ($product->variants_min_single_price === null) {
+                $priceRange = null;
+            } elseif ($product->variants_min_single_price == $product->variants_max_single_price) {
+                $priceRange = (string) $product->variants_min_single_price;
+            } else {
+                $priceRange = $product->variants_min_single_price.' - '.$product->variants_max_single_price;
+            }
+
+            return [
+                $product->id,
+                $product->name,
+                $product->slug,
+                $product->category->name ?? null,
+                $product->variants_count,
+                $product->status,
+                (int) $product->is_featured,
+                $stock,
+                $priceRange,
+            ];
+        });
+
+        return $exporter->stream('products.csv', $headers, $rows);
     }
 
     public function create(): View
