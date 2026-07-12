@@ -79,6 +79,63 @@ class CustomerController extends Controller
         return $exporter->stream('customers.csv', $headers, $rows);
     }
 
+    public function report(Request $request): View
+    {
+        $customers = $this->baseReportQuery($request)
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        $stats = [
+            'total' => User::where('role', 'customer')->count(),
+            'new_this_month' => User::where('role', 'customer')
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count(),
+            'returning' => User::where('role', 'customer')
+                ->has('orders', '>=', 2)
+                ->count(),
+            'inactive' => User::where('role', 'customer')->where('status', 'inactive')->count(),
+        ];
+
+        return view('admin.reports.customers.index', compact('customers', 'stats'));
+    }
+
+    public function exportReport(Request $request, CsvExporter $exporter): StreamedResponse
+    {
+        $customers = $this->baseReportQuery($request)
+            ->latest()
+            ->lazy(200);
+
+        $headers = ['id', 'name', 'email', 'orders_count', 'total_spent', 'joined'];
+
+        $rows = $customers->map(fn (User $customer) => [
+            $customer->id,
+            $customer->name,
+            $customer->email,
+            $customer->orders_count,
+            $customer->total_spent,
+            $customer->created_at->format('d M Y'),
+        ]);
+
+        return $exporter->stream('customers-report.csv', $headers, $rows);
+    }
+
+    private function baseReportQuery(Request $request)
+    {
+        return User::where('role', 'customer')
+            ->withCount('orders')
+            ->withSum(['orders as total_spent' => fn ($query) => $query->where('payment_status', 'paid')], 'grand_total')
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->string('search');
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')));
+    }
+
     public function show(User $customer): View
     {
         $customer->loadCount('orders');

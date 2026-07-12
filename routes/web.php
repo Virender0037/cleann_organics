@@ -329,7 +329,8 @@ Route::prefix('admin')
             Route::view('/sales', 'admin.reports.sales.index')->name('sales.index');
             Route::view('/orders', 'admin.reports.orders.index')->name('orders.index');
             Route::view('/products', 'admin.reports.products.index')->name('products.index');
-            Route::view('/customers', 'admin.reports.customers.index')->name('customers.index');
+            Route::get('/customers', [CustomerController::class, 'report'])->name('customers.index');
+            Route::get('/customers/export', [CustomerController::class, 'exportReport'])->name('customers.export');
             Route::view('/inventory', 'admin.reports.inventory.index')->name('inventory.index');
             Route::view('/payments', 'admin.reports.payments.index')->name('payments.index');
             Route::view('/coupons', 'admin.reports.coupons.index')->name('coupons.index');

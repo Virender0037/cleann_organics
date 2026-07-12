@@ -7,9 +7,17 @@
 <p class="text-muted">Customer registrations and purchase statistics</p>
 </div>
 
-<button class="btn btn-light-secondary">
+<a href="{{ route('admin.reports.customers.export', request()->query()) }}" class="btn btn-light-secondary">
 <i class="ph ph-download-simple me-1"></i>Export
-</button>
+</a>
+</div>
+
+<div class="mb-3">
+    <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+    <span class="mx-2">›</span>
+    <span>Reports</span>
+    <span class="mx-2">›</span>
+    <span>Customers Report</span>
 </div>
 
 <div class="row mb-4">
@@ -17,28 +25,28 @@
 <div class="col-md-3">
 <div class="card"><div class="card-body">
 <p class="text-muted">Total Customers</p>
-<h4>2,450</h4>
+<h4>{{ $stats['total'] }}</h4>
 </div></div>
 </div>
 
 <div class="col-md-3">
 <div class="card"><div class="card-body">
 <p class="text-muted">New This Month</p>
-<h4 class="text-success">154</h4>
+<h4 class="text-success">{{ $stats['new_this_month'] }}</h4>
 </div></div>
 </div>
 
 <div class="col-md-3">
 <div class="card"><div class="card-body">
 <p class="text-muted">Returning</p>
-<h4>680</h4>
+<h4>{{ $stats['returning'] }}</h4>
 </div></div>
 </div>
 
 <div class="col-md-3">
 <div class="card"><div class="card-body">
 <p class="text-muted">Inactive</p>
-<h4 class="text-danger">48</h4>
+<h4 class="text-danger">{{ $stats['inactive'] }}</h4>
 </div></div>
 </div>
 
@@ -49,7 +57,34 @@
 <h5>Customer List</h5>
 </div>
 
-<div class="card-body table-responsive">
+<div class="card-body">
+
+<form method="GET" action="{{ route('admin.reports.customers.index') }}">
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+            <input name="search"
+                   class="form-control"
+                   value="{{ request('search') }}"
+                   placeholder="Search name or email">
+        </div>
+
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Status</option>
+                <option value="active" @selected(request('status') === 'active')>Active</option>
+                <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+
+    </div>
+</form>
+
+<div class="table-responsive">
 <table class="table table-hover">
 
 <thead>
@@ -65,27 +100,30 @@
 
 <tbody>
 
+@forelse ($customers as $customer)
 <tr>
-<td>1</td>
-<td>Rahul Sharma</td>
-<td>rahul@email.com</td>
-<td>18</td>
-<td>₹28,550</td>
-<td>Jan 2026</td>
+<td>{{ $customer->id }}</td>
+<td>{{ $customer->name }}</td>
+<td>{{ $customer->email }}</td>
+<td>{{ $customer->orders_count }}</td>
+<td>₹{{ number_format((float) $customer->total_spent, 2) }}</td>
+<td>{{ $customer->created_at->format('d M Y') }}</td>
 </tr>
-
+@empty
 <tr>
-<td>2</td>
-<td>Priya Patel</td>
-<td>priya@email.com</td>
-<td>11</td>
-<td>₹14,800</td>
-<td>Feb 2026</td>
+<td colspan="6" class="text-center text-muted">No customers found.</td>
 </tr>
+@endforelse
 
 </tbody>
 
 </table>
+</div>
+
+<div class="d-flex justify-content-end">
+    {{ $customers->links() }}
+</div>
+
 </div>
 
 </div>
