@@ -2,157 +2,99 @@
 
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Returns</h4>
-                <p class="text-muted mb-0">Manage customer return requests and refunds</p>
-            </div>
+        <x-admin.page-header title="Returns" subtitle="Manage customer return requests and refunds">
+            <x-slot:actions>
+                <a href="{{ route('admin.sales.returns.export', request()->query()) }}" class="btn btn-light-secondary">
+                    <i class="ph ph-download-simple me-1"></i>
+                    Export
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.sales.returns.export', request()->query()) }}" class="btn btn-light-secondary">
-                <i class="ph ph-download-simple me-1"></i>
-                Export
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[['label' => 'Sales'], ['label' => 'Returns']]" />
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Sales</span>
-            <span class="mx-2">›</span>
-            <span>Returns</span>
-        </div>
+        @include('admin.partials.alerts')
 
-        <div class="card">
-
-            <div class="card-header">
-                <h5>Return Requests</h5>
-            </div>
-
-            <div class="card-body">
-
-                @if (session('success'))
-                    <div class="alert alert-success">{{ session('success') }}</div>
-                @endif
-
-                <form method="GET" action="{{ route('admin.sales.returns.index') }}">
-                    <div class="row mb-4">
-
-                        <div class="col-md-4">
-                            <input name="search"
-                                   class="form-control"
-                                   value="{{ request('search') }}"
-                                   placeholder="Search Order / Return ID / Customer">
-                        </div>
-
-                        <div class="col-md-3">
-                            <select name="status" class="form-select">
-                                <option value="">All Status</option>
-                                @foreach (['requested' => 'Requested', 'approved' => 'Approved', 'rejected' => 'Rejected', 'picked_up' => 'Picked Up', 'received' => 'Received', 'refunded' => 'Refunded'] as $value => $label)
-                                    <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">Search</button>
-                        </div>
-
+        <x-admin.table-card title="Return Requests">
+            <x-slot:toolbar>
+                <x-admin.filter-toolbar action="{{ route('admin.sales.returns.index') }}">
+                    <div class="col-md-4">
+                        <input name="search"
+                               class="form-control"
+                               value="{{ request('search') }}"
+                               placeholder="Search Order / Return ID / Customer">
                     </div>
-                </form>
 
-                <div class="table-responsive">
+                    <div class="col-md-3">
+                        <select name="status" class="form-select">
+                            <option value="">All Status</option>
+                            @foreach (['requested' => 'Requested', 'approved' => 'Approved', 'rejected' => 'Rejected', 'picked_up' => 'Picked Up', 'received' => 'Received', 'refunded' => 'Refunded'] as $value => $label)
+                                <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                    <table class="table table-hover align-middle">
+                    <x-slot:submit>
+                        <button type="submit" class="btn btn-primary w-100">Search</button>
+                    </x-slot:submit>
+                </x-admin.filter-toolbar>
+            </x-slot:toolbar>
 
-                        <thead>
+            <x-slot:head>
+                <th>#</th>
+                <th>Return ID</th>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Reason</th>
+                <th>Refund</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th width="130">Action</th>
+            </x-slot:head>
 
-                        <tr>
+            @forelse ($returns as $return)
+                <tr>
 
-                            <th>#</th>
+                    <td>{{ $return->id }}</td>
 
-                            <th>Return ID</th>
+                    <td>#{{ $return->return_number }}</td>
 
-                            <th>Order</th>
+                    <td>#{{ $return->order->order_number ?? '—' }}</td>
 
-                            <th>Customer</th>
+                    <td>{{ $return->user->name ?? '—' }}</td>
 
-                            <th>Reason</th>
+                    <td>{{ \Illuminate\Support\Str::limit($return->reason, 40) }}</td>
 
-                            <th>Refund</th>
+                    <td>₹{{ number_format((float) $return->refund_amount, 2) }}</td>
 
-                            <th>Status</th>
+                    <td>
+                        <x-admin.status-badge :status="$return->status" />
+                    </td>
 
-                            <th>Date</th>
+                    <td>{{ $return->created_at->format('d M Y') }}</td>
 
-                            <th width="130">Action</th>
+                    <td>
 
-                        </tr>
+                        <a href="{{ route('admin.sales.returns.show', $return) }}"
+                           class="btn btn-sm btn-info">
+                            <i class="ph ph-eye"></i>
+                        </a>
 
-                        </thead>
+                    </td>
 
-                        <tbody>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="9">
+                        <x-admin.empty-state>No return requests found.</x-admin.empty-state>
+                    </td>
+                </tr>
+            @endforelse
 
-                        @forelse ($returns as $return)
-                            <tr>
-
-                                <td>{{ $return->id }}</td>
-
-                                <td>#{{ $return->return_number }}</td>
-
-                                <td>#{{ $return->order->order_number ?? '—' }}</td>
-
-                                <td>{{ $return->user->name ?? '—' }}</td>
-
-                                <td>{{ \Illuminate\Support\Str::limit($return->reason, 40) }}</td>
-
-                                <td>₹{{ number_format((float) $return->refund_amount, 2) }}</td>
-
-                                <td>
-                                    @php
-                                        $statusBadge = match ($return->status) {
-                                            'approved' => 'bg-primary',
-                                            'rejected' => 'bg-danger',
-                                            'picked_up', 'received' => 'bg-info',
-                                            'refunded' => 'bg-success',
-                                            default => 'bg-warning',
-                                        };
-                                    @endphp
-                                    <span class="badge {{ $statusBadge }}">
-                                        {{ ucwords(str_replace('_', ' ', $return->status)) }}
-                                    </span>
-                                </td>
-
-                                <td>{{ $return->created_at->format('d M Y') }}</td>
-
-                                <td>
-
-                                    <a href="{{ route('admin.sales.returns.show', $return) }}"
-                                       class="btn btn-sm btn-info">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
-
-                                </td>
-
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9" class="text-center text-muted">No return requests found.</td>
-                            </tr>
-                        @endforelse
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-                <div class="d-flex justify-content-end">
-                    {{ $returns->links() }}
-                </div>
-
-            </div>
-
-        </div>
+            <x-slot:pagination>
+                {{ $returns->links() }}
+            </x-slot:pagination>
+        </x-admin.table-card>
 
     </main>
 

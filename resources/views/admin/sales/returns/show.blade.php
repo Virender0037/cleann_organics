@@ -2,13 +2,8 @@
 
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Return #{{ $return->return_number }}</h4>
-                <p class="text-muted mb-0">Review return request, refund details and activity</p>
-            </div>
-
-            <div>
+        <x-admin.page-header title="Return #{{ $return->return_number }}" subtitle="Review return request, refund details and activity">
+            <x-slot:actions>
                 @if ($return->status === 'requested')
                     <form action="{{ route('admin.sales.returns.status', $return) }}" method="POST" class="d-inline">
                         @csrf
@@ -35,66 +30,48 @@
                     <i class="ph ph-arrow-left me-1"></i>
                     Back
                 </a>
-            </div>
-        </div>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Sales'],
+            ['label' => 'Returns', 'url' => route('admin.sales.returns.index')],
+            ['label' => 'Return Details'],
+        ]" />
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Sales</span>
-            <span class="mx-2">›</span>
-            <a href="{{ route('admin.sales.returns.index') }}">Returns</a>
-            <span class="mx-2">›</span>
-            <span>Return Details</span>
-        </div>
+        @include('admin.partials.alerts')
 
         <div class="row">
 
             <div class="col-lg-8">
 
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Returned Products</h5>
-                    </div>
+                <x-admin.table-card title="Returned Products" class="mb-4">
+                    <x-slot:head>
+                        <th>Product</th>
+                        <th>Variant</th>
+                        <th>SKU</th>
+                        <th>Qty</th>
+                        <th>Refund Amount</th>
+                        <th>Item Reason</th>
+                    </x-slot:head>
 
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Variant</th>
-                                        <th>SKU</th>
-                                        <th>Qty</th>
-                                        <th>Refund Amount</th>
-                                        <th>Item Reason</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    @forelse ($return->items as $item)
-                                        <tr>
-                                            <td><strong>{{ $item->orderItem->product_name ?? '—' }}</strong></td>
-                                            <td>{{ $item->orderItem->variant_size ?? $item->orderItem->variant_color ?? $item->orderItem->variant_pack_quantity ?? '—' }}</td>
-                                            <td>{{ $item->orderItem->variant_sku ?? '—' }}</td>
-                                            <td>{{ $item->quantity }}</td>
-                                            <td>₹{{ number_format((float) $item->refund_amount, 2) }}</td>
-                                            <td>{{ $item->reason ?? '—' }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center text-muted">No items on this return.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                    @forelse ($return->items as $item)
+                        <tr>
+                            <td><strong>{{ $item->orderItem->product_name ?? '—' }}</strong></td>
+                            <td>{{ $item->orderItem->variant_size ?? $item->orderItem->variant_color ?? $item->orderItem->variant_pack_quantity ?? '—' }}</td>
+                            <td>{{ $item->orderItem->variant_sku ?? '—' }}</td>
+                            <td>{{ $item->quantity }}</td>
+                            <td>₹{{ number_format((float) $item->refund_amount, 2) }}</td>
+                            <td>{{ $item->reason ?? '—' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6">
+                                <x-admin.empty-state>No items on this return.</x-admin.empty-state>
+                            </td>
+                        </tr>
+                    @endforelse
+                </x-admin.table-card>
 
                 <div class="card mb-4">
                     <div class="card-header">
@@ -200,16 +177,7 @@
                         <p class="mb-2"><strong>Order ID:</strong> #{{ $return->order->order_number ?? '—' }}</p>
                         <p class="mb-2">
                             <strong>Status:</strong>
-                            @php
-                                $summaryBadge = match ($return->status) {
-                                    'approved' => 'bg-primary',
-                                    'rejected' => 'bg-danger',
-                                    'picked_up', 'received' => 'bg-info',
-                                    'refunded' => 'bg-success',
-                                    default => 'bg-warning text-dark',
-                                };
-                            @endphp
-                            <span class="badge {{ $summaryBadge }}">{{ ucwords(str_replace('_', ' ', $return->status)) }}</span>
+                            <x-admin.status-badge :status="$return->status" />
                         </p>
                         <p class="mb-2"><strong>Requested Date:</strong> {{ $return->created_at->format('d M Y') }}</p>
                         <p class="mb-0"><strong>Refund Amount:</strong> ₹{{ number_format((float) $return->refund_amount, 2) }}</p>
