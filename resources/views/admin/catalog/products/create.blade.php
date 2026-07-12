@@ -1,26 +1,21 @@
 <x-admin-layout title="Add Product">
     <main class="pc-container-edit">  
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-1">Add Product</h4>
-            <p class="text-muted mb-0">Create product basic information</p>
-        </div>
+    <x-admin.page-header title="Add Product" subtitle="Create product basic information">
+        <x-slot:actions>
+            <a href="{{ route('admin.catalog.products.index') }}" class="btn btn-light">
+                <i class="ph ph-arrow-left me-1"></i>
+                Back
+            </a>
+        </x-slot:actions>
+    </x-admin.page-header>
 
-        <a href="{{ route('admin.catalog.products.index') }}" class="btn btn-light">
-            <i class="ph ph-arrow-left me-1"></i>
-            Back
-        </a>
-    </div>
+    <x-admin.breadcrumb :items="[
+        ['label' => 'Catalog'],
+        ['label' => 'Products', 'url' => route('admin.catalog.products.index')],
+        ['label' => 'Add Product'],
+    ]" />
 
-    <div class="mb-3">
-        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-        <span class="mx-2">›</span>
-        <span>Catalog</span>
-        <span class="mx-2">›</span>
-        <a href="{{ route('admin.catalog.products.index') }}">Products</a>
-        <span class="mx-2">›</span>
-        <span>Add Product</span>
-    </div>
+    @include('admin.partials.alerts')
 
     <form action="{{ route('admin.catalog.products.store') }}" method="POST">
         @csrf

@@ -2,17 +2,22 @@
 
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Import Products</h4>
-                <p class="text-muted mb-0">Bulk create products from a CSV file</p>
-            </div>
+        <x-admin.page-header title="Import Products" subtitle="Bulk create products from a CSV file">
+            <x-slot:actions>
+                <a href="{{ route('admin.catalog.products.index') }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.catalog.products.index') }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Catalog'],
+            ['label' => 'Products', 'url' => route('admin.catalog.products.index')],
+            ['label' => 'Import Products'],
+        ]" />
+
+        @include('admin.partials.alerts')
 
         @if (session('import_results'))
             @php $results = session('import_results'); @endphp
@@ -47,47 +52,31 @@
             </div>
         @endif
 
-        <div class="card">
-            <div class="card-header">
-                <h5>Upload CSV</h5>
+        <x-admin.form-card title="Upload CSV" action="{{ route('admin.catalog.products.import.store') }}" enctype="multipart/form-data">
+            @error('file')
+                <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
+
+            <div class="mb-3">
+                <a href="{{ route('admin.catalog.products.import.template') }}" class="btn btn-light-secondary">
+                    <i class="ph ph-download-simple me-1"></i>
+                    Download Sample Template
+                </a>
             </div>
 
-            <div class="card-body">
-
-                @if (session('error'))
-                    <div class="alert alert-danger">{{ session('error') }}</div>
-                @endif
-
-                @error('file')
-                    <div class="alert alert-danger">{{ $message }}</div>
-                @enderror
-
-                <div class="mb-3">
-                    <a href="{{ route('admin.catalog.products.import.template') }}" class="btn btn-light-secondary">
-                        <i class="ph ph-download-simple me-1"></i>
-                        Download Sample Template
-                    </a>
-                </div>
-
-                <form action="{{ route('admin.catalog.products.import.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-
-                    <div class="mb-3">
-                        <label class="form-label">CSV File <span class="text-danger">*</span></label>
-                        <input type="file" name="file" class="form-control" accept=".csv" required>
-                        <small class="text-muted">Required columns: name, status. category_slug is required per row. Optional: slug, tax_rate_name, brand, short_description, description, is_returnable, return_days, is_featured, is_latest, is_best_seller, sort_order, meta_title, meta_keywords, meta_description, tags (comma-separated existing tag names).</small>
-                    </div>
-
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ph ph-upload-simple me-1"></i>
-                            Import
-                        </button>
-                    </div>
-                </form>
-
+            <div class="mb-3">
+                <label class="form-label">CSV File <span class="text-danger">*</span></label>
+                <input type="file" name="file" class="form-control" accept=".csv" required>
+                <small class="text-muted">Required columns: name, status. category_slug is required per row. Optional: slug, tax_rate_name, brand, short_description, description, is_returnable, return_days, is_featured, is_latest, is_best_seller, sort_order, meta_title, meta_keywords, meta_description, tags (comma-separated existing tag names).</small>
             </div>
-        </div>
+
+            <x-slot:actions>
+                <button type="submit" class="btn btn-primary">
+                    <i class="ph ph-upload-simple me-1"></i>
+                    Import
+                </button>
+            </x-slot:actions>
+        </x-admin.form-card>
 
     </main>
 

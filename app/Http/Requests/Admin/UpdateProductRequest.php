@@ -36,7 +36,7 @@ class UpdateProductRequest extends FormRequest
             'meta_keywords' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string'],
             'specifications' => ['nullable', 'array'],
-            'specifications.*.title' => ['required', 'string', 'max:255'],
+            'specifications.*.title' => ['nullable', 'string', 'max:255'],
             'specifications.*.value' => ['nullable', 'string'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['integer', Rule::exists('tags', 'id')->whereNull('deleted_at')],
