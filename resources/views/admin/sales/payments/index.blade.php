@@ -2,187 +2,140 @@
 
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Payments</h4>
-                <p class="text-muted mb-0">Manage customer payment transactions</p>
-            </div>
-
-            <div>
+        <x-admin.page-header title="Payments" subtitle="Manage customer payment transactions">
+            <x-slot:actions>
                 <a href="{{ route('admin.sales.payments.export', request()->query()) }}" class="btn btn-light-secondary">
                     <i class="ph ph-download-simple me-1"></i>
                     Export Payments
                 </a>
-            </div>
-        </div>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Sales</span>
-            <span class="mx-2">›</span>
-            <span>Payments</span>
-        </div>
+        <x-admin.breadcrumb :items="[['label' => 'Sales'], ['label' => 'Payments']]" />
 
-        <div class="card">
+        @include('admin.partials.alerts')
 
-            <div class="card-header">
-                <h5>Payment Transactions</h5>
-            </div>
-
-            <div class="card-body">
-
-                <form method="GET" action="{{ route('admin.sales.payments.index') }}">
-                    <div class="row mb-4">
-
-                        <div class="col-md-4">
-                            <input
-                                type="text"
-                                name="search"
-                                class="form-control"
-                                value="{{ request('search') }}"
-                                placeholder="Search Order / Customer / Transaction">
-                        </div>
-
-                        <div class="col-md-3">
-                            <select name="payment_method" class="form-select">
-                                <option value="">All Payment Methods</option>
-                                <option value="upi" @selected(request('payment_method') === 'upi')>UPI</option>
-                                <option value="cod" @selected(request('payment_method') === 'cod')>COD</option>
-                                <option value="bank_transfer" @selected(request('payment_method') === 'bank_transfer')>Bank Transfer</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3">
-                            <select name="status" class="form-select">
-                                <option value="">All Status</option>
-                                <option value="paid" @selected(request('status') === 'paid')>Paid</option>
-                                <option value="pending" @selected(request('status') === 'pending')>Pending</option>
-                                <option value="failed" @selected(request('status') === 'failed')>Failed</option>
-                                <option value="refunded" @selected(request('status') === 'refunded')>Refunded</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">
-                                Search
-                            </button>
-                        </div>
-
+        <x-admin.table-card title="Payment Transactions">
+            <x-slot:toolbar>
+                <x-admin.filter-toolbar action="{{ route('admin.sales.payments.index') }}">
+                    <div class="col-md-4">
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            value="{{ request('search') }}"
+                            placeholder="Search Order / Customer / Transaction">
                     </div>
-                </form>
 
-                <div class="table-responsive">
+                    <div class="col-md-3">
+                        <select name="payment_method" class="form-select">
+                            <option value="">All Payment Methods</option>
+                            <option value="upi" @selected(request('payment_method') === 'upi')>UPI</option>
+                            <option value="cod" @selected(request('payment_method') === 'cod')>COD</option>
+                            <option value="bank_transfer" @selected(request('payment_method') === 'bank_transfer')>Bank Transfer</option>
+                        </select>
+                    </div>
 
-                    <table class="table table-hover align-middle">
+                    <div class="col-md-3">
+                        <select name="status" class="form-select">
+                            <option value="">All Status</option>
+                            <option value="paid" @selected(request('status') === 'paid')>Paid</option>
+                            <option value="pending" @selected(request('status') === 'pending')>Pending</option>
+                            <option value="failed" @selected(request('status') === 'failed')>Failed</option>
+                            <option value="refunded" @selected(request('status') === 'refunded')>Refunded</option>
+                        </select>
+                    </div>
 
-                        <thead>
+                    <x-slot:submit>
+                        <button type="submit" class="btn btn-primary w-100">Search</button>
+                    </x-slot:submit>
+                </x-admin.filter-toolbar>
+            </x-slot:toolbar>
 
-                            <tr>
-                                <th>#</th>
-                                <th>Order</th>
-                                <th>Customer</th>
-                                <th>Transaction ID</th>
-                                <th>Method</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Paid On</th>
-                                <th width="120">Action</th>
-                            </tr>
+            <x-slot:head>
+                <th>#</th>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Transaction ID</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Paid On</th>
+                <th width="120">Action</th>
+            </x-slot:head>
 
-                        </thead>
+            @forelse ($payments as $payment)
+                <tr>
 
-                        <tbody>
+                    <td>{{ $payment->id }}</td>
 
-                            @forelse ($payments as $payment)
-                                <tr>
+                    <td>
+                        <strong>#{{ $payment->order->order_number ?? '—' }}</strong>
+                    </td>
 
-                                    <td>{{ $payment->id }}</td>
+                    <td>
+                        {{ $payment->order->user->name ?? '—' }}
+                        <br>
+                        <small class="text-muted">
+                            {{ $payment->order->user->email ?? '' }}
+                        </small>
+                    </td>
 
-                                    <td>
-                                        <strong>#{{ $payment->order->order_number ?? '—' }}</strong>
-                                    </td>
+                    <td>
+                        {{ $payment->transaction_id ?? '—' }}
+                    </td>
 
-                                    <td>
-                                        {{ $payment->order->user->name ?? '—' }}
-                                        <br>
-                                        <small class="text-muted">
-                                            {{ $payment->order->user->email ?? '' }}
-                                        </small>
-                                    </td>
+                    <td>
+                        <span class="badge bg-info text-dark">
+                            {{ strtoupper($payment->payment_method) }}
+                        </span>
+                    </td>
 
-                                    <td>
-                                        {{ $payment->transaction_id ?? '—' }}
-                                    </td>
+                    <td>
+                        ₹{{ number_format((float) $payment->amount, 2) }}
+                    </td>
 
-                                    <td>
-                                        <span class="badge bg-info">
-                                            {{ strtoupper($payment->payment_method) }}
-                                        </span>
-                                    </td>
+                    <td>
+                        <x-admin.status-badge :status="$payment->status" />
+                    </td>
 
-                                    <td>
-                                        ₹{{ number_format((float) $payment->amount, 2) }}
-                                    </td>
+                    <td>
+                        @if ($payment->paid_at)
+                            {{ $payment->paid_at->format('d M Y') }}
+                            <br>
+                            <small class="text-muted">{{ $payment->paid_at->format('h:i A') }}</small>
+                        @else
+                            --
+                        @endif
+                    </td>
 
-                                    <td>
-                                        @php
-                                            $statusBadge = match ($payment->status) {
-                                                'paid' => 'bg-success',
-                                                'failed' => 'bg-danger',
-                                                'refunded' => 'bg-secondary',
-                                                default => 'bg-warning text-dark',
-                                            };
-                                        @endphp
-                                        <span class="badge {{ $statusBadge }}">
-                                            {{ ucfirst($payment->status) }}
-                                        </span>
-                                    </td>
+                    <td>
 
-                                    <td>
-                                        @if ($payment->paid_at)
-                                            {{ $payment->paid_at->format('d M Y') }}
-                                            <br>
-                                            <small class="text-muted">{{ $payment->paid_at->format('h:i A') }}</small>
-                                        @else
-                                            --
-                                        @endif
-                                    </td>
+                        <a href="{{ route('admin.sales.payments.show', $payment) }}"
+                        class="btn btn-info btn-sm"
+                        title="View Payment">
+                            <i class="ph ph-eye"></i>
+                        </a>
 
-                                    <td>
+                        <button class="btn btn-success btn-sm" title="Download Receipt" disabled>
+                            <i class="ph ph-download-simple"></i>
+                        </button>
 
-                                        <a href="{{ route('admin.sales.payments.show', $payment) }}"
-                                        class="btn btn-info btn-sm"
-                                        title="View Payment">
-                                            <i class="ph ph-eye"></i>
-                                        </a>
+                    </td>
 
-                                        <button class="btn btn-success btn-sm" title="Download Receipt" disabled>
-                                            <i class="ph ph-download-simple"></i>
-                                        </button>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="9">
+                        <x-admin.empty-state>No payments found.</x-admin.empty-state>
+                    </td>
+                </tr>
+            @endforelse
 
-                                    </td>
-
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="9" class="text-center text-muted">No payments found.</td>
-                                </tr>
-                            @endforelse
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-                <div class="d-flex justify-content-end">
-                    {{ $payments->links() }}
-                </div>
-
-            </div>
-
-        </div>
+            <x-slot:pagination>
+                {{ $payments->links() }}
+            </x-slot:pagination>
+        </x-admin.table-card>
 
     </main>
 

@@ -2,27 +2,22 @@
 
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Payment Details</h4>
-                <p class="text-muted mb-0">View complete transaction information</p>
-            </div>
+        <x-admin.page-header title="Payment Details" subtitle="View complete transaction information">
+            <x-slot:actions>
+                <a href="{{ route('admin.sales.payments.index') }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.sales.payments.index') }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Sales'],
+            ['label' => 'Payments', 'url' => route('admin.sales.payments.index')],
+            ['label' => 'Payment Details'],
+        ]" />
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Sales</span>
-            <span class="mx-2">›</span>
-            <a href="{{ route('admin.sales.payments.index') }}">Payments</a>
-            <span class="mx-2">›</span>
-            <span>Payment Details</span>
-        </div>
+        @include('admin.partials.alerts')
 
         <div class="row">
 
@@ -49,22 +44,14 @@
                             <div class="col-md-6 mb-3">
                                 <label class="text-muted">Payment Method</label>
                                 <p class="mb-0">
-                                    <span class="badge bg-info">{{ strtoupper($payment->payment_method) }}</span>
+                                    <span class="badge bg-info text-dark">{{ strtoupper($payment->payment_method) }}</span>
                                 </p>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="text-muted">Payment Status</label>
                                 <p class="mb-0">
-                                    @php
-                                        $statusBadge = match ($payment->status) {
-                                            'paid' => 'bg-success',
-                                            'failed' => 'bg-danger',
-                                            'refunded' => 'bg-secondary',
-                                            default => 'bg-warning text-dark',
-                                        };
-                                    @endphp
-                                    <span class="badge {{ $statusBadge }}">{{ ucfirst($payment->status) }}</span>
+                                    <x-admin.status-badge :status="$payment->status" />
                                 </p>
                             </div>
 
