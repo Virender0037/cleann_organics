@@ -1,13 +1,8 @@
 <x-admin-layout title="Order Details">
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Order #{{ $order->order_number }}</h4>
-                <p class="text-muted mb-0">Complete order details and activity</p>
-            </div>
-
-            <div>
+        <x-admin.page-header title="Order #{{ $order->order_number }}" subtitle="Complete order details and activity">
+            <x-slot:actions>
                 <button class="btn btn-light-secondary me-2" disabled>
                     <i class="ph ph-download-simple me-1"></i>
                     Invoice
@@ -22,18 +17,16 @@
                     <i class="ph ph-arrows-clockwise me-1"></i>
                     Update Status
                 </button>
-            </div>
-        </div>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Sales</span>
-            <span class="mx-2">›</span>
-            <a href="{{ route('admin.sales.orders.index') }}">Orders</a>
-            <span class="mx-2">›</span>
-            <span>Order Details</span>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Sales'],
+            ['label' => 'Orders', 'url' => route('admin.sales.orders.index')],
+            ['label' => 'Order Details'],
+        ]" />
+
+        @include('admin.partials.alerts')
 
         <div class="row">
 
@@ -80,49 +73,37 @@
                     </div>
                 </div>
 
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Ordered Products</h5>
-                    </div>
+                <x-admin.table-card title="Ordered Products" class="mb-4">
+                    <x-slot:head>
+                        <th>Product</th>
+                        <th>Variant</th>
+                        <th>SKU</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Tax</th>
+                        <th>Total</th>
+                    </x-slot:head>
 
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Variant</th>
-                                        <th>SKU</th>
-                                        <th>Qty</th>
-                                        <th>Price</th>
-                                        <th>Tax</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    @forelse ($order->items as $item)
-                                        <tr>
-                                            <td>
-                                                <strong>{{ $item->product_name }}</strong>
-                                            </td>
-                                            <td>{{ $item->variant_size ?? $item->variant_color ?? $item->variant_pack_quantity ?? '—' }}</td>
-                                            <td>{{ $item->variant_sku ?? '—' }}</td>
-                                            <td>{{ $item->quantity }}</td>
-                                            <td>₹{{ number_format((float) $item->unit_price, 2) }}</td>
-                                            <td>₹{{ number_format((float) $item->tax_amount, 2) }}</td>
-                                            <td>₹{{ number_format((float) $item->total_price, 2) }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="7" class="text-center text-muted">No items on this order.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                    @forelse ($order->items as $item)
+                        <tr>
+                            <td>
+                                <strong>{{ $item->product_name }}</strong>
+                            </td>
+                            <td>{{ $item->variant_size ?? $item->variant_color ?? $item->variant_pack_quantity ?? '—' }}</td>
+                            <td>{{ $item->variant_sku ?? '—' }}</td>
+                            <td>{{ $item->quantity }}</td>
+                            <td>₹{{ number_format((float) $item->unit_price, 2) }}</td>
+                            <td>₹{{ number_format((float) $item->tax_amount, 2) }}</td>
+                            <td>₹{{ number_format((float) $item->total_price, 2) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7">
+                                <x-admin.empty-state>No items on this order.</x-admin.empty-state>
+                            </td>
+                        </tr>
+                    @endforelse
+                </x-admin.table-card>
 
                 <div class="row">
 
@@ -137,7 +118,7 @@
                                     <p><strong>Payment Method:</strong> {{ strtoupper($order->payment->payment_method) }}</p>
                                     <p><strong>Transaction ID:</strong> {{ $order->payment->transaction_id ?? '—' }}</p>
                                     <p><strong>Amount:</strong> ₹{{ number_format((float) $order->payment->amount, 2) }}</p>
-                                    <p><strong>Status:</strong> <span class="badge {{ $order->payment->status === 'paid' ? 'bg-success' : 'bg-warning' }}">{{ ucfirst($order->payment->status) }}</span></p>
+                                    <p><strong>Status:</strong> <x-admin.status-badge :status="$order->payment->status" /></p>
                                     <p class="mb-0"><strong>Paid At:</strong> {{ $order->payment->paid_at ? $order->payment->paid_at->format('d M Y, h:i A') : '—' }}</p>
                                 @else
                                     <p class="text-muted mb-0">No payment record found.</p>
@@ -292,7 +273,7 @@
                         @forelse ($order->returns as $return)
                             <p class="{{ ! $loop->last ? 'border-bottom pb-2 mb-2' : 'mb-0' }}">
                                 <a href="{{ route('admin.sales.returns.show', $return) }}"><strong>#{{ $return->return_number }}</strong></a> —
-                                <span class="badge bg-secondary">{{ ucfirst($return->status) }}</span><br>
+                                <x-admin.status-badge :status="$return->status" /><br>
                                 <small class="text-muted">Refund: ₹{{ number_format((float) $return->refund_amount, 2) }}</small>
                             </p>
                         @empty

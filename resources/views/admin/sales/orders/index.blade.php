@@ -1,36 +1,22 @@
 <x-admin-layout title="Orders">
     <main class="pc-container-edit">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-1">Orders</h4>
-            <p class="text-muted mb-0">Manage customer orders and order status</p>
-        </div>
 
-        <div>
-            <a href="{{ route('admin.sales.orders.export', request()->query()) }}" class="btn btn-light-secondary">
-                <i class="ph ph-download-simple me-1"></i>
-                Export
-            </a>
-        </div>
-    </div>
+        <x-admin.page-header title="Orders" subtitle="Manage customer orders and order status">
+            <x-slot:actions>
+                <a href="{{ route('admin.sales.orders.export', request()->query()) }}" class="btn btn-light-secondary">
+                    <i class="ph ph-download-simple me-1"></i>
+                    Export
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-    <div class="mb-3">
-        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-        <span class="mx-2">›</span>
-        <span>Sales</span>
-        <span class="mx-2">›</span>
-        <span>Orders</span>
-    </div>
+        <x-admin.breadcrumb :items="[['label' => 'Sales'], ['label' => 'Orders']]" />
 
-    <div class="card">
-        <div class="card-header">
-            <h5>Order List</h5>
-        </div>
+        @include('admin.partials.alerts')
 
-        <div class="card-body">
-
-            <form method="GET" action="{{ route('admin.sales.orders.index') }}">
-                <div class="row mb-3">
+        <x-admin.table-card title="Order List">
+            <x-slot:toolbar>
+                <x-admin.filter-toolbar action="{{ route('admin.sales.orders.index') }}">
                     <div class="col-md-3">
                         <input type="text"
                                name="search"
@@ -65,105 +51,81 @@
                         <input type="date" name="to" class="form-control" value="{{ request('to') }}" title="To date">
                     </div>
 
-                    <div class="col-md-1">
+                    <x-slot:submit>
                         <button type="submit" class="btn btn-primary w-100">Go</button>
-                    </div>
-                </div>
-            </form>
+                    </x-slot:submit>
+                </x-admin.filter-toolbar>
+            </x-slot:toolbar>
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Order No.</th>
-                            <th>Customer</th>
-                            <th>Total</th>
-                            <th>Payment</th>
-                            <th>Order Status</th>
-                            <th>Date</th>
-                            <th width="140">Action</th>
-                        </tr>
-                    </thead>
+            <x-slot:head>
+                <th>#</th>
+                <th>Order No.</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Order Status</th>
+                <th>Date</th>
+                <th width="140">Action</th>
+            </x-slot:head>
 
-                    <tbody>
-                        @forelse ($orders as $order)
-                            <tr>
-                                <td>{{ $order->id }}</td>
+            @forelse ($orders as $order)
+                <tr>
+                    <td>{{ $order->id }}</td>
 
-                                <td>
-                                    <strong>#{{ $order->order_number }}</strong>
-                                </td>
+                    <td>
+                        <strong>#{{ $order->order_number }}</strong>
+                    </td>
 
-                                <td>
-                                    {{ $order->user->name ?? '—' }}
-                                    <br>
-                                    <small class="text-muted">{{ $order->user->email ?? '' }}</small>
-                                </td>
+                    <td>
+                        {{ $order->user->name ?? '—' }}
+                        <br>
+                        <small class="text-muted">{{ $order->user->email ?? '' }}</small>
+                    </td>
 
-                                <td>₹{{ number_format((float) $order->grand_total, 2) }}</td>
+                    <td>₹{{ number_format((float) $order->grand_total, 2) }}</td>
 
-                                <td>
-                                    @php
-                                        $paymentBadge = match ($order->payment_status) {
-                                            'paid' => 'bg-success',
-                                            'failed' => 'bg-danger',
-                                            'refunded' => 'bg-secondary',
-                                            default => 'bg-warning',
-                                        };
-                                    @endphp
-                                    <span class="badge {{ $paymentBadge }}">{{ ucfirst($order->payment_status) }}</span>
-                                    <br>
-                                    <small class="text-muted">{{ strtoupper($order->payment_method) }}</small>
-                                </td>
+                    <td>
+                        <x-admin.status-badge :status="$order->payment_status" />
+                        <br>
+                        <small class="text-muted">{{ strtoupper($order->payment_method) }}</small>
+                    </td>
 
-                                <td>
-                                    @php
-                                        $statusBadge = match ($order->order_status) {
-                                            'delivered' => 'bg-success',
-                                            'cancelled' => 'bg-danger',
-                                            'pending' => 'bg-warning',
-                                            default => 'bg-primary',
-                                        };
-                                    @endphp
-                                    <span class="badge {{ $statusBadge }}">{{ ucfirst($order->order_status) }}</span>
-                                </td>
+                    <td>
+                        <x-admin.status-badge :status="$order->order_status" />
+                    </td>
 
-                                <td>{{ $order->created_at->format('d M Y') }}</td>
+                    <td>{{ $order->created_at->format('d M Y') }}</td>
 
-                                <td>
-                                    <a href="{{ route('admin.sales.orders.show', $order) }}"
-                                    class="btn btn-sm btn-info"
-                                    title="View Order">
-                                        <i class="ph ph-eye"></i>
-                                    </a>
+                    <td>
+                        <a href="{{ route('admin.sales.orders.show', $order) }}"
+                        class="btn btn-sm btn-info"
+                        title="View Order">
+                            <i class="ph ph-eye"></i>
+                        </a>
 
-                                    <button class="btn btn-sm btn-success"
-                                            title="Print Invoice" disabled>
-                                        <i class="ph ph-printer"></i>
-                                    </button>
+                        <button class="btn btn-sm btn-success"
+                                title="Print Invoice" disabled>
+                            <i class="ph ph-printer"></i>
+                        </button>
 
-                                    <button class="btn btn-sm btn-warning"
-                                            title="Update Status" disabled>
-                                        <i class="ph ph-arrows-clockwise"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center text-muted">No orders found.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
+                        <button class="btn btn-sm btn-warning"
+                                title="Update Status" disabled>
+                            <i class="ph ph-arrows-clockwise"></i>
+                        </button>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="8">
+                        <x-admin.empty-state>No orders found.</x-admin.empty-state>
+                    </td>
+                </tr>
+            @endforelse
 
-                </table>
-            </div>
-
-            <div class="d-flex justify-content-end">
+            <x-slot:pagination>
                 {{ $orders->links() }}
-            </div>
+            </x-slot:pagination>
+        </x-admin.table-card>
 
-        </div>
-    </div>
     </main>
 </x-admin-layout>

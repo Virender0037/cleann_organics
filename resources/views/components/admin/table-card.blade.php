@@ -1,6 +1,6 @@
 @props(['title'])
 
-<div class="card">
+<div {{ $attributes->merge(['class' => 'card']) }}>
     <div class="card-header">
         <h5>{{ $title }}</h5>
     </div>
