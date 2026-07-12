@@ -1,27 +1,22 @@
 <x-admin-layout title="Contact Message Details">
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Contact Message Details</h4>
-                <p class="text-muted mb-0">Review customer enquiry and update status</p>
-            </div>
+        <x-admin.page-header title="Contact Message Details" subtitle="Review customer enquiry and update status">
+            <x-slot:actions>
+                <a href="{{ route('admin.cms.contact-messages.index') }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.cms.contact-messages.index') }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'CMS'],
+            ['label' => 'Contact Messages', 'url' => route('admin.cms.contact-messages.index')],
+            ['label' => 'Message Details'],
+        ]" />
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>CMS</span>
-            <span class="mx-2">›</span>
-            <a href="{{ route('admin.cms.contact-messages.index') }}">Contact Messages</a>
-            <span class="mx-2">›</span>
-            <span>Message Details</span>
-        </div>
+        @include('admin.partials.alerts')
 
         <div class="row">
 
