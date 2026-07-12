@@ -1,12 +1,7 @@
 <x-admin-layout title="Dashboard">
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Dashboard</h4>
-                <p class="text-muted mb-0">Overview of your store's performance</p>
-            </div>
-        </div>
+        <x-admin.page-header title="Dashboard" subtitle="Overview of your store's performance" />
 
         <div class="row mb-4">
 
@@ -79,72 +74,46 @@
 
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h5>Recent Orders</h5>
-            </div>
+        <x-admin.table-card title="Recent Orders">
+            <x-slot:head>
+                <th>Order No.</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Order Status</th>
+                <th>Date</th>
+            </x-slot:head>
 
-            <div class="card-body table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Order No.</th>
-                            <th>Customer</th>
-                            <th>Total</th>
-                            <th>Payment</th>
-                            <th>Order Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
+            @forelse ($recentOrders as $order)
+                <tr>
+                    <td><strong>#{{ $order->order_number }}</strong></td>
 
-                    <tbody>
-                        @forelse ($recentOrders as $order)
-                            <tr>
-                                <td><strong>#{{ $order->order_number }}</strong></td>
+                    <td>
+                        {{ $order->user->name ?? '—' }}
+                        <br>
+                        <small class="text-muted">{{ $order->user->email ?? '' }}</small>
+                    </td>
 
-                                <td>
-                                    {{ $order->user->name ?? '—' }}
-                                    <br>
-                                    <small class="text-muted">{{ $order->user->email ?? '' }}</small>
-                                </td>
+                    <td>₹{{ number_format((float) $order->grand_total, 2) }}</td>
 
-                                <td>₹{{ number_format((float) $order->grand_total, 2) }}</td>
+                    <td>
+                        <x-admin.status-badge :status="$order->payment_status" />
+                    </td>
 
-                                <td>
-                                    @php
-                                        $paymentBadge = match ($order->payment_status) {
-                                            'paid' => 'bg-success',
-                                            'failed' => 'bg-danger',
-                                            'refunded' => 'bg-secondary',
-                                            default => 'bg-warning',
-                                        };
-                                    @endphp
-                                    <span class="badge {{ $paymentBadge }}">{{ ucfirst($order->payment_status) }}</span>
-                                </td>
+                    <td>
+                        <x-admin.status-badge :status="$order->order_status" />
+                    </td>
 
-                                <td>
-                                    @php
-                                        $statusBadge = match ($order->order_status) {
-                                            'delivered' => 'bg-success',
-                                            'cancelled' => 'bg-danger',
-                                            'pending' => 'bg-warning',
-                                            default => 'bg-primary',
-                                        };
-                                    @endphp
-                                    <span class="badge {{ $statusBadge }}">{{ ucfirst($order->order_status) }}</span>
-                                </td>
-
-                                <td>{{ $order->created_at->format('d M Y') }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center text-muted">No orders yet.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                    <td>{{ $order->created_at->format('d M Y') }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6">
+                        <x-admin.empty-state>No orders yet.</x-admin.empty-state>
+                    </td>
+                </tr>
+            @endforelse
+        </x-admin.table-card>
 
     </main>
 </x-admin-layout>
