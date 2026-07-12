@@ -2,29 +2,21 @@
 
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Customer Details</h4>
-                <p class="text-muted mb-0">View customer profile, orders, wishlist and activity</p>
-            </div>
+        <x-admin.page-header title="Customer Details" subtitle="View customer profile, orders, wishlist and activity">
+            <x-slot:actions>
+                <a href="{{ route('admin.customers.index') }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.customers.index') }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Customers', 'url' => route('admin.customers.index')],
+            ['label' => 'Customer Details'],
+        ]" />
 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <a href="{{ route('admin.customers.index') }}">Customers</a>
-            <span class="mx-2">›</span>
-            <span>Customer Details</span>
-        </div>
+        @include('admin.partials.alerts')
 
         <div class="row">
 
@@ -41,9 +33,7 @@
                         <h5 class="mb-1">{{ $customer->name }}</h5>
                         <p class="text-muted mb-2">{{ $customer->email }}</p>
 
-                        <span class="badge {{ $customer->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
-                            {{ ucfirst($customer->status) }}
-                        </span>
+                        <x-admin.status-badge :status="$customer->status" />
 
                         <hr>
 
@@ -106,84 +96,64 @@
 
             <div class="col-lg-8">
 
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Order History</h5>
-                    </div>
+                <x-admin.table-card title="Order History" class="mb-4">
+                    <x-slot:head>
+                        <th>Order</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </x-slot:head>
 
-                    <div class="card-body table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Order</th>
-                                    <th>Date</th>
-                                    <th>Total</th>
-                                    <th>Payment</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
+                    @forelse ($customer->orders as $order)
+                        <tr>
+                            <td>#{{ $order->order_number }}</td>
+                            <td>{{ $order->created_at->format('d M Y') }}</td>
+                            <td>₹{{ number_format((float) $order->grand_total, 2) }}</td>
+                            <td>
+                                <x-admin.status-badge :status="$order->payment_status" />
+                            </td>
+                            <td>
+                                <x-admin.status-badge :status="$order->order_status" />
+                            </td>
+                            <td>
+                                <a href="{{ route('admin.sales.orders.show', $order) }}"
+                                   class="btn btn-sm btn-info">
+                                    <i class="ph ph-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6">
+                                <x-admin.empty-state>No orders yet.</x-admin.empty-state>
+                            </td>
+                        </tr>
+                    @endforelse
+                </x-admin.table-card>
 
-                            <tbody>
-                                @forelse ($customer->orders as $order)
-                                    <tr>
-                                        <td>#{{ $order->order_number }}</td>
-                                        <td>{{ $order->created_at->format('d M Y') }}</td>
-                                        <td>₹{{ number_format((float) $order->grand_total, 2) }}</td>
-                                        <td>
-                                            <span class="badge {{ $order->payment_status === 'paid' ? 'bg-success' : 'bg-warning' }}">
-                                                {{ ucfirst($order->payment_status) }}
-                                            </span>
-                                        </td>
-                                        <td><span class="badge bg-primary">{{ ucfirst($order->order_status) }}</span></td>
-                                        <td>
-                                            <a href="{{ route('admin.sales.orders.show', $order) }}"
-                                               class="btn btn-sm btn-info">
-                                                <i class="ph ph-eye"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">No orders yet.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <x-admin.table-card title="Wishlist" class="mb-4">
+                    <x-slot:head>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Added On</th>
+                    </x-slot:head>
 
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Wishlist</h5>
-                    </div>
-
-                    <div class="card-body table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Category</th>
-                                    <th>Added On</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @forelse ($customer->wishlists as $wishlist)
-                                    <tr>
-                                        <td>{{ $wishlist->product->name ?? '—' }}</td>
-                                        <td>{{ $wishlist->product->category->name ?? '—' }}</td>
-                                        <td>{{ $wishlist->created_at->format('d M Y') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="text-center text-muted">No wishlist items.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                    @forelse ($customer->wishlists as $wishlist)
+                        <tr>
+                            <td>{{ $wishlist->product->name ?? '—' }}</td>
+                            <td>{{ $wishlist->product->category->name ?? '—' }}</td>
+                            <td>{{ $wishlist->created_at->format('d M Y') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3">
+                                <x-admin.empty-state>No wishlist items.</x-admin.empty-state>
+                            </td>
+                        </tr>
+                    @endforelse
+                </x-admin.table-card>
 
                 <div class="card mb-4">
                     <div class="card-header">
