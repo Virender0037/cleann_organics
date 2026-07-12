@@ -1,26 +1,21 @@
 <x-admin-layout title="Edit Variant">
 <main class="pc-container-edit"> 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-1">Edit Variant</h4>
-            <p class="text-muted mb-0">Update product variant details</p>
-        </div>
+    <x-admin.page-header title="Edit Variant" subtitle="Update product variant details">
+        <x-slot:actions>
+            <a href="{{ route('admin.catalog.variants.index') }}" class="btn btn-light">
+                <i class="ph ph-arrow-left me-1"></i>
+                Back
+            </a>
+        </x-slot:actions>
+    </x-admin.page-header>
 
-        <a href="{{ route('admin.catalog.variants.index') }}" class="btn btn-light">
-            <i class="ph ph-arrow-left me-1"></i>
-            Back
-        </a>
-    </div>
+    <x-admin.breadcrumb :items="[
+        ['label' => 'Catalog'],
+        ['label' => 'Variants', 'url' => route('admin.catalog.variants.index')],
+        ['label' => 'Edit Variant'],
+    ]" />
 
-    <div class="mb-3">
-        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-        <span class="mx-2">›</span>
-        <span>Catalog</span>
-        <span class="mx-2">›</span>
-        <a href="{{ route('admin.catalog.variants.index') }}">Variants</a>
-        <span class="mx-2">›</span>
-        <span>Edit Variant</span>
-    </div>
+    @include('admin.partials.alerts')
 
     <form action="{{ route('admin.catalog.variants.update', $variant) }}" method="POST" enctype="multipart/form-data">
         @csrf

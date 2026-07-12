@@ -1,26 +1,21 @@
 <x-admin-layout title="Add Variant">
     <main class="pc-container-edit">  
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-1">Add Variant</h4>
-            <p class="text-muted mb-0">Create product variant with price, stock and images</p>
-        </div>
+    <x-admin.page-header title="Add Variant" subtitle="Create product variant with price, stock and images">
+        <x-slot:actions>
+            <a href="{{ route('admin.catalog.variants.index') }}" class="btn btn-light">
+                <i class="ph ph-arrow-left me-1"></i>
+                Back
+            </a>
+        </x-slot:actions>
+    </x-admin.page-header>
 
-        <a href="{{ route('admin.catalog.variants.index') }}" class="btn btn-light">
-            <i class="ph ph-arrow-left me-1"></i>
-            Back
-        </a>
-    </div>
+    <x-admin.breadcrumb :items="[
+        ['label' => 'Catalog'],
+        ['label' => 'Variants', 'url' => route('admin.catalog.variants.index')],
+        ['label' => 'Add Variant'],
+    ]" />
 
-    <div class="mb-3">
-        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-        <span class="mx-2">›</span>
-        <span>Catalog</span>
-        <span class="mx-2">›</span>
-        <a href="{{ route('admin.catalog.variants.index') }}">Variants</a>
-        <span class="mx-2">›</span>
-        <span>Add Variant</span>
-    </div>
+    @include('admin.partials.alerts')
 
     <form action="{{ route('admin.catalog.variants.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
