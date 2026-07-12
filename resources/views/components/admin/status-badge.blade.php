@@ -8,15 +8,18 @@
         'replied' => 'success',
         'approved' => 'success',
         'completed' => 'success',
+        'in_stock' => 'success',
 
         'pending' => 'warning',
         'unread' => 'warning',
         'requested' => 'warning',
         'draft' => 'warning',
+        'low_stock' => 'warning',
 
         'failed' => 'danger',
         'cancelled' => 'danger',
         'rejected' => 'danger',
+        'out_of_stock' => 'danger',
 
         'refunded' => 'secondary',
         'inactive' => 'secondary',
