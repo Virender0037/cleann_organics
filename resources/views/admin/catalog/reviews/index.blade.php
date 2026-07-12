@@ -1,201 +1,151 @@
 <x-admin-layout title="Product Reviews">
     <main class="pc-container-edit">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="mb-1">Product Reviews</h4>
-            <p class="text-muted mb-0">Manage customer product reviews and ratings</p>
-        </div>
-
-        <div>
+    <x-admin.page-header title="Product Reviews" subtitle="Manage customer product reviews and ratings">
+        <x-slot:actions>
             <a href="{{ route('admin.catalog.reviews.export', request()->query()) }}" class="btn btn-light-secondary">
                 <i class="ph ph-download-simple me-1"></i>
                 Export
             </a>
-        </div>
-    </div>
+        </x-slot:actions>
+    </x-admin.page-header>
 
-    <div class="mb-3">
-        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-        <span class="mx-2">›</span>
-        <span>Catalog</span>
-        <span class="mx-2">›</span>
-        <span>Reviews</span>
-    </div>
+    <x-admin.breadcrumb :items="[['label' => 'Catalog'], ['label' => 'Reviews']]" />
 
-    <div class="card">
+    @include('admin.partials.alerts')
 
-        <div class="card-header">
-            <h5>Review List</h5>
-        </div>
-
-        <div class="card-body">
-
-            @if (session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
-
-            <form method="GET" action="{{ route('admin.catalog.reviews.index') }}">
-                <div class="row mb-3">
-
-                    <div class="col-md-4">
-                        <input type="text"
-                               name="search"
-                               class="form-control"
-                               value="{{ request('search') }}"
-                               placeholder="Search Product or Customer"
-                               onchange="this.form.submit()">
-                    </div>
-
-                    <div class="col-md-3">
-                        <select name="rating" class="form-select" onchange="this.form.submit()">
-                            <option value="">All Ratings</option>
-                            <option value="5" @selected(request('rating') == 5)>★★★★★ (5)</option>
-                            <option value="4" @selected(request('rating') == 4)>★★★★☆ (4)</option>
-                            <option value="3" @selected(request('rating') == 3)>★★★☆☆ (3)</option>
-                            <option value="2" @selected(request('rating') == 2)>★★☆☆☆ (2)</option>
-                            <option value="1" @selected(request('rating') == 1)>★☆☆☆☆ (1)</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <select name="status" class="form-select" onchange="this.form.submit()">
-                            <option value="">All Status</option>
-                            <option value="pending" @selected(request('status') === 'pending')>Pending</option>
-                            <option value="approved" @selected(request('status') === 'approved')>Approved</option>
-                            <option value="rejected" @selected(request('status') === 'rejected')>Rejected</option>
-                        </select>
-                    </div>
-
+    <x-admin.table-card title="Review List">
+        <x-slot:toolbar>
+            <x-admin.filter-toolbar action="{{ route('admin.catalog.reviews.index') }}">
+                <div class="col-md-4">
+                    <input type="text"
+                           name="search"
+                           class="form-control"
+                           value="{{ request('search') }}"
+                           placeholder="Search Product or Customer"
+                           onchange="this.form.submit()">
                 </div>
-            </form>
 
-            <div class="table-responsive">
+                <div class="col-md-3">
+                    <select name="rating" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Ratings</option>
+                        <option value="5" @selected(request('rating') == 5)>★★★★★ (5)</option>
+                        <option value="4" @selected(request('rating') == 4)>★★★★☆ (4)</option>
+                        <option value="3" @selected(request('rating') == 3)>★★★☆☆ (3)</option>
+                        <option value="2" @selected(request('rating') == 2)>★★☆☆☆ (2)</option>
+                        <option value="1" @selected(request('rating') == 1)>★☆☆☆☆ (1)</option>
+                    </select>
+                </div>
 
-                <table class="table table-hover align-middle">
+                <div class="col-md-3">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Status</option>
+                        <option value="pending" @selected(request('status') === 'pending')>Pending</option>
+                        <option value="approved" @selected(request('status') === 'approved')>Approved</option>
+                        <option value="rejected" @selected(request('status') === 'rejected')>Rejected</option>
+                    </select>
+                </div>
+            </x-admin.filter-toolbar>
+        </x-slot:toolbar>
 
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Product</th>
-                        <th>Customer</th>
-                        <th>Rating</th>
-                        <th>Review</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th width="160">Action</th>
-                    </tr>
-                    </thead>
+        <x-slot:head>
+            <th>#</th>
+            <th>Product</th>
+            <th>Customer</th>
+            <th>Rating</th>
+            <th>Review</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th width="160">Action</th>
+        </x-slot:head>
 
-                    <tbody>
+        @forelse ($reviews as $review)
+            <tr>
 
-                    @forelse ($reviews as $review)
-                        <tr>
+                <td>{{ $review->id }}</td>
 
-                            <td>{{ $review->id }}</td>
+                <td>
+                    <strong>{{ $review->product->name ?? '—' }}</strong>
+                </td>
 
-                            <td>
-                                <strong>{{ $review->product->name ?? '—' }}</strong>
-                            </td>
+                <td>
+                    {{ $review->user->name ?? '—' }}
+                    <br>
+                    <small class="text-muted">
+                        {{ $review->user->email ?? '' }}
+                    </small>
+                </td>
 
-                            <td>
-                                {{ $review->user->name ?? '—' }}
-                                <br>
-                                <small class="text-muted">
-                                    {{ $review->user->email ?? '' }}
-                                </small>
-                            </td>
+                <td>
+                    {{ str_repeat('⭐', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}
+                </td>
 
-                            <td>
-                                {{ str_repeat('⭐', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}
-                            </td>
+                <td style="max-width:250px">
+                    {{ $review->review }}
+                </td>
 
-                            <td style="max-width:250px">
-                                {{ $review->review }}
-                            </td>
+                <td>
+                    <x-admin.status-badge :status="$review->status" />
+                </td>
 
-                            <td>
-                                @php
-                                    $statusBadge = match ($review->status) {
-                                        'approved' => 'bg-success',
-                                        'rejected' => 'bg-danger',
-                                        default => 'bg-warning',
-                                    };
-                                @endphp
-                                <span class="badge {{ $statusBadge }}">
-                                    {{ ucfirst($review->status) }}
-                                </span>
-                            </td>
+                <td>
+                    {{ $review->created_at->format('d M Y') }}
+                </td>
 
-                            <td>
-                                {{ $review->created_at->format('d M Y') }}
-                            </td>
+                <td>
 
-                            <td>
+                    @if ($review->status !== 'approved')
+                        <form action="{{ route('admin.catalog.reviews.status', $review) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="status" value="approved">
+                            <button type="submit" class="btn btn-sm btn-success" title="Approve">
+                                <i class="ph ph-check"></i>
+                            </button>
+                        </form>
+                    @endif
 
-                                @if ($review->status !== 'approved')
-                                    <form action="{{ route('admin.catalog.reviews.status', $review) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="approved">
-                                        <button type="submit" class="btn btn-sm btn-success" title="Approve">
-                                            <i class="ph ph-check"></i>
-                                        </button>
-                                    </form>
-                                @endif
+                    @if ($review->status !== 'rejected')
+                        <form action="{{ route('admin.catalog.reviews.status', $review) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="status" value="rejected">
+                            <button type="submit" class="btn btn-sm btn-warning" title="Reject">
+                                <i class="ph ph-x"></i>
+                            </button>
+                        </form>
+                    @endif
 
-                                @if ($review->status !== 'rejected')
-                                    <form action="{{ route('admin.catalog.reviews.status', $review) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="status" value="rejected">
-                                        <button type="submit" class="btn btn-sm btn-warning" title="Reject">
-                                            <i class="ph ph-x"></i>
-                                        </button>
-                                    </form>
-                                @endif
+                    <button type="button"
+                            class="btn btn-sm btn-info"
+                            title="View"
+                            data-bs-toggle="modal"
+                            data-bs-target="#reviewModal{{ $review->id }}">
+                        <i class="ph ph-eye"></i>
+                    </button>
 
-                                <button type="button"
-                                        class="btn btn-sm btn-info"
-                                        title="View"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#reviewModal{{ $review->id }}">
-                                    <i class="ph ph-eye"></i>
-                                </button>
+                    <form action="{{ route('admin.catalog.reviews.destroy', $review) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this review?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </form>
 
-                                <form action="{{ route('admin.catalog.reviews.destroy', $review) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this review?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </form>
+                </td>
 
-                            </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="8">
+                    <x-admin.empty-state>No reviews found.</x-admin.empty-state>
+                </td>
+            </tr>
+        @endforelse
 
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="text-center text-muted">No reviews found.</td>
-                        </tr>
-                    @endforelse
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <div class="d-flex justify-content-end">
-                {{ $reviews->links() }}
-            </div>
-
-        </div>
-
-    </div>
+        <x-slot:pagination>
+            {{ $reviews->links() }}
+        </x-slot:pagination>
+    </x-admin.table-card>
 
     @foreach ($reviews as $review)
         <div class="modal fade" id="reviewModal{{ $review->id }}" tabindex="-1" aria-hidden="true">
@@ -215,14 +165,7 @@
                         <p><strong>Review:</strong><br>{{ $review->review }}</p>
                         <p>
                             <strong>Status:</strong>
-                            @php
-                                $modalStatusBadge = match ($review->status) {
-                                    'approved' => 'bg-success',
-                                    'rejected' => 'bg-danger',
-                                    default => 'bg-warning',
-                                };
-                            @endphp
-                            <span class="badge {{ $modalStatusBadge }}">{{ ucfirst($review->status) }}</span>
+                            <x-admin.status-badge :status="$review->status" />
                         </p>
                         <p class="mb-0"><strong>Date:</strong> {{ $review->created_at->format('d M Y') }}</p>
                     </div>
