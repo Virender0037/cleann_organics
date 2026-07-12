@@ -27,6 +27,8 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link" />
     <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}" />
+    <!-- Cleann Organics Admin Design System -->
+    <link rel="stylesheet" href="{{ asset('assets/css/admin-custom.css') }}" />
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-14K1GBX9FG"></script>
 <script>

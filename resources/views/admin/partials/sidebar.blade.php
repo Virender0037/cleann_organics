@@ -512,16 +512,16 @@
   <div class="header-wrapper"> <!-- [Mobile Media Block] start -->
 <div class="me-auto pc-mob-drp">
   <ul class="list-unstyled">
-    <!-- <li class="pc-h-item pc-sidebar-collapse">
+    <li class="pc-h-item pc-sidebar-collapse">
       <a href="#" class="pc-head-link ms-0" id="sidebar-hide">
         <i class="ph ph-list"></i>
       </a>
-    </li> -->
-    <!-- <li class="pc-h-item pc-sidebar-popup">
+    </li>
+    <li class="pc-h-item pc-sidebar-popup">
       <a href="#" class="pc-head-link ms-0" id="mobile-collapse">
         <i class="ph ph-list"></i>
       </a>
-    </li> -->
+    </li>
   </ul>
 </div>
 <!-- [Mobile Media Block end] -->
