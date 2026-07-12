@@ -200,24 +200,6 @@
                     </a>
                 </li>
 
-                <li class="pc-item">
-                    <a class="pc-link" href="{{route('admin.customers.index')}}">
-                        <span class="pc-micon">
-                            <i class="ph ph-map-pin-line"></i>
-                        </span>
-                        Addresses
-                    </a>
-                </li>
-
-                <li class="pc-item">
-                    <a class="pc-link" href="{{route('admin.customers.index')}}">
-                        <span class="pc-micon">
-                            <i class="ph ph-heart"></i>
-                        </span>
-                        Wishlists
-                    </a>
-                </li>
-
             </ul>
         </li>
         <li class="pc-item pc-hasmenu">
