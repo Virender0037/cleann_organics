@@ -2,17 +2,22 @@
 
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Edit CMS Page</h4>
-                <p class="text-muted mb-0">Update website content page</p>
-            </div>
+        <x-admin.page-header title="Edit CMS Page" subtitle="Update website content page">
+            <x-slot:actions>
+                <a href="{{ route('admin.cms.pages.index') }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.cms.pages.index') }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'CMS'],
+            ['label' => 'Pages', 'url' => route('admin.cms.pages.index')],
+            ['label' => 'Edit Page'],
+        ]" />
+
+        @include('admin.partials.alerts')
 
         <form action="{{ route('admin.cms.pages.update', $page) }}" method="POST" enctype="multipart/form-data">
             @csrf
