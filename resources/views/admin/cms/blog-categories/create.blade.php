@@ -2,19 +2,21 @@
 
 <main class="pc-container-edit">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<x-admin.page-header title="Add Blog Category" subtitle="Create a new blog category">
+    <x-slot:actions>
+        <a href="{{ route('admin.cms.blog-categories.index') }}" class="btn btn-light">
+            Back
+        </a>
+    </x-slot:actions>
+</x-admin.page-header>
 
-<div>
-<h4>Add Blog Category</h4>
-<p class="text-muted">Create a new blog category</p>
-</div>
+<x-admin.breadcrumb :items="[
+    ['label' => 'CMS'],
+    ['label' => 'Blog Categories', 'url' => route('admin.cms.blog-categories.index')],
+    ['label' => 'Add Category'],
+]" />
 
-<a href="{{ route('admin.cms.blog-categories.index') }}"
-class="btn btn-light">
-Back
-</a>
-
-</div>
+@include('admin.partials.alerts')
 
 <form action="{{ route('admin.cms.blog-categories.store') }}" method="POST">
 @csrf
