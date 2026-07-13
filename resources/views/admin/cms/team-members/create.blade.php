@@ -1,17 +1,22 @@
 <x-admin-layout title="Add Team Member">
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Add Team Member</h4>
-                <p class="text-muted mb-0">Create a new team profile for the website</p>
-            </div>
+        <x-admin.page-header title="Add Team Member" subtitle="Create a new team profile for the website">
+            <x-slot:actions>
+                <a href="{{ route('admin.cms.team-members.index') }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.cms.team-members.index') }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'CMS'],
+            ['label' => 'Team Members', 'url' => route('admin.cms.team-members.index')],
+            ['label' => 'Add Team Member'],
+        ]" />
+
+        @include('admin.partials.alerts')
 
         <form action="{{ route('admin.cms.team-members.store') }}" method="POST" enctype="multipart/form-data">
             @csrf

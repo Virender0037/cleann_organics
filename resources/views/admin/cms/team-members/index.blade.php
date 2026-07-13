@@ -1,138 +1,106 @@
 <x-admin-layout title="Team Members">
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Team Members</h4>
-                <p class="text-muted mb-0">Manage team profiles displayed on the website</p>
-            </div>
+        <x-admin.page-header title="Team Members" subtitle="Manage team profiles displayed on the website">
+            <x-slot:actions>
+                <a href="{{ route('admin.cms.team-members.create') }}" class="btn btn-primary">
+                    <i class="ph ph-plus me-1"></i>
+                    Add Team Member
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.cms.team-members.create') }}" class="btn btn-primary">
-                <i class="ph ph-plus me-1"></i>
-                Add Team Member
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[['label' => 'CMS'], ['label' => 'Team Members']]" />
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>CMS</span>
-            <span class="mx-2">›</span>
-            <span>Team Members</span>
-        </div>
+        @include('admin.partials.alerts')
 
-        <div class="card">
-            <div class="card-header">
-                <h5>Team Member List</h5>
-            </div>
-
-            <div class="card-body">
-
-                @if (session('success'))
-                    <div class="alert alert-success">{{ session('success') }}</div>
-                @endif
-
-                @if (session('error'))
-                    <div class="alert alert-danger">{{ session('error') }}</div>
-                @endif
-
-                <form method="GET" action="{{ route('admin.cms.team-members.index') }}">
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <input type="text"
-                                   name="search"
-                                   class="form-control"
-                                   value="{{ request('search') }}"
-                                   placeholder="Search name or designation"
-                                   onchange="this.form.submit()">
-                        </div>
-
-                        <div class="col-md-3">
-                            <select name="status" class="form-select" onchange="this.form.submit()">
-                                <option value="">All Status</option>
-                                <option value="active" @selected(request('status') === 'active')>Active</option>
-                                <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
-                            </select>
-                        </div>
+        <x-admin.table-card title="Team Member List">
+            <x-slot:toolbar>
+                <x-admin.filter-toolbar action="{{ route('admin.cms.team-members.index') }}">
+                    <div class="col-md-4">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               value="{{ request('search') }}"
+                               placeholder="Search name or designation"
+                               onchange="this.form.submit()">
                     </div>
-                </form>
 
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Photo</th>
-                                <th>Name</th>
-                                <th>Designation</th>
-                                <th>Email</th>
-                                <th>Sort Order</th>
-                                <th>Status</th>
-                                <th width="130">Action</th>
-                            </tr>
-                        </thead>
+                    <div class="col-md-3">
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="active" @selected(request('status') === 'active')>Active</option>
+                            <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+                        </select>
+                    </div>
+                </x-admin.filter-toolbar>
+            </x-slot:toolbar>
 
-                        <tbody>
-                            @forelse ($teamMembers as $teamMember)
-                                <tr>
-                                    <td>{{ $teamMember->id }}</td>
+            <x-slot:head>
+                <th>#</th>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Email</th>
+                <th>Sort Order</th>
+                <th>Status</th>
+                <th width="130">Action</th>
+            </x-slot:head>
 
-                                    <td>
-                                        <img src="{{ $teamMember->image ? \Illuminate\Support\Facades\Storage::url($teamMember->image) : 'https://placehold.co/60x60' }}"
-                                             class="rounded-circle border"
-                                             width="60"
-                                             height="60"
-                                             alt="Team Member">
-                                    </td>
+            @forelse ($teamMembers as $teamMember)
+                <tr>
+                    <td>{{ $teamMember->id }}</td>
 
-                                    <td>
-                                        <strong>{{ $teamMember->name }}</strong>
-                                    </td>
+                    <td>
+                        <img src="{{ $teamMember->image ? \Illuminate\Support\Facades\Storage::url($teamMember->image) : 'https://placehold.co/60x60' }}"
+                             class="rounded-circle border"
+                             width="60"
+                             height="60"
+                             alt="Team Member">
+                    </td>
 
-                                    <td>{{ $teamMember->designation }}</td>
+                    <td>
+                        <strong>{{ $teamMember->name }}</strong>
+                    </td>
 
-                                    <td>{{ $teamMember->email ?? '—' }}</td>
+                    <td>{{ $teamMember->designation }}</td>
 
-                                    <td>{{ $teamMember->sort_order }}</td>
+                    <td>{{ $teamMember->email ?? '—' }}</td>
 
-                                    <td>
-                                        <span class="badge {{ $teamMember->status === 'active' ? 'bg-success' : 'bg-secondary' }}">
-                                            {{ ucfirst($teamMember->status) }}
-                                        </span>
-                                    </td>
+                    <td>{{ $teamMember->sort_order }}</td>
 
-                                    <td>
-                                        <a href="{{ route('admin.cms.team-members.edit', $teamMember) }}"
-                                           class="btn btn-sm btn-warning"
-                                           title="Edit Team Member">
-                                            <i class="ph ph-pencil-simple"></i>
-                                        </a>
+                    <td>
+                        <x-admin.status-badge :status="$teamMember->status" />
+                    </td>
 
-                                        <form action="{{ route('admin.cms.team-members.destroy', $teamMember) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this team member?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Team Member">
-                                                <i class="ph ph-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted">No team members found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
+                    <td>
+                        <a href="{{ route('admin.cms.team-members.edit', $teamMember) }}"
+                           class="btn btn-sm btn-warning"
+                           title="Edit Team Member">
+                            <i class="ph ph-pencil-simple"></i>
+                        </a>
 
-                    </table>
-                </div>
+                        <form action="{{ route('admin.cms.team-members.destroy', $teamMember) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this team member?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Team Member">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="8">
+                        <x-admin.empty-state>No team members found.</x-admin.empty-state>
+                    </td>
+                </tr>
+            @endforelse
 
-                <div class="d-flex justify-content-end">
-                    {{ $teamMembers->links() }}
-                </div>
-
-            </div>
-        </div>
+            <x-slot:pagination>
+                {{ $teamMembers->links() }}
+            </x-slot:pagination>
+        </x-admin.table-card>
 
     </main>
 </x-admin-layout>
