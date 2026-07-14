@@ -483,6 +483,15 @@
                     </a>
                 </li>
 
+                <li class="pc-item">
+                    <a class="pc-link" href="{{ route('admin.settings.payment.index') }}">
+                        <span class="pc-micon">
+                            <i class="ph ph-credit-card"></i>
+                        </span>
+                        Payment Settings
+                    </a>
+                </li>
+
             </ul>
         </li>
     </div>

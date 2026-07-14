@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\ReturnController;
 use App\Http\Controllers\Admin\SalesOrderController;
 use App\Http\Controllers\Admin\SalesPaymentController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShippingRateController;
 use App\Http\Controllers\Admin\ShippingZoneController;
 use App\Http\Controllers\Admin\TagController;
@@ -353,10 +354,15 @@ Route::prefix('admin')
             Route::view('/activity-logs', 'admin.administration.activity-logs.index')
                 ->name('activity-logs.index');
         });
-        Route::prefix('settings')->name('settings.')->group(function () {
-            Route::view('/general', 'admin.settings.general.index')->name('general.index');
-            Route::view('/seo', 'admin.settings.seo.index')->name('seo.index');
-            Route::view('/email', 'admin.settings.email.index')->name('email.index');
+        Route::prefix('settings')->name('settings.')->controller(SettingController::class)->group(function () {
+            Route::get('/general', 'general')->name('general.index');
+            Route::put('/general', 'updateGeneral')->name('general.update');
+            Route::get('/seo', 'seo')->name('seo.index');
+            Route::put('/seo', 'updateSeo')->name('seo.update');
+            Route::get('/email', 'email')->name('email.index');
+            Route::put('/email', 'updateEmail')->name('email.update');
+            Route::get('/payment', 'payment')->name('payment.index');
+            Route::put('/payment', 'updatePayment')->name('payment.update');
         });
     });
 
