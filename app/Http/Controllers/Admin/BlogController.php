@@ -47,7 +47,7 @@ class BlogController extends Controller
         $data = $request->safe()->except('tags');
         $data['slug'] = ($data['slug'] ?? null) ?: Str::slug($data['title']);
         $data['is_featured'] = $request->boolean('is_featured');
-        $data['user_id'] = $request->user()->id;
+        $data['user_id'] = $request->user()?->id;
 
         if ($request->hasFile('featured_image')) {
             $data['featured_image'] = $request->file('featured_image')->store('blogs', 'public');

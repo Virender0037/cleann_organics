@@ -2,17 +2,22 @@
 
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Add Blog</h4>
-                <p class="text-muted mb-0">Create a new blog article</p>
-            </div>
+        <x-admin.page-header title="Add Blog" subtitle="Create a new blog article">
+            <x-slot:actions>
+                <a href="{{ route('admin.cms.blogs.index') }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.cms.blogs.index') }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'CMS'],
+            ['label' => 'Blogs', 'url' => route('admin.cms.blogs.index')],
+            ['label' => 'Add Blog'],
+        ]" />
+
+        @include('admin.partials.alerts')
 
         <form action="{{ route('admin.cms.blogs.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
