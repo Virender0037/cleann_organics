@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\ReturnController;
 use App\Http\Controllers\Admin\SalesOrderController;
 use App\Http\Controllers\Admin\SalesPaymentController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ShippingMethodController;
 use App\Http\Controllers\Admin\ShippingRateController;
 use App\Http\Controllers\Admin\ShippingZoneController;
 use App\Http\Controllers\Admin\TagController;
@@ -247,9 +248,14 @@ Route::prefix('admin')
                 Route::delete('/{zone}', 'destroy')->name('destroy');
             });
             // Methods
-            Route::view('/methods', 'admin.shipping.methods.index')->name('methods.index');
-            Route::view('/methods/create', 'admin.shipping.methods.create')->name('methods.create');
-            Route::view('/methods/edit', 'admin.shipping.methods.edit')->name('methods.edit');
+            Route::prefix('methods')->name('methods.')->controller(ShippingMethodController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{method}/edit', 'edit')->name('edit');
+                Route::put('/{method}', 'update')->name('update');
+                Route::delete('/{method}', 'destroy')->name('destroy');
+            });
             // Rates
             Route::prefix('rates')->name('rates.')->controller(ShippingRateController::class)->group(function () {
                 Route::get('/', 'index')->name('index');

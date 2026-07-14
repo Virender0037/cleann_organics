@@ -1,104 +1,89 @@
 <x-admin-layout title="Shipping Methods">
 
-    <main class="pc-container-edit">
+<main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Shipping Methods</h4>
-                <p class="text-muted mb-0">Manage available delivery methods</p>
-            </div>
-
+    <x-admin.page-header title="Shipping Methods" subtitle="Manage available delivery methods">
+        <x-slot:actions>
             <a href="{{ route('admin.shipping.methods.create') }}" class="btn btn-primary">
                 <i class="ph ph-plus me-1"></i>
                 Add Method
             </a>
-        </div>
+        </x-slot:actions>
+    </x-admin.page-header>
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Shipping</span>
-            <span class="mx-2">›</span>
-            <span>Methods</span>
-        </div>
+    <x-admin.breadcrumb :items="[['label' => 'Shipping'], ['label' => 'Methods']]" />
 
-        <div class="card">
-            <div class="card-header">
-                <h5>Method List</h5>
-            </div>
+    @include('admin.partials.alerts')
 
-            <div class="card-body">
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Search method">
-                    </div>
-
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option>All Status</option>
-                            <option>Active</option>
-                            <option>Inactive</option>
-                        </select>
-                    </div>
+    <x-admin.table-card title="Method List">
+        <x-slot:toolbar>
+            <x-admin.filter-toolbar action="{{ route('admin.shipping.methods.index') }}">
+                <div class="col-md-4">
+                    <input type="text"
+                           name="search"
+                           class="form-control"
+                           value="{{ request('search') }}"
+                           placeholder="Search method"
+                           onchange="this.form.submit()">
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Method Name</th>
-                                <th>Code</th>
-                                <th>Estimated Delivery</th>
-                                <th>Sort Order</th>
-                                <th>Status</th>
-                                <th width="130">Action</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td><strong>Standard Shipping</strong></td>
-                                <td>standard</td>
-                                <td>3 - 5 Days</td>
-                                <td>1</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <a href="{{ route('admin.shipping.methods.edit') }}" class="btn btn-sm btn-warning" title="Edit Method">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger" title="Delete Method">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td>2</td>
-                                <td><strong>Express Shipping</strong></td>
-                                <td>express</td>
-                                <td>1 - 2 Days</td>
-                                <td>2</td>
-                                <td><span class="badge bg-success">Active</span></td>
-                                <td>
-                                    <a href="{{ route('admin.shipping.methods.edit') }}" class="btn btn-sm btn-warning" title="Edit Method">
-                                        <i class="ph ph-pencil-simple"></i>
-                                    </a>
-
-                                    <button class="btn btn-sm btn-danger" title="Delete Method">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-
-                    </table>
+                <div class="col-md-3">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Status</option>
+                        <option value="active" @selected(request('status') === 'active')>Active</option>
+                        <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
+                    </select>
                 </div>
-            </div>
-        </div>
+            </x-admin.filter-toolbar>
+        </x-slot:toolbar>
 
-    </main>
+        <x-slot:head>
+            <th>#</th>
+            <th>Method Name</th>
+            <th>Code</th>
+            <th>Estimated Delivery</th>
+            <th>Sort Order</th>
+            <th>Status</th>
+            <th width="130">Action</th>
+        </x-slot:head>
+
+        @forelse ($methods as $method)
+            <tr>
+                <td>{{ $method->id }}</td>
+                <td><strong>{{ $method->name }}</strong></td>
+                <td>{{ $method->code }}</td>
+                <td>{{ $method->estimated_delivery ?? '—' }}</td>
+                <td>{{ $method->sort_order }}</td>
+                <td>
+                    <x-admin.status-badge :status="$method->status" />
+                </td>
+                <td>
+                    <a href="{{ route('admin.shipping.methods.edit', $method) }}" class="btn btn-sm btn-warning" title="Edit Method">
+                        <i class="ph ph-pencil-simple"></i>
+                    </a>
+
+                    <form action="{{ route('admin.shipping.methods.destroy', $method) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this method?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger" title="Delete Method">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="7">
+                    <x-admin.empty-state>No shipping methods found.</x-admin.empty-state>
+                </td>
+            </tr>
+        @endforelse
+
+        <x-slot:pagination>
+            {{ $methods->links() }}
+        </x-slot:pagination>
+    </x-admin.table-card>
+
+</main>
 
 </x-admin-layout>

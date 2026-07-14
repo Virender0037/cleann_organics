@@ -1,91 +1,80 @@
 <x-admin-layout title="Edit Shipping Method">
 
-    <main class="pc-container-edit">
+<main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Edit Shipping Method</h4>
-                <p class="text-muted mb-0">Update delivery method details</p>
-            </div>
-
+    <x-admin.page-header title="Edit Shipping Method" subtitle="Update delivery method details">
+        <x-slot:actions>
             <a href="{{ route('admin.shipping.methods.index') }}" class="btn btn-light">
                 <i class="ph ph-arrow-left me-1"></i>
                 Back
             </a>
-        </div>
+        </x-slot:actions>
+    </x-admin.page-header>
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Shipping</span>
-            <span class="mx-2">›</span>
-            <a href="{{ route('admin.shipping.methods.index') }}">Methods</a>
-            <span class="mx-2">›</span>
-            <span>Edit Method</span>
-        </div>
+    <x-admin.breadcrumb :items="[
+        ['label' => 'Shipping'],
+        ['label' => 'Methods', 'url' => route('admin.shipping.methods.index')],
+        ['label' => 'Edit Method'],
+    ]" />
 
-        <form action="#" method="POST">
-            @csrf
-            @method('PUT')
+    @include('admin.partials.alerts')
 
-            <div class="card">
-                <div class="card-header">
-                    <h5>Method Information</h5>
-                </div>
+    <x-admin.form-card title="Method Information" action="{{ route('admin.shipping.methods.update', $method) }}" method="PUT">
+        <x-slot:actions>
+            <a href="{{ route('admin.shipping.methods.index') }}" class="btn btn-light">
+                Cancel
+            </a>
 
-                <div class="card-body">
-                    <div class="row">
+            <button type="submit" class="btn btn-primary">
+                <i class="ph ph-floppy-disk me-1"></i>
+                Update Method
+            </button>
+        </x-slot:actions>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Method Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" value="Standard Shipping">
-                        </div>
+        <div class="row">
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Method Code <span class="text-danger">*</span></label>
-                            <input type="text" name="code" class="form-control" value="standard">
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Estimated Delivery</label>
-                            <input type="text" name="estimated_delivery" class="form-control" value="3 - 5 Days">
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Sort Order</label>
-                            <input type="number" name="sort_order" class="form-control" value="1">
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="active" selected>Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="4">Standard shipping method for regular deliveries.</textarea>
-                        </div>
-
-                    </div>
-
-                    <div class="text-end mt-4">
-                        <a href="{{ route('admin.shipping.methods.index') }}" class="btn btn-light">
-                            Cancel
-                        </a>
-
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ph ph-floppy-disk me-1"></i>
-                            Update Method
-                        </button>
-                    </div>
-                </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Method Name <span class="text-danger">*</span></label>
+                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $method->name) }}">
+                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
 
-        </form>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Method Code <span class="text-danger">*</span></label>
+                <input type="text" name="code" class="form-control @error('code') is-invalid @enderror" value="{{ old('code', $method->code) }}">
+                @error('code') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
 
-    </main>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Estimated Delivery</label>
+                <input type="text" name="estimated_delivery" class="form-control @error('estimated_delivery') is-invalid @enderror" value="{{ old('estimated_delivery', $method->estimated_delivery) }}">
+                @error('estimated_delivery') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Sort Order</label>
+                <input type="number" name="sort_order" class="form-control @error('sort_order') is-invalid @enderror" value="{{ old('sort_order', $method->sort_order) }}">
+                @error('sort_order') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select @error('status') is-invalid @enderror">
+                    <option value="active" @selected(old('status', $method->status) === 'active')>Active</option>
+                    <option value="inactive" @selected(old('status', $method->status) === 'inactive')>Inactive</option>
+                </select>
+                @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="col-md-12 mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control @error('description') is-invalid @enderror" rows="4">{{ old('description', $method->description) }}</textarea>
+                @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
+        </div>
+    </x-admin.form-card>
+
+</main>
 
 </x-admin-layout>
