@@ -38,9 +38,10 @@
       <div class="container">
         <div class="form-wrapper">
           <h6 class="font-title--sm">create account</h6>
-          <form action="#">
-            <div class="form-input">
-              <input type="email" placeholder="Email" />
+          <form action="{{ route('register') }}" method="POST">
+            @csrf
+            <div class="form-input @error('email') error @enderror">
+              <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" />
               <span class="icon icon-warning">
                 <svg
                   width="20"
@@ -121,8 +122,11 @@
                 </svg>
               </span>
             </div>
-            <div class="form-input">
-              <input type="password" placeholder="Password" id="password" />
+            @error('email')
+              <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
+            @enderror
+            <div class="form-input @error('password') error @enderror">
+              <input type="password" name="password" placeholder="Password" id="password" />
               <button
                 type="button"
                 class="icon icon-eye"
@@ -231,9 +235,13 @@
                 </svg>
               </span>
             </div>
+            @error('password')
+              <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
+            @enderror
             <div class="form-input">
               <input
                 type="password"
+                name="password_confirmation"
                 placeholder="Confirm Password"
                 id="confirmPassword"
               />
@@ -359,10 +367,10 @@
               </div>
             </div>
             <div class="form-button">
-              <button class="button button--md w-100">Create Account</button>
+              <button class="button button--md w-100" type="submit">Create Account</button>
             </div>
             <div class="form-register">
-              Already have account ? <a href="sign-in.html">Login</a>
+              Already have account ? <a href="{{ route('sign-in') }}">Login</a>
             </div>
           </form>
         </div>

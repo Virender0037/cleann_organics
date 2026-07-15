@@ -37,9 +37,10 @@
       <div class="container">
         <div class="form-wrapper">
           <h6 class="font-title--sm">Sign in</h6>
-          <form action="#">
-            <div class="form-input">
-              <input type="email" placeholder="Email" />
+          <form action="{{ route('login') }}" method="POST">
+            @csrf
+            <div class="form-input @error('email') error @enderror">
+              <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" />
               <span class="icon icon-warning">
                 <svg
                   width="20"
@@ -120,8 +121,11 @@
                 </svg>
               </span>
             </div>
-            <div class="form-input">
-              <input type="password" placeholder="Password" id="password" />
+            @error('email')
+              <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
+            @enderror
+            <div class="form-input @error('password') error @enderror">
+              <input type="password" name="password" placeholder="Password" id="password" />
               <button
                 type="button"
                 class="icon icon-eye"
@@ -216,12 +220,16 @@
                 </svg>
               </span>
             </div>
+            @error('password')
+              <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
+            @enderror
             <div class="form-wrapper__content">
               <div class="form-check">
                 <input
                   class="form-check-input"
                   type="checkbox"
-                  value=""
+                  name="remember"
+                  value="1"
                   id="remember"
                 />
                 <label class="form-check-label" for="remember">
@@ -231,10 +239,10 @@
               <a href="#">Forget Password </a>
             </div>
             <div class="form-button">
-              <button class="button button--md w-100">Login</button>
+              <button class="button button--md w-100" type="submit">Login</button>
             </div>
             <div class="form-register">
-              Don't have account ? <a href="create-account.html">Register</a>
+              Don't have account ? <a href="{{ route('create-account') }}">Register</a>
             </div>
           </form>
         </div>

@@ -62,7 +62,7 @@ Route::get('/singleblog', function () {
 
 Route::get('/user-dashboard', function () {
     return view('user-dashboard');
-})->name('user-dashboard');
+})->middleware('auth')->name('user-dashboard');
 
 Route::get('/account-setting', function () {
     return view('account-setting');
@@ -90,11 +90,11 @@ Route::get('/shopping-cart', function () {
 
 Route::get('/sign-in', function () {
     return view('sign-in');
-})->name('sign-in');
+})->middleware('guest')->name('sign-in');
 
 Route::get('/create-account', function () {
     return view('create-account');
-})->name('create-account');
+})->middleware('guest')->name('create-account');
 
 Route::get('/faq', function () {
     return view('faq');

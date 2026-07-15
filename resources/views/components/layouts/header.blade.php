@@ -131,9 +131,18 @@
             </select>
         </div> -->
         <div class="header__in">
-            <a href="sign-in.html">Sign in </a>
-            <span>/</span>
-            <a href="create-account.html">Sign up</a>
+            @guest
+                <a href="{{ route('sign-in') }}">Sign in </a>
+                <span>/</span>
+                <a href="{{ route('create-account') }}">Sign up</a>
+            @else
+                <a href="{{ route('user-dashboard') }}">{{ auth()->user()->name }}</a>
+                <span>/</span>
+                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('header-logout-form').submit();">Log out</a>
+                <form id="header-logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">
+                    @csrf
+                </form>
+            @endguest
         </div>
     </div>
 </div>
