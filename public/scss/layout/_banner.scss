@@ -95,7 +95,7 @@
 
         &--img-02,
         &--img-03 {
-          height: 288px;
+          aspect-ratio: 16 / 9;
           .banner__wrapper-text {
             .button {
               background-color: transparent;
@@ -108,7 +108,7 @@
         }
 
         &--img-01 {
-          height: 600px;
+          aspect-ratio: 16 / 9;
           &::after {
             content: '';
             position: absolute;
@@ -124,8 +124,9 @@
           }
 
           .banner__wrapper-text {
-            top: 165px;
+            top: 50%;
             left: 65px;
+            transform: translateY(-50%);
             h2 {
               width: 70%;
               color: #fff;

@@ -2101,7 +2101,7 @@ body.overlay::after {
   position: absolute;
 }
 .banner--01 .banner__wrapper--img-02, .banner--01 .banner__wrapper--img-03 {
-  height: 288px;
+  aspect-ratio: 16 / 9;
 }
 .banner--01 .banner__wrapper--img-02 .banner__wrapper-text .button, .banner--01 .banner__wrapper--img-03 .banner__wrapper-text .button {
   background-color: transparent;
@@ -2111,20 +2111,25 @@ body.overlay::after {
   padding: 0;
 }
 .banner--01 .banner__wrapper--img-01 {
-  height: 600px;
+  aspect-ratio: 16 / 9;
 }
 .banner--01 .banner__wrapper--img-01::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90.02deg, rgba(0, 0, 0, 0.7) 0.03%, rgba(0, 0, 0, 0) 91.31%);
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.2) 0%,
+        rgba(0, 0, 0, 0) 75%
+    );
 }
 .banner--01 .banner__wrapper--img-01 .banner__wrapper-text {
-  top: 165px;
+  top: 50%;
   left: 65px;
+  transform: translateY(-50%);
 }
 .banner--01 .banner__wrapper--img-01 .banner__wrapper-text h2 {
   width: 70%;
@@ -2133,7 +2138,7 @@ body.overlay::after {
 .banner--01 .banner__wrapper--img-01 .banner__wrapper-text .sale-off {
   margin: 30px 0px;
   padding-left: 12px;
-  border-left: 2px solid #84d187;
+  /* border-left: 2px solid #84d187; */
 }
 .banner--01 .banner__wrapper--img-01 .banner__wrapper-text .sale-off h5 {
   color: #fff;
@@ -2143,7 +2148,7 @@ body.overlay::after {
   text-transform: uppercase;
   font-weight: 600;
   padding: 4px 12px;
-  background-color: #ff8a00;
+  /* background-color: #ff8a00; */
   border-radius: 5px;
 }
 .banner--01 .banner__wrapper--img-01 .banner__wrapper-text .sale-off p {
@@ -2162,8 +2167,9 @@ body.overlay::after {
   margin-bottom: 24px;
 }
 .banner--01 .banner__wrapper--img-02 .banner__wrapper-text {
-  top: 32px;
-  left: 32px;
+  top: 50%;
+  left: 297px;
+  transform: translateY(-50%);
 }
 .banner--01 .banner__wrapper--img-02 .banner__wrapper-text h5 {
   letter-spacing: 0.03em;
@@ -2183,7 +2189,8 @@ body.overlay::after {
   margin-bottom: 24px;
 }
 .banner--01 .banner__wrapper--img-03 .banner__wrapper-text {
-  top: 50%;
+  top: 68%;
+  left: 13px;
   transform: translateY(-50%);
   text-align: center;
 }
@@ -2844,9 +2851,6 @@ body.overlay::after {
 @media (max-width: 767px) {
   .banner-slider--one .banner__wrapper-img {
     overflow: hidden;
-  }
-  .banner-slider--one .banner__wrapper--img-01 {
-    height: 288px;
   }
   .banner-slider--one .banner__wrapper--img-01 .banner__wrapper-text .button span svg, .banner-slider--one .banner__wrapper--img-02 .banner__wrapper-text .button span svg, .banner-slider--one .banner__wrapper--img-03 .banner__wrapper-text .button span svg {
     opacity: 0.3;
