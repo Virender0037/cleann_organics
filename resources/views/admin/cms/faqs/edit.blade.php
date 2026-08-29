@@ -28,6 +28,17 @@
                 </div>
 
                 <div class="col-md-3 mb-3">
+                    <label class="form-label">Topic</label>
+                    <select name="topic" class="form-select @error('topic') is-invalid @enderror">
+                        <option value="">Select Topic</option>
+                        @foreach (\App\Models\Faq::TOPICS as $topic)
+                            <option value="{{ $topic }}" @selected(old('topic', $faq->topic) === $topic)>{{ $topic }}</option>
+                        @endforeach
+                    </select>
+                    @error('topic') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="col-md-3 mb-3">
                     <label class="form-label">Sort Order</label>
                     <input type="number" name="sort_order" class="form-control @error('sort_order') is-invalid @enderror" value="{{ old('sort_order', $faq->sort_order) }}">
                     @error('sort_order') <div class="invalid-feedback">{{ $message }}</div> @enderror

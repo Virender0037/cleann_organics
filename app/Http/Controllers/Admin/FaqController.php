@@ -17,6 +17,7 @@ class FaqController extends Controller
         $faqs = Faq::query()
             ->when($request->filled('search'), fn ($query) => $query->where('question', 'like', '%'.$request->string('search').'%'))
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->when($request->filled('topic'), fn ($query) => $query->where('topic', $request->string('topic')))
             ->orderBy('sort_order')
             ->paginate(15)
             ->withQueryString();

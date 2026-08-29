@@ -33,12 +33,22 @@
                             <option value="inactive" @selected(request('status') === 'inactive')>Inactive</option>
                         </select>
                     </div>
+
+                    <div class="col-md-3">
+                        <select name="topic" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Topics</option>
+                            @foreach (\App\Models\Faq::TOPICS as $topic)
+                                <option value="{{ $topic }}" @selected(request('topic') === $topic)>{{ $topic }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </x-admin.filter-toolbar>
             </x-slot:toolbar>
 
             <x-slot:head>
                 <th>#</th>
                 <th>Question</th>
+                <th>Topic</th>
                 <th>Sort Order</th>
                 <th>Status</th>
                 <th width="130">Action</th>
@@ -48,6 +58,7 @@
                 <tr>
                     <td>{{ $faq->id }}</td>
                     <td><strong>{{ $faq->question }}</strong></td>
+                    <td>{{ $faq->topic ?? '—' }}</td>
                     <td>{{ $faq->sort_order }}</td>
                     <td>
                         <x-admin.status-badge :status="$faq->status" />
@@ -68,7 +79,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         <x-admin.empty-state>No FAQs found.</x-admin.empty-state>
                     </td>
                 </tr>

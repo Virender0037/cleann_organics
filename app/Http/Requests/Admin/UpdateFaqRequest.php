@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Faq;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateFaqRequest extends FormRequest
 {
@@ -17,6 +19,7 @@ class UpdateFaqRequest extends FormRequest
         return [
             'question' => ['required', 'string', 'max:500'],
             'answer' => ['required', 'string'],
+            'topic' => ['nullable', 'string', Rule::in(Faq::TOPICS)],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'status' => ['required', 'in:active,inactive'],
         ];
