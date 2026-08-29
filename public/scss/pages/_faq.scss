@@ -83,6 +83,8 @@
     border: 2px solid transparent;
     cursor: pointer;
     font-size: 12px;
+    font-weight: 500;
+    text-transform: none;
     white-space: nowrap;
 
     &.button--outline {
