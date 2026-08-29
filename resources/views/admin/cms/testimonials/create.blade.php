@@ -46,6 +46,12 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
+                    <label class="form-label">City</label>
+                    <input type="text" name="city" class="form-control @error('city') is-invalid @enderror" value="{{ old('city') }}" placeholder="Mumbai">
+                    @error('city') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="col-md-6 mb-3">
                     <label class="form-label">Company</label>
                     <input type="text" name="company" class="form-control @error('company') is-invalid @enderror" value="{{ old('company') }}" placeholder="Acme Inc.">
                     @error('company') <div class="invalid-feedback">{{ $message }}</div> @enderror

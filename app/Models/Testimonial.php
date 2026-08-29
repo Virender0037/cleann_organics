@@ -14,6 +14,8 @@ class Testimonial extends Model
         'designation',
         'company',
 
+        'city',
+
         'image',
 
         'rating',

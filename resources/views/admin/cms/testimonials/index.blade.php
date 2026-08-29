@@ -62,10 +62,10 @@
 
                     <td>
                         <strong>{{ $testimonial->name }}</strong>
-                        @if ($testimonial->designation || $testimonial->company)
+                        @foreach (collect([$testimonial->designation, $testimonial->city, $testimonial->company])->filter() as $line)
                             <br>
-                            <small class="text-muted">{{ collect([$testimonial->designation, $testimonial->company])->filter()->implode(', ') }}</small>
-                        @endif
+                            <small class="text-muted">{{ $line }}</small>
+                        @endforeach
                     </td>
 
                     <td>{{ str_repeat('⭐', $testimonial->rating) }}</td>
