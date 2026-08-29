@@ -38,222 +38,90 @@
           <div class="col-lg-6 order-lg-0 order-1">
             <div class="faq__accordion">
               <h5 class="font-title--xl">Welcome, Let’s Talk About Our faq</h5>
-              <div class="accordion" id="faq-accordion">
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingOne">
-                    <button
-                      class="accordion-button"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseOne"
-                      aria-expanded="true"
-                      aria-controls="collapseOne"
-                    >
-                      In elementum est a ante sodales iaculis.
-                      <span class="icon">
-                        <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <rect
-                            width="32"
-                            height="32"
-                            rx="16"
-                            fill="currentColor"
-                          />
-                          <path
-                            d="M12.0001 16H20.0001M16.0001 12V20V12Z"
-                            stroke="#1A1A1A"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </button>
-                  </h2>
-                  <div
-                    id="collapseOne"
-                    class="accordion-collapse collapse show"
-                    aria-labelledby="headingOne"
-                    data-bs-parent="#faq-accordion"
-                  >
-                    <div class="accordion-body">
-                      Morbi porttitor ligula in nunc varius sagittis. Proin dui
-                      nisi, laoreet ut tempor ac, cursus vitae eros. Cras quis
-                      ultricies elit. Proin ac lectus arcu. Maecenas aliquet vel
-                      tellus at accumsan. Donec a eros non massa vulputate
-                      ornare. Vivamus ornare commodo ante, at commodo felis
-                      congue vitae.
-                    </div>
+
+              @if ($faqs->isEmpty())
+                <div class="faq__empty-state">No FAQs are available at the moment.</div>
+              @else
+                <div class="faq__toolbar">
+                  <div class="faq__search-field">
+                    <span class="icon">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="8" cy="8" r="6.25" stroke="#808080" stroke-width="1.5" />
+                        <path d="M16 16L12.5 12.5" stroke="#808080" stroke-width="1.5" stroke-linecap="round" />
+                      </svg>
+                    </span>
+                    <input type="text" id="faqSearchInput" placeholder="Search FAQs..." autocomplete="off">
                   </div>
-                </div>
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingTwo">
-                    <button
-                      class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseTwo"
-                      aria-expanded="false"
-                      aria-controls="collapseTwo"
-                    >
-                      Etiam lobortis massa eu nibh tempor elementum.
-                      <span class="icon">
-                        <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <rect
-                            width="32"
-                            height="32"
-                            rx="16"
-                            fill="currentColor"
-                          />
-                          <path
-                            d="M12.0001 16H20.0001M16.0001 12V20V12Z"
-                            stroke="#1A1A1A"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </button>
-                  </h2>
-                  <div
-                    id="collapseTwo"
-                    class="accordion-collapse collapse"
-                    aria-labelledby="headingTwo"
-                    data-bs-parent="#faq-accordion"
-                  >
-                    <div class="accordion-body">
-                      Morbi porttitor ligula in nunc varius sagittis. Proin dui
-                      nisi, laoreet ut tempor ac, cursus vitae eros. Cras quis
-                      ultricies elit. Proin ac lectus arcu. Maecenas aliquet vel
-                      tellus at accumsan. Donec a eros non massa vulputate
-                      ornare. Vivamus ornare commodo ante, at commodo felis
-                      congue vitae.
-                    </div>
+
+                  <div class="faq__filters" id="faqFilters">
+                    <button type="button" class="faq__filter-btn button active" data-topic="all">All</button>
+                    @foreach ($topics as $topic)
+                      <button type="button" class="faq__filter-btn button button--outline" data-topic="{{ $topic }}">{{ $topic }}</button>
+                    @endforeach
                   </div>
+
+                  <p class="faq__count" id="faqCount"></p>
                 </div>
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingThree">
-                    <button
-                      class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseThree"
-                      aria-expanded="false"
-                      aria-controls="collapseThree"
-                    >
-                      In elementum est a ante sodales iaculis.
-                      <span class="icon">
-                        <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
+
+                <div class="accordion" id="faq-accordion">
+                  @foreach ($faqs as $index => $faq)
+                    <div class="accordion-item faq__item" data-topic="{{ $faq->topic ?? '' }}" data-search="{{ Str::lower($faq->question.' '.$faq->answer) }}">
+                      <h2 class="accordion-header" id="faq-heading-{{ $faq->id }}">
+                        <button
+                          class="accordion-button @if ($index !== 0) collapsed @endif"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#faq-collapse-{{ $faq->id }}"
+                          aria-expanded="{{ $index === 0 ? 'true' : 'false' }}"
+                          aria-controls="faq-collapse-{{ $faq->id }}"
                         >
-                          <rect
-                            width="32"
-                            height="32"
-                            rx="16"
-                            fill="currentColor"
-                          />
-                          <path
-                            d="M12.0001 16H20.0001M16.0001 12V20V12Z"
-                            stroke="#1A1A1A"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </button>
-                  </h2>
-                  <div
-                    id="collapseThree"
-                    class="accordion-collapse collapse"
-                    aria-labelledby="headingThree"
-                    data-bs-parent="#faq-accordion"
-                  >
-                    <div class="accordion-body">
-                      Morbi porttitor ligula in nunc varius sagittis. Proin dui
-                      nisi, laoreet ut tempor ac, cursus vitae eros. Cras quis
-                      ultricies elit. Proin ac lectus arcu. Maecenas aliquet vel
-                      tellus at accumsan. Donec a eros non massa vulputate
-                      ornare. Vivamus ornare commodo ante, at commodo felis
-                      congue vitae.
+                          {{ $faq->question }}
+                          <span class="icon">
+                            <svg
+                              width="32"
+                              height="32"
+                              viewBox="0 0 32 32"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                width="32"
+                                height="32"
+                                rx="16"
+                                fill="currentColor"
+                              />
+                              <path
+                                d="M12.0001 16H20.0001M16.0001 12V20V12Z"
+                                stroke="#1A1A1A"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                          </span>
+                        </button>
+                      </h2>
+                      <div
+                        id="faq-collapse-{{ $faq->id }}"
+                        class="accordion-collapse collapse @if ($index === 0) show @endif"
+                        aria-labelledby="faq-heading-{{ $faq->id }}"
+                        data-bs-parent="#faq-accordion"
+                      >
+                        <div class="accordion-body">{{ $faq->answer }}</div>
+                      </div>
                     </div>
-                  </div>
+                  @endforeach
                 </div>
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingFour">
-                    <button
-                      class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseFour"
-                      aria-expanded="false"
-                      aria-controls="collapseFour"
-                    >
-                      In elementum est a ante sodales iaculis.
-                      <span class="icon">
-                        <svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <rect
-                            width="32"
-                            height="32"
-                            rx="16"
-                            fill="currentColor"
-                          />
-                          <path
-                            d="M12.0001 16H20.0001M16.0001 12V20V12Z"
-                            stroke="#1A1A1A"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </button>
-                  </h2>
-                  <div
-                    id="collapseFour"
-                    class="accordion-collapse collapse"
-                    aria-labelledby="headingFour"
-                    data-bs-parent="#faq-accordion"
-                  >
-                    <div class="accordion-body">
-                      Morbi porttitor ligula in nunc varius sagittis. Proin dui
-                      nisi, laoreet ut tempor ac, cursus vitae eros. Cras quis
-                      ultricies elit. Proin ac lectus arcu. Maecenas aliquet vel
-                      tellus at accumsan. Donec a eros non massa vulputate
-                      ornare. Vivamus ornare commodo ante, at commodo felis
-                      congue vitae.
-                    </div>
-                  </div>
-                </div>
-              </div>
+
+                <div class="faq__empty-state" id="faqNoTopicResults" hidden>No FAQs found for this topic.</div>
+                <div class="faq__empty-state" id="faqNoSearchResults" hidden>No FAQs matched your search.</div>
+              @endif
             </div>
           </div>
           <div class="col-lg-6 order-lg-0 order-2">
             <div class="faq__img-wrapper">
               <img
-                src="src/images/banner/banner-lg-09.png"
+                src="{{ asset('images/banner/banner-lg-09.png') }}"
                 alt="banner"
                 class="img-fluid"
               />
@@ -359,6 +227,7 @@
     <script src="{{ asset('lib/js/bvselect.js') }}"></script>
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/faq-filter.js') }}"></script>
         <!-- Purchase Button -->
         <div class="templatecookie-btn">
             <a href="https://1.envato.market/kjkaBN" target="_blank" class="purchase-btn">

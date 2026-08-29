@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TaxRateController;
 use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\FaqPageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -96,9 +97,7 @@ Route::get('/create-account', function () {
     return view('create-account');
 })->middleware('guest')->name('create-account');
 
-Route::get('/faq', function () {
-    return view('faq');
-})->name('faq');
+Route::get('/faq', [FaqPageController::class, 'index'])->name('faq');
 
 Route::get('/404', function () {
     return view('404');
