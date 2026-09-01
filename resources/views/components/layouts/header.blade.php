@@ -420,15 +420,18 @@
                 <li class="header__mobile-dropdown-menu-link">
                     <a href="checkout.html">Checkout</a>
                 </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="sign-in.html">Sign in</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="create-account.html">Create Account</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="user-dashboard.html">User Dashboard</a>
-                </li>
+                @guest
+                    <li class="header__mobile-dropdown-menu-link">
+                        <a href="{{ route('sign-in') }}">Sign in</a>
+                    </li>
+                    <li class="header__mobile-dropdown-menu-link">
+                        <a href="{{ route('create-account') }}">Create Account</a>
+                    </li>
+                @else
+                    <li class="header__mobile-dropdown-menu-link">
+                        <a href="{{ route('user-dashboard') }}">User Dashboard</a>
+                    </li>
+                @endguest
                 <li class="header__mobile-dropdown-menu-link">
                     <a href="order-history.html">order history</a>
                 </li>

@@ -31,8 +31,13 @@ use App\Http\Controllers\FaqPageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// Breeze's scaffold dashboard is not the storefront's customer dashboard: the
+// Shopery page at /user-dashboard is. This route is kept (rather than removed)
+// because route('dashboard') is Breeze's conventional post-auth target and is
+// still referenced by EmailVerificationPromptController. Middleware is
+// unchanged, so guests continue to be sent to /sign-in.
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('user-dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

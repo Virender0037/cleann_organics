@@ -12,12 +12,19 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
+    // The storefront's sign-in and registration pages are the Shopery views at
+    // /sign-in and /create-account. These Breeze GET routes are kept purely so
+    // route('login') and route('register') still resolve — Laravel's own
+    // internals and NewPasswordController's post-reset redirect rely on
+    // route('login') — but they forward to the Shopery pages rather than
+    // rendering the Breeze/Tailwind views. The POST endpoints below are
+    // unchanged and remain the real handlers.
+    Route::get('register', fn () => redirect()->route('create-account'))
         ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store']);
 
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+    Route::get('login', fn () => redirect()->route('sign-in'))
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);

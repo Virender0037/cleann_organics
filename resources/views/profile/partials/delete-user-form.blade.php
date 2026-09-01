@@ -1,55 +1,51 @@
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Delete Account') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+<div class="dashboard__content-card">
+    <div class="dashboard__content-card-header">
+        <h5 class="font-body--xxl-500">{{ __('Delete Account') }}</h5>
+    </div>
+    <div class="dashboard__content-card-body">
+        <p class="font-body--md-400" style="color:#666666;margin-bottom:24px;">
             {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
         </p>
-    </header>
 
-    <x-danger-button
-        x-data=""
-        x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Delete Account') }}</x-danger-button>
+        {{-- Native <details> replaces the Breeze Alpine modal: same
+             confirm-before-submit step with no JavaScript dependency. Opens
+             automatically when the userDeletion bag has errors, mirroring the
+             original modal's :show binding. --}}
+        <details @if ($errors->userDeletion->isNotEmpty()) open @endif>
+            <summary class="button button--md" style="cursor:pointer;background-color:#EA4B48;display:inline-block;list-style:none;">
+                {{ __('Delete Account') }}
+            </summary>
 
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
-            @csrf
-            @method('delete')
+            <form method="post" action="{{ route('profile.destroy') }}" style="margin-top:24px;">
+                @csrf
+                @method('delete')
 
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                {{ __('Are you sure you want to delete your account?') }}
-            </h2>
+                <div class="contact-form__content">
+                    <p class="font-body--md-400" style="color:#666666;">
+                        {{ __('Are you sure you want to delete your account? Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+                    </p>
 
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
-            </p>
+                    <div class="contact-form-input">
+                        <label for="delete_account_password">{{ __('Password') }}</label>
+                        <input
+                            type="password"
+                            id="delete_account_password"
+                            name="password"
+                            placeholder="{{ __('Password') }}"
+                            autocomplete="current-password"
+                        />
+                        @foreach ($errors->userDeletion->get('password') as $message)
+                            <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
+                        @endforeach
+                    </div>
 
-            <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
-
-                <x-text-input
-                    id="password"
-                    name="password"
-                    type="password"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}"
-                />
-
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
-            </div>
-
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
-
-                <x-danger-button class="ms-3">
-                    {{ __('Delete Account') }}
-                </x-danger-button>
-            </div>
-        </form>
-    </x-modal>
-</section>
+                    <div class="contact-form-btn">
+                        <button class="button button--md" type="submit" style="background-color:#EA4B48;">
+                            {{ __('Delete Account') }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </details>
+    </div>
+</div>

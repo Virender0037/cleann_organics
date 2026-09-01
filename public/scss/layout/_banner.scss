@@ -84,13 +84,38 @@
           overflow: hidden;
 
           img {
-            width: inherit;
-            height: inherit;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
           }
         }
+        // These three banners carry their own headline and CTA baked into the
+        // artwork, so the theme's text overlay is reduced to a full-bleed
+        // invisible link: the whole banner stays clickable and nothing is
+        // painted over the image. The per-banner top/left/transform rules
+        // below only move a now-static box, so they are inert rather than
+        // removed.
         &-text {
+          position: static;
+
+          > h2,
+          > h5,
+          > p,
+          > .sale-off {
+            display: none;
+          }
+        }
+        // Stretched with four offsets rather than width/height:100% — the
+        // banner's height comes from aspect-ratio, so its computed height is
+        // auto and a percentage height would collapse to 0.
+        &-link {
           position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+          display: block;
+          z-index: 2;
         }
 
         &--img-02,
@@ -109,19 +134,6 @@
 
         &--img-01 {
           aspect-ratio: 16 / 9;
-          &::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-              90.02deg,
-              rgba(0, 0, 0, 0.7) 0.03%,
-              rgba(0, 0, 0, 0) 91.31%
-            );
-          }
 
           .banner__wrapper-text {
             top: 50%;
@@ -166,8 +178,6 @@
         }
 
         &--img-02 {
-          margin-bottom: 24px;
-
           .banner__wrapper-text {
             top: 32px;
             left: 32px;
@@ -871,6 +881,17 @@
   }
 }
 
+// Right-hand stack on the homepage banner. The 24px Bootstrap gutter means the
+// left banner spans (2*W + 24) while each small banner spans W, so at 16/9 the
+// left column is exactly 24 * 9/16 = 13.5px taller than two stacked small
+// banners. Using that as the gap makes both columns finish level without
+// cropping either image.
+.banner__wrapper-img-sm {
+  display: flex;
+  flex-direction: column;
+  gap: calc(24px * 9 / 16);
+}
+
 @media (max-width: 1199px) {
   .banner--01 .banner__wrapper--img-03 .banner__wrapper-text h5,
   .banner--01 .banner__wrapper--img-03 .banner__wrapper-text .h5,
@@ -891,17 +912,11 @@
 
 @media (max-width: 991px) {
   // Banner 01
+  // Below the lg breakpoint the columns are full width, so keep the two small
+  // banners stacked rather than squeezing them side by side at ~half width.
   .banner__wrapper-img-sm {
-    display: flex;
     margin-top: 12px;
-    .banner__wrapper-img {
-      margin-right: 12px;
-      margin-bottom: 0px;
-
-      &:nth-last-child(1) {
-        margin-right: 0px;
-      }
-    }
+    gap: 12px;
   }
 }
 
@@ -1041,24 +1056,12 @@
   .banner--01 .banner__wrapper--img-01 .banner__wrapper-text .h2 {
     width: 100%;
   }
-  .banner__wrapper-img-sm {
-    flex-direction: column;
-    .banner__wrapper-img {
-      margin-right: 0px;
-      margin-bottom: 12px;
-    }
-  }
-
   .banner--01 .banner__wrapper--img-03 .banner__wrapper-text {
     left: 32px;
     text-align: left;
     h2 {
       margin-left: 0px;
     }
-  }
-
-  .banner__wrapper-img-sm .banner__wrapper-img {
-    margin-bottom: 12px;
   }
 
   .banner--01 .banner__wrapper--img-01 .banner__wrapper-text h2,

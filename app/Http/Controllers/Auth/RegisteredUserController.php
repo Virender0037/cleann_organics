@@ -46,6 +46,9 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('user-dashboard', absolute: false));
+        // Mirror the login flow: if a protected page (e.g. checkout) sent the
+        // guest here, return them to it. Falls back to the dashboard when there
+        // is no intended URL in the session.
+        return redirect()->intended(route('user-dashboard', absolute: false));
     }
 }
