@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Cleann Organics</title>
+    <title>{{ $metaTitle ?: 'Cleann Organics' }}</title>
+    @if ($metaDescription)
+        <meta name="description" content="{{ $metaDescription }}" />
+    @endif
+    @if ($canonicalUrl)
+        <link rel="canonical" href="{{ $canonicalUrl }}" />
+    @endif
     <link rel="icon" type="image/png" href="{{ asset('images/favicon/favicon-16x16.png') }}" />
     <link rel="stylesheet" href="{{ asset('lib/css/swiper-bundle.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('lib/css/bvselect.css') }}" />

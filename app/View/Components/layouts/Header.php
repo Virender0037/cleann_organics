@@ -3,17 +3,21 @@
 namespace App\View\Components\layouts;
 
 use Closure;
-use Illuminate\View\Component;
 use Illuminate\Contracts\View\View;
+use Illuminate\View\Component;
 
 class Header extends Component
 {
     /**
-     * Create a new component instance.
+     * Optional per-page SEO overrides. Every storefront page that passes
+     * nothing keeps the previous behaviour: the default title and no
+     * description/canonical tags.
      */
-    public function __construct()
-    {
-        //
+    public function __construct(
+        public ?string $metaTitle = null,
+        public ?string $metaDescription = null,
+        public ?string $canonicalUrl = null,
+    ) {
     }
 
     /**

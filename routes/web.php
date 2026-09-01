@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\ShippingRateController;
 use App\Http\Controllers\Admin\ShippingZoneController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TaxRateController;
+use App\Http\Controllers\PageController as PublicPageController;
 use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\FaqPageController;
@@ -103,6 +104,12 @@ Route::get('/create-account', function () {
 })->middleware('guest')->name('create-account');
 
 Route::get('/faq', [FaqPageController::class, 'index'])->name('faq');
+
+// Public CMS pages. Prefixed with /page/ so it can never shadow an existing
+// or future top-level route (/shop, /faq, /contact, ...). The controller
+// restricts to status=active and SoftDeletes excludes trashed rows, so a
+// missing, inactive or deleted page all 404 alike.
+Route::get('/page/{slug}', [PublicPageController::class, 'show'])->name('page.show');
 
 Route::get('/404', function () {
     return view('404');
