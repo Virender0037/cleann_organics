@@ -11083,3 +11083,39 @@ body.overlay::after {
     transform: rotate(0deg);
   }
 }
+
+/** CMS Page Content (resources/views/page.blade.php) */
+.page-content {
+  max-width: 860px;
+  margin: 0 auto;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.page-content__title {
+  margin-bottom: 24px;
+}
+.page-content__image {
+  margin-bottom: 32px;
+}
+.page-content__image img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+.page-content__body {
+  color: #4d4d4d;
+  line-height: 1.8;
+}
+.page-content__body br + br {
+  content: "";
+  display: block;
+  margin-top: 16px;
+}
+@media (max-width: 767px) {
+  .page-content__title {
+    margin-bottom: 16px;
+  }
+  .page-content__image {
+    margin-bottom: 20px;
+  }
+}

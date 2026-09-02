@@ -35,26 +35,27 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-10 offset-lg-1">
+            <div class="page-content">
 
-            <h2 class="font-title--sm" style="margin-bottom:24px;">{{ $page->title }}</h2>
+              <h2 class="font-title--sm page-content__title">{{ $page->title }}</h2>
 
-            @if ($page->featured_image)
-              <div style="margin-bottom:32px;">
-                <img
-                  src="{{ Storage::disk('public')->url($page->featured_image) }}"
-                  alt="{{ $page->title }}"
-                  style="width:100%;height:auto;border-radius:10px;"
-                />
+              @if ($page->featured_image)
+                <div class="page-content__image">
+                  <img
+                    src="{{ Storage::disk('public')->url($page->featured_image) }}"
+                    alt="{{ $page->title }}"
+                  />
+                </div>
+              @endif
+
+              <div class="font-body--md-400 page-content__body">
+                {{-- Stored content is plain text with line breaks, so it is fully
+                     escaped and then line breaks are restored. No raw HTML is
+                     rendered, which keeps this safe without a sanitiser. --}}
+                {!! nl2br(e($page->content)) !!}
               </div>
-            @endif
 
-            <div class="font-body--md-400" style="color:#4d4d4d;line-height:1.8;">
-              {{-- Stored content is plain text with line breaks, so it is fully
-                   escaped and then line breaks are restored. No raw HTML is
-                   rendered, which keeps this safe without a sanitiser. --}}
-              {!! nl2br(e($page->content)) !!}
             </div>
-
           </div>
         </div>
       </div>

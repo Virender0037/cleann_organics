@@ -40,43 +40,49 @@
                         </li>
                     </ul>
                 </div>
-                <!-- Helps  -->
+                <!-- Customer Help  -->
                 <div class="col-lg-2 col-md-3 col-6">
                     <ul class="footer__navigation">
                         <li class="footer__navigation-title">
-                            <h2 class="font-body--lg-500">My Helps</h2>
+                            <h2 class="font-body--lg-500">Customer Help</h2>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="#"> Contact </a>
+                            <a href="{{ route('faq') }}"> FAQ </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="#"> faq </a>
+                            <a href="{{ route('page.show', 'shipping-policy') }}"> Shipping Policy </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="#"> Terms &amp; Condition </a>
+                            <a href="{{ route('page.show', 'refund-return-policy') }}"> Refund &amp; Return Policy </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="#"> Privacy Policy </a>
+                            <a href="{{ route('page.show', 'terms-and-conditions') }}"> Terms &amp; Conditions </a>
+                        </li>
+                        <li class="footer__navigation-link">
+                            <a href="{{ route('page.show', 'privacy-policy') }}"> Privacy Policy </a>
+                        </li>
+                        <li class="footer__navigation-link">
+                            <a href="{{ route('page.show', 'disclaimer') }}"> Disclaimer </a>
                         </li>
                     </ul>
                 </div>
-                <!-- Proxy -->
+                <!-- Company -->
                 <div class="col-lg-2 col-md-3 col-6">
                     <ul class="footer__navigation">
                         <li class="footer__navigation-title">
-                            <h2 class="font-body--lg-500">Proxy</h2>
+                            <h2 class="font-body--lg-500">Company</h2>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="#"> About </a>
+                            <a href="{{ route('aboutus') }}"> About Us </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="#"> Shop </a>
+                            <a href="{{ route('page.show', 'our-mission') }}"> Our Mission </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="#"> Product </a>
+                            <a href="{{ route('page.show', 'our-story') }}"> Our Story </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="#"> Track Order </a>
+                            <a href="{{ route('contact') }}"> Contact Us </a>
                         </li>
                     </ul>
                 </div>
