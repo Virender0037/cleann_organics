@@ -63,9 +63,13 @@ Route::get('/', function () {
 Route::get('/contact-us', [PublicPageController::class, 'contact'])->name('contact');
 Route::get('/contact', fn () => redirect()->route('contact', [], 301));
 
-Route::get('/aboutus', function () {
-    return view('aboutus');
-})->name('aboutus');
+// Canonical About Us URL. Mirrors the /contact-us pattern: the old /aboutus
+// path is kept working via a permanent redirect rather than left as a second
+// live 200 page. redirect()->route() is used (not Route::permanentRedirect())
+// so the Location header resolves correctly under any base path — see the
+// /contact route above for the full explanation.
+Route::get('/about-us', [PublicPageController::class, 'aboutUs'])->name('aboutus');
+Route::get('/aboutus', fn () => redirect()->route('aboutus', [], 301));
 
 Route::get('/bloglist', function () {
     return view('bloglist');
@@ -135,6 +139,10 @@ Route::get('/faq', [FaqPageController::class, 'index'])->name('faq');
 // See the /contact route above for why redirect()->route() is used instead
 // of Route::permanentRedirect().
 Route::get('/page/contact-us', fn () => redirect()->route('contact', [], 301));
+
+// Same reasoning as /page/contact-us above: about-us has its own canonical
+// route with a custom Blade design, so /page/{slug} must not also serve it.
+Route::get('/page/about-us', fn () => redirect()->route('aboutus', [], 301));
 
 // Canonical root-level URLs for the 7 managed CMS pages that use the
 // generic page.blade.php template (unlike about-us/contact-us, which have

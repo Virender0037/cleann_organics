@@ -21,8 +21,12 @@ class PageSeeder extends Seeder
      * its content and featured_image are intentionally left out of the
      * update payload so the existing body and image are preserved exactly.
      *
-     * about-us, contact-us, and blog are intentionally out of scope and are
-     * not referenced anywhere in this seeder.
+     * about-us is seeded separately below, keyed by slug via updateOrCreate,
+     * with its own custom aboutus.blade.php rendering route (not the generic
+     * page.blade.php used by the 7 pages above).
+     *
+     * contact-us and blog are intentionally out of scope and are not
+     * referenced anywhere in this seeder.
      */
     public function run(): void
     {
@@ -47,6 +51,49 @@ class PageSeeder extends Seeder
             'meta_title' => 'Disclaimer | CleannOrganics',
             'canonical_url' => 'https://cleannorganics.com/disclaimer',
         ]);
+
+        // featured_image is stored as the expected path even though the file
+        // doesn't exist in storage yet — aboutus.blade.php never reads this
+        // field (it keeps its existing theme image), so this is inert
+        // metadata that will "just work" once the real file is uploaded to
+        // that path, without another code change.
+        Page::updateOrCreate(
+            ['slug' => 'about-us'],
+            [
+                'title' => 'About Us',
+                'content' => $this->aboutUsContent(),
+                'featured_image' => 'pages/about-us.jpg',
+                'sort_order' => 8,
+                'status' => 'active',
+                'meta_title' => 'About Us | CleannOrganics',
+                'meta_description' => "Learn about CleannOrganics — India's trusted organic home cleaning & personal care brand. Founded in 2022 by Himanshu Garg with a mission to make natural living accessible for every Indian home.",
+                'canonical_url' => 'https://cleannorganics.com/about-us',
+            ]
+        );
+    }
+
+    private function aboutUsContent(): string
+    {
+        return <<<'CONTENT'
+Welcome to CleannOrganics — Where Nature Meets Your Home.
+
+At CleannOrganics, we believe that the products you use every day should be as pure and honest as the values you live by. Founded in 2022 by Himanshu Garg, CleannOrganics was born from a simple but powerful realisation — most household and personal care products on the market are filled with harsh chemicals, synthetic fragrances, and toxic ingredients that silently harm our families, our homes, and our planet.
+
+We set out to change that.
+
+Inspired by the wisdom of Ayurveda, the power of bio-enzymes, and an unwavering commitment to sustainability, we created a range of products that are 100% natural, plant-based, and completely safe for the people you love and the world you live in.
+
+Today, CleannOrganics proudly offers a thoughtfully curated range of organic home cleaning and personal care products — from bio-enzyme floor cleaners and Ayurvedic dental care to plastic-free alternatives for everyday living.
+
+OUR PROMISE TO YOU:
+✔ No harsh chemicals. No synthetic dyes. No toxic additives.
+✔ 100% natural, plant-based & Ayurvedic ingredients.
+✔ Eco-friendly, biodegradable & sustainably sourced.
+✔ Safe for your family, children, pets & the environment.
+✔ Made in India — with love and purpose.
+
+At CleannOrganics, we are not just selling products. We are building a movement — one household at a time — towards a cleaner, greener, and healthier India. Join us on this journey.
+CONTENT;
     }
 
     /**

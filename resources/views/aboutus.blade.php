@@ -1,4 +1,8 @@
-<x-layouts.app>
+<x-layouts.app
+    :meta-title="$page->meta_title ?: $page->title.' | Cleann Organics'"
+    :meta-description="$page->meta_description"
+    :canonical-url="$page->canonical_url">
+        <h1 class="visually-hidden">{{ $page->title }}</h1>
         <!-- breedcrumb section start  -->
         <div class="section breedcrumb">
             <div class="breedcrumb__img-wrapper">
@@ -33,11 +37,19 @@
                     <div class="col-lg-6 order-lg-0 order-2">
                         <div class="hero__text-content">
                             <h5>
-                                100% Trusted Organic Food Store
+                                Welcome to CleannOrganics — Where Nature Meets Your Home.
                             </h5>
                             <p class="info">
-                                Morbi porttitor ligula in nunc varius sagittis. Proin dui nisi, laoreet ut tempor ac, cursus vitae eros. Cras quis ultricies elit. Proin ac lectus arcu. Maecenas aliquet vel tellus at accumsan. Donec a eros
-                                non massa vulputate ornare. Vivamus ornare commodo ante, at commodo felis congue vitae.
+                                At CleannOrganics, we believe that the products you use every day should be as pure and honest as the values you live by. Founded in 2022 by Himanshu Garg, CleannOrganics was born from a simple but powerful realisation — most household and personal care products on the market are filled with harsh chemicals, synthetic fragrances, and toxic ingredients that silently harm our families, our homes, and our planet.
+                            </p>
+                            <p class="info">
+                                We set out to change that.
+                            </p>
+                            <p class="info">
+                                Inspired by the wisdom of Ayurveda, the power of bio-enzymes, and an unwavering commitment to sustainability, we created a range of products that are 100% natural, plant-based, and completely safe for the people you love and the world you live in.
+                            </p>
+                            <p class="info">
+                                Today, CleannOrganics proudly offers a thoughtfully curated range of organic home cleaning and personal care products — from bio-enzyme floor cleaners and Ayurvedic dental care to plastic-free alternatives for everyday living.
                             </p>
                         </div>
                     </div>
@@ -460,12 +472,8 @@
                     <div class="col-lg-6">
                         <div class="hero__text-content">
                             <h6>
-                                We Delivered, You Enjoy Your Order.
+                                OUR PROMISE TO YOU:
                             </h6>
-                            <p class="info--two">
-                                Ut suscipit egestas suscipit. Sed posuere pellentesque nunc, ultrices consectetur velit dapibus eu. Mauris sollicitudin dignissim diam, ac mattis eros accumsan rhoncus. Curabitur auctor bibendum nunc eget
-                                elementum.
-                            </p>
                             <ul class="hero__list-info">
                                 <li>
                                     <span class="icon">
@@ -474,7 +482,7 @@
                                             <path d="M14.4168 7.125L8.68766 12.8542L6.0835 10.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                     </span>
-                                    <p>Sed in metus pellentesque.</p>
+                                    <p>No harsh chemicals. No synthetic dyes. No toxic additives.</p>
                                 </li>
                                 <li>
                                     <span class="icon">
@@ -483,7 +491,7 @@
                                             <path d="M14.4168 7.125L8.68766 12.8542L6.0835 10.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                     </span>
-                                    <p>Fusce et ex commodo, aliquam nulla efficitur, tempus lorem.</p>
+                                    <p>100% natural, plant-based &amp; Ayurvedic ingredients.</p>
                                 </li>
                                 <li>
                                     <span class="icon">
@@ -492,9 +500,30 @@
                                             <path d="M14.4168 7.125L8.68766 12.8542L6.0835 10.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                     </span>
-                                    <p>Maecenas ut nunc fringilla erat varius.</p>
+                                    <p>Eco-friendly, biodegradable &amp; sustainably sourced.</p>
+                                </li>
+                                <li>
+                                    <span class="icon">
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect opacity="0.1" width="20" height="20" rx="10" fill="#00B307" />
+                                            <path d="M14.4168 7.125L8.68766 12.8542L6.0835 10.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </span>
+                                    <p>Safe for your family, children, pets &amp; the environment.</p>
+                                </li>
+                                <li>
+                                    <span class="icon">
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect opacity="0.1" width="20" height="20" rx="10" fill="#00B307" />
+                                            <path d="M14.4168 7.125L8.68766 12.8542L6.0835 10.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </span>
+                                    <p>Made in India — with love and purpose.</p>
                                 </li>
                             </ul>
+                            <p class="info--two">
+                                At CleannOrganics, we are not just selling products. We are building a movement — one household at a time — towards a cleaner, greener, and healthier India. Join us on this journey.
+                            </p>
                             <a href="#" class="button button--md">
                                 Shop now
                                 <span>
