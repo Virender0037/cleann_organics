@@ -116,7 +116,7 @@
                     />
                 </svg>
             </span>
-            Store Location: Lincoln- 344, Illinois, Chicago, USA
+            Store Location: Warehouse : L-3, South West Delhi, 110059
         </p>
     </div>
     <div class="header__top-right">
@@ -312,7 +312,7 @@
                 />
             </svg>
 
-            (219) 555-0114
+            +91-9999667014
         </span>
     </a>
 </div>
