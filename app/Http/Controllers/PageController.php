@@ -24,4 +24,19 @@ class PageController extends Controller
 
         return view('page', compact('page'));
     }
+
+    /**
+     * Display the Contact Us page. Unlike show(), this renders the existing
+     * custom contact.blade.php design rather than the generic page view —
+     * the Page row (slug: contact-us) supplies only the SEO metadata.
+     */
+    public function contact(): View
+    {
+        $page = Page::query()
+            ->where('slug', 'contact-us')
+            ->where('status', 'active')
+            ->firstOrFail();
+
+        return view('contact', compact('page'));
+    }
 }

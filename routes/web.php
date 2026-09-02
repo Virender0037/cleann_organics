@@ -51,9 +51,17 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::get('/contact', function () {
-    return view('contact');
-})->name('contact');
+// Canonical Contact Us URL. The old /contact path is kept working via a
+// permanent redirect below rather than left as a second live 200 page, since
+// it may already be bookmarked/linked externally.
+//
+// Uses redirect()->route() rather than Route::permanentRedirect() because the
+// latter builds a root-relative Location header, which breaks when the app
+// isn't served from the domain root (e.g. this env's APP_URL points at
+// /cleann_organics/public) — redirect()->route() builds the destination via
+// the url() helper instead, so it resolves correctly under any base path.
+Route::get('/contact-us', [PublicPageController::class, 'contact'])->name('contact');
+Route::get('/contact', fn () => redirect()->route('contact', [], 301));
 
 Route::get('/aboutus', function () {
     return view('aboutus');
@@ -117,6 +125,17 @@ Route::get('/faq', [FaqPageController::class, 'index'])->name('faq');
 // or future top-level route (/shop, /faq, /contact, ...). The controller
 // restricts to status=active and SoftDeletes excludes trashed rows, so a
 // missing, inactive or deleted page all 404 alike.
+//
+// contact-us has its own canonical route (see /contact-us above) backed by a
+// custom Blade design rather than the generic page.blade.php, so /page/{slug}
+// must not also serve it — that would be a second indexable 200 page with
+// different content for the same topic. Redirecting it here, before the
+// wildcard, closes that off without special-casing the slug inside the
+// PublicPageController::show() query used by every other managed page.
+// See the /contact route above for why redirect()->route() is used instead
+// of Route::permanentRedirect().
+Route::get('/page/contact-us', fn () => redirect()->route('contact', [], 301));
+
 Route::get('/page/{slug}', [PublicPageController::class, 'show'])->name('page.show');
 
 Route::get('/404', function () {

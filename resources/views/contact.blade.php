@@ -1,4 +1,7 @@
-<x-layouts.app>
+<x-layouts.app
+    :meta-title="$page->meta_title ?: $page->title.' | Cleann Organics'"
+    :meta-description="$page->meta_description"
+    :canonical-url="$page->canonical_url">
 <!-- breedcrumb section start  -->
     <section class="section breedcrumb">
       <div class="breedcrumb__img-wrapper">
@@ -35,6 +38,7 @@
     <!-- Contact section start  -->
     <section class="contact-form section section--xl">
       <div class="container">
+        <h1 class="font-title--sm" style="margin-bottom:24px;">{{ $page->title }}</h1>
         <div class="row contact-form__content">
           <div class="col-lg-3">
             <div class="contact-form__contact-info">
