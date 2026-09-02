@@ -11119,3 +11119,52 @@ body.overlay::after {
     margin-bottom: 20px;
   }
 }
+
+/** Header authenticated account dropdown (resources/views/components/layouts/header.blade.php) */
+.header__account {
+  position: relative;
+}
+.header__account-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.header__account:hover .header__account-trigger .drop-icon svg {
+  transform: rotate(180deg);
+  transition: all 0.3s linear;
+}
+.header__account-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 190px;
+  background: #ffffff;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  padding: 8px 0px;
+  margin: 8px 0px 0px;
+  list-style: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: all 0.2s ease-in-out;
+  z-index: 999;
+}
+.header__account:hover .header__account-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.header__account-menu li a {
+  display: block;
+  padding: 8px 18px;
+  font-size: 13px;
+  color: #4d4d4d;
+  white-space: nowrap;
+}
+.header__account-menu li a:hover {
+  color: #00b207;
+  background: rgba(0, 178, 7, 0.08);
+}

@@ -142,9 +142,25 @@
                 <span>/</span>
                 <a href="{{ route('create-account') }}">Sign up</a>
             @else
-                <a href="{{ route('user-dashboard') }}">{{ auth()->user()->name }}</a>
-                <span>/</span>
-                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('header-logout-form').submit();">Log out</a>
+                <div class="header__account">
+                    <a href="{{ route('user-dashboard') }}" class="header__account-trigger">
+                        {{ auth()->user()->name }}
+                        <span class="drop-icon">
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3.33332 5.66667L7.99999 10.3333L12.6667 5.66667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </a>
+                    <ul class="header__account-menu">
+                        <li><a href="{{ route('user-dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ route('order-history') }}">Order History</a></li>
+                        <li><a href="{{ route('wishlist') }}">Wishlist</a></li>
+                        <li><a href="{{ route('account-setting') }}">Account Settings</a></li>
+                        <li>
+                            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('header-logout-form').submit();">Log out</a>
+                        </li>
+                    </ul>
+                </div>
                 <form id="header-logout-form" method="POST" action="{{ route('logout') }}" style="display:none;">
                     @csrf
                 </form>
@@ -375,6 +391,18 @@
         @else
             <li class="header__mobile-menu-item">
                 <a href="{{ route('user-dashboard') }}" class="header__mobile-menu-item-link {{ request()->routeIs('user-dashboard') ? 'active' : '' }}">User Dashboard</a>
+            </li>
+            <li class="header__mobile-menu-item">
+                <a href="{{ route('order-history') }}" class="header__mobile-menu-item-link {{ request()->routeIs('order-history') ? 'active' : '' }}">Order History</a>
+            </li>
+            <li class="header__mobile-menu-item">
+                <a href="{{ route('wishlist') }}" class="header__mobile-menu-item-link {{ request()->routeIs('wishlist') ? 'active' : '' }}">Wishlist</a>
+            </li>
+            <li class="header__mobile-menu-item">
+                <a href="{{ route('account-setting') }}" class="header__mobile-menu-item-link {{ request()->routeIs('account-setting') ? 'active' : '' }}">Account Settings</a>
+            </li>
+            <li class="header__mobile-menu-item">
+                <a href="{{ route('logout') }}" class="header__mobile-menu-item-link" onclick="event.preventDefault(); document.getElementById('header-logout-form').submit();">Logout</a>
             </li>
         @endguest
     </ul>

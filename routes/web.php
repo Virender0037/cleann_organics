@@ -67,17 +67,29 @@ Route::get('/singleblog', function () {
     return view('singleblog');
 })->name('singleblog');
 
-Route::get('/user-dashboard', function () {
-    return view('user-dashboard');
-})->middleware('auth')->name('user-dashboard');
+// Customer-only storefront pages. Grouped under auth so a guest is redirected
+// to /sign-in instead of seeing another customer's account UI. order-details
+// stays out of this group deliberately: it has no {order} parameter yet, so
+// gating it here would protect the page without protecting a specific order —
+// that needs a proper /orders/{order} route with ownership authorization,
+// which is a separate task.
+Route::middleware('auth')->group(function () {
+    Route::get('/user-dashboard', function () {
+        return view('user-dashboard');
+    })->name('user-dashboard');
 
-Route::get('/account-setting', function () {
-    return view('account-setting');
-})->name('account-setting');
+    Route::get('/account-setting', function () {
+        return view('account-setting');
+    })->name('account-setting');
 
-Route::get('/order-history', function () {
-    return view('order-history');
-})->name('order-history');
+    Route::get('/order-history', function () {
+        return view('order-history');
+    })->name('order-history');
+
+    Route::get('/wishlist', function () {
+        return view('wishlist');
+    })->name('wishlist');
+});
 
 Route::get('/order-details', function () {
     return view('order-details');
@@ -86,10 +98,6 @@ Route::get('/order-details', function () {
 Route::get('/product-details', function () {
     return view('product-details');
 })->name('product-details');
-
-Route::get('/wishlist', function () {
-    return view('wishlist');
-})->name('wishlist');
 
 Route::get('/shopping-cart', function () {
     return view('shopping-cart');
