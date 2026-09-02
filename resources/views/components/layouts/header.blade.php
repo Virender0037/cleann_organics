@@ -221,21 +221,29 @@
 </div>
 </div>
 </div>
+@php
+    $isOurStory = request()->routeIs('page.show') && request()->route('slug') === 'our-story';
+    $isOurMission = request()->routeIs('page.show') && request()->route('slug') === 'our-mission';
+    $isFaqActive = request()->routeIs('faq');
+    $isPagesActive = $isOurStory || $isOurMission || $isFaqActive;
+    $isBlogActive = request()->routeIs('bloglist') || request()->routeIs('singleblog');
+@endphp
 <div class="header__bottom">
 <div class="container">
 <div class="header__bottom-content">
     <ul class="header__navigation-menu">
-        <!-- Homepages -->
-        <li class="header__navigation-menu-link">
+        <!-- Home -->
+        <li class="header__navigation-menu-link {{ request()->routeIs('home') ? 'active' : '' }}">
             <a href="{{ route('home') }}">Home </a>
         </li>
-        <!-- Shopepages -->
-        <li class="header__navigation-menu-link">
+        <!-- Shop -->
+        <li class="header__navigation-menu-link {{ request()->routeIs('shop') ? 'active' : '' }}">
             <a href="{{ route('shop') }}">
                 Shop
             </a>
         </li>
-        <li class="header__navigation-menu-link">
+        <!-- Pages -->
+        <li class="header__navigation-menu-link {{ $isPagesActive ? 'active' : '' }}">
             <a href="#">
                 Pages
                 <span class="drop-icon">
@@ -245,63 +253,25 @@
                 </span>
             </a>
             <ul class="header__navigation-drop-menu">
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('user-dashboard') }}">User Dashboard </a>
+                <li class="header__navigation-drop-menu-link {{ $isOurStory ? 'active' : '' }}">
+                    <a href="{{ route('page.show', 'our-story') }}">Our Story</a>
                 </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('order-history')}}">Order History </a>
+                <li class="header__navigation-drop-menu-link {{ $isOurMission ? 'active' : '' }}">
+                    <a href="{{ route('page.show', 'our-mission') }}">Our Mission</a>
                 </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('order-details')}}">Order Details </a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('account-setting')}}">Account Settings </a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('product-details')}}">Product Details</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('wishlist')}}"> Wishlist</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('shopping-cart')}}"> Shopping Cart</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('sign-in')}}"> Sign in</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('create-account')}}"> Create Account</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('faq')}}"> faq</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{route('404')}}"> Error 404</a>
+                <li class="header__navigation-drop-menu-link {{ $isFaqActive ? 'active' : '' }}">
+                    <a href="{{ route('faq') }}">FAQ</a>
                 </li>
             </ul>
         </li>
-        <li class="header__navigation-menu-link">
-            <a href="#">
-                Blog
-                <span class="drop-icon">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.33332 5.66667L7.99999 10.3333L12.6667 5.66667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </span>
-            </a>
-            <ul class="header__navigation-drop-menu">
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{ route('bloglist')}}">Blog list</a>
-                </li>
-                <li class="header__navigation-drop-menu-link">
-                    <a href="{{ route('singleblog')}}">Single Blog</a>
-                </li>
-            </ul>
+        <!-- Blog -->
+        <li class="header__navigation-menu-link {{ $isBlogActive ? 'active' : '' }}">
+            <a href="{{ route('bloglist') }}">Blog</a>
         </li>
-        <li class="header__navigation-menu-link">
-            <a href="{{ route('aboutus') }}">About us </a>
+        <li class="header__navigation-menu-link {{ request()->routeIs('aboutus') ? 'active' : '' }}">
+            <a href="{{ route('aboutus') }}">About Us </a>
         </li>
-        <li class="header__navigation-menu-link">
+        <li class="header__navigation-menu-link {{ request()->routeIs('contact') ? 'active' : '' }}">
             <a href="{{ route('contact') }}">Contact Us</a>
         </li>
     </ul>
@@ -359,53 +329,14 @@
         </div>
     </form>
     <ul class="header__mobile-menu">
-        <li class="header__mobile-menu-item active">
-            <a href="#" class="header__mobile-menu-item-link">
-                Home
-                <span class="drop-icon">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.33332 5.66667L7.99999 10.3333L12.6667 5.66667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </span>
-            </a>
-            <ul class="header__mobile-dropdown-menu">
-                <li class="header__mobile-dropdown-menu-link active">
-                    <a href="index.html">Home 01</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="home-02.html">Home 02</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="home-03.html">Home 03</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="home-04.html">Home 04</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="home-05.html">Home 05</a>
-                </li>
-            </ul>
+        <li class="header__mobile-menu-item {{ request()->routeIs('home') ? 'active' : '' }}">
+            <a href="{{ route('home') }}" class="header__mobile-menu-item-link {{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
         </li>
-        <li class="header__mobile-menu-item">
-            <a href="#" class="header__mobile-menu-item-link">
-                Shop
-                <span class="drop-icon">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.33332 5.66667L7.99999 10.3333L12.6667 5.66667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </span>
-            </a>
-            <ul class="header__mobile-dropdown-menu">
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="shop-01.html">Shop 01</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="shop-02.html">Shop 02</a>
-                </li>
-            </ul>
+        <li class="header__mobile-menu-item {{ request()->routeIs('shop') ? 'active' : '' }}">
+            <a href="{{ route('shop') }}" class="header__mobile-menu-item-link {{ request()->routeIs('shop') ? 'active' : '' }}">Shop</a>
         </li>
-        <li class="header__mobile-menu-item">
-            <a href="#" class="header__mobile-menu-item-link">
+        <li class="header__mobile-menu-item {{ $isPagesActive ? 'active' : '' }}">
+            <a href="#" class="header__mobile-menu-item-link {{ $isPagesActive ? 'active' : '' }}">
                 Pages
                 <span class="drop-icon">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -414,71 +345,38 @@
                 </span>
             </a>
             <ul class="header__mobile-dropdown-menu">
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="product-details.html">Product Details</a>
+                <li class="header__mobile-dropdown-menu-link {{ $isOurStory ? 'active' : '' }}">
+                    <a href="{{ route('page.show', 'our-story') }}">Our Story</a>
                 </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="wishlist.html">Wishlist</a>
+                <li class="header__mobile-dropdown-menu-link {{ $isOurMission ? 'active' : '' }}">
+                    <a href="{{ route('page.show', 'our-mission') }}">Our Mission</a>
                 </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="shopping-cart.html">Shopping Cart</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="checkout.html">Checkout</a>
-                </li>
-                @guest
-                    <li class="header__mobile-dropdown-menu-link">
-                        <a href="{{ route('sign-in') }}">Sign in</a>
-                    </li>
-                    <li class="header__mobile-dropdown-menu-link">
-                        <a href="{{ route('create-account') }}">Create Account</a>
-                    </li>
-                @else
-                    <li class="header__mobile-dropdown-menu-link">
-                        <a href="{{ route('user-dashboard') }}">User Dashboard</a>
-                    </li>
-                @endguest
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="order-history.html">order history</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="order-details.html">Order Details</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="account-setting.html">Account Settings</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="faq.html">faq</a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="404.html">404</a>
+                <li class="header__mobile-dropdown-menu-link {{ $isFaqActive ? 'active' : '' }}">
+                    <a href="{{ route('faq') }}">FAQ</a>
                 </li>
             </ul>
         </li>
-        <li class="header__mobile-menu-item">
-            <a href="#" class="header__mobile-menu-item-link">
-                Blog
-                <span class="drop-icon">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.33332 5.66667L7.99999 10.3333L12.6667 5.66667" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </span>
-            </a>
-            <ul class="header__mobile-dropdown-menu">
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="single-blog.html">Single Blog </a>
-                </li>
-                <li class="header__mobile-dropdown-menu-link">
-                    <a href="blog-list.html">Blog list</a>
-                </li>
-            </ul>
+        <li class="header__mobile-menu-item {{ $isBlogActive ? 'active' : '' }}">
+            <a href="{{ route('bloglist') }}" class="header__mobile-menu-item-link {{ $isBlogActive ? 'active' : '' }}">Blog</a>
         </li>
-        <li class="header__mobile-menu-item">
-            <a href="about.html" class="header__mobile-menu-item-link">About</a>
+        <li class="header__mobile-menu-item {{ request()->routeIs('aboutus') ? 'active' : '' }}">
+            <a href="{{ route('aboutus') }}" class="header__mobile-menu-item-link {{ request()->routeIs('aboutus') ? 'active' : '' }}">About Us</a>
         </li>
-        <li class="header__mobile-menu-item">
-            <a href="contact.html" class="header__mobile-menu-item-link">Contacts</a>
+        <li class="header__mobile-menu-item {{ request()->routeIs('contact') ? 'active' : '' }}">
+            <a href="{{ route('contact') }}" class="header__mobile-menu-item-link {{ request()->routeIs('contact') ? 'active' : '' }}">Contact Us</a>
         </li>
+        @guest
+            <li class="header__mobile-menu-item">
+                <a href="{{ route('sign-in') }}" class="header__mobile-menu-item-link {{ request()->routeIs('sign-in') ? 'active' : '' }}">Sign In</a>
+            </li>
+            <li class="header__mobile-menu-item">
+                <a href="{{ route('create-account') }}" class="header__mobile-menu-item-link {{ request()->routeIs('create-account') ? 'active' : '' }}">Sign Up</a>
+            </li>
+        @else
+            <li class="header__mobile-menu-item">
+                <a href="{{ route('user-dashboard') }}" class="header__mobile-menu-item-link {{ request()->routeIs('user-dashboard') ? 'active' : '' }}">User Dashboard</a>
+            </li>
+        @endguest
     </ul>
 </div>
 <div class="header__mobile-bottom">
