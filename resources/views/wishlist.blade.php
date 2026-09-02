@@ -536,7 +536,7 @@
       <div class="container">
         <div class="newsletter newsletter--one">
           <div class="newsletter__leftcontent">
-            <h2 class="font-body--xxxl-600">Subscribe Our Newsletter</h2>
+            <h2 class="font-body--xxxl-600">Subscribe to our daily News</h2>
             <p class="font-body--md-400">
               Pellentesque eu nibh eget mauris congue mattis mattis nec tellus.
               Phasellus imperdiet elit eu magna.
