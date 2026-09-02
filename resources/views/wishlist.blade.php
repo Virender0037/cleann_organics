@@ -313,7 +313,7 @@
           <div class="shoping-cart__mobile">
             <div class="shoping-card">
               <div class="shoping-card__img-wrapper">
-                <img src="src/images/products/img-01.png " alt="product-item" />
+                <img src="{{ asset('images/products/img-01.png') }}" alt="product-item" />
               </div>
               <h5 class="shoping-card__product-caption font-body--lg-400">
                 Green Apple
@@ -359,7 +359,7 @@
             </div>
             <div class="shoping-card">
               <div class="shoping-card__img-wrapper">
-                <img src="src/images/products/img-02.png " alt="product-item" />
+                <img src="{{ asset('images/products/img-02.png') }}" alt="product-item" />
               </div>
               <h5 class="shoping-card__product-caption font-body--lg-400">
                 Fresh Orange
@@ -406,7 +406,7 @@
             </div>
             <div class="shoping-card">
               <div class="shoping-card__img-wrapper">
-                <img src="src/images/products/img-03.png " alt="product-item" />
+                <img src="{{ asset('images/products/img-03.png') }}" alt="product-item" />
               </div>
               <h5 class="shoping-card__product-caption font-body--lg-400">
                 Chinese Cabbage
@@ -660,7 +660,7 @@
         <div class="shopping-cart__product-content">
           <div class="shopping-cart__product-content-item">
             <div class="img-wrapper">
-              <img src="src/images/products/img-01.png" alt="product" />
+              <img src="{{ asset('images/products/img-01.png') }}" alt="product" />
             </div>
             <div class="text-content">
               <h5 class="font-body--md-400">Fresh Indian Orange</h5>
@@ -703,7 +703,7 @@
         <div class="shopping-cart__product-content">
           <div class="shopping-cart__product-content-item">
             <div class="img-wrapper">
-              <img src="src/images/products/img-01.png" alt="product" />
+              <img src="{{ asset('images/products/img-01.png') }}" alt="product" />
             </div>
             <div class="text-content">
               <h5 class="font-body--md-400">Fresh Indian Orange</h5>
