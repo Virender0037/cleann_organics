@@ -50,19 +50,19 @@
                             <a href="{{ route('faq') }}"> FAQ </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="{{ route('page.show', 'shipping-policy') }}"> Shipping Policy </a>
+                            <a href="{{ route('shipping-policy') }}"> Shipping Policy </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="{{ route('page.show', 'refund-return-policy') }}"> Refund &amp; Return Policy </a>
+                            <a href="{{ route('refund-return-policy') }}"> Refund &amp; Return Policy </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="{{ route('page.show', 'terms-and-conditions') }}"> Terms &amp; Conditions </a>
+                            <a href="{{ route('terms-and-conditions') }}"> Terms &amp; Conditions </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="{{ route('page.show', 'privacy-policy') }}"> Privacy Policy </a>
+                            <a href="{{ route('privacy-policy') }}"> Privacy Policy </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="{{ route('page.show', 'disclaimer') }}"> Disclaimer </a>
+                            <a href="{{ route('disclaimer') }}"> Disclaimer </a>
                         </li>
                     </ul>
                 </div>
@@ -76,10 +76,10 @@
                             <a href="{{ route('aboutus') }}"> About Us </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="{{ route('page.show', 'our-mission') }}"> Our Mission </a>
+                            <a href="{{ route('our-mission') }}"> Our Mission </a>
                         </li>
                         <li class="footer__navigation-link">
-                            <a href="{{ route('page.show', 'our-story') }}"> Our Story </a>
+                            <a href="{{ route('our-story') }}"> Our Story </a>
                         </li>
                         <li class="footer__navigation-link">
                             <a href="{{ route('contact') }}"> Contact Us </a>

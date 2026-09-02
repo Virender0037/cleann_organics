@@ -136,6 +136,30 @@ Route::get('/faq', [FaqPageController::class, 'index'])->name('faq');
 // of Route::permanentRedirect().
 Route::get('/page/contact-us', fn () => redirect()->route('contact', [], 301));
 
+// Canonical root-level URLs for the 7 managed CMS pages that use the
+// generic page.blade.php template (unlike about-us/contact-us, which have
+// custom Blade designs). Each route reuses PublicPageController::show()
+// unchanged — Route::defaults() injects the slug even though the URI has
+// no {slug} placeholder — so there's no per-page controller method, and
+// page.blade.php / the pages table stay the single source of truth for
+// content and metadata. The old /page/{slug} URL for each is redirected
+// here, before the wildcard, so it never becomes a second indexable copy.
+foreach ([
+    'privacy-policy',
+    'terms-and-conditions',
+    'refund-return-policy',
+    'shipping-policy',
+    'our-mission',
+    'our-story',
+    'disclaimer',
+] as $managedPageSlug) {
+    Route::get("/{$managedPageSlug}", [PublicPageController::class, 'show'])
+        ->name($managedPageSlug)
+        ->defaults('slug', $managedPageSlug);
+
+    Route::get("/page/{$managedPageSlug}", fn () => redirect()->route($managedPageSlug, [], 301));
+}
+
 Route::get('/page/{slug}', [PublicPageController::class, 'show'])->name('page.show');
 
 Route::get('/404', function () {

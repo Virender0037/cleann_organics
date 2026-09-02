@@ -23,7 +23,14 @@
                 <span> > </span>
               </a>
             </li>
-            <li class="active"><a href="{{ route('page.show', $page->slug) }}">{{ $page->title }}</a></li>
+            {{-- Pages that have graduated to a dedicated canonical route (name
+                 matching the slug, e.g. privacy-policy, our-story) link to
+                 themselves via that route rather than the generic page.show
+                 URL, which now just 301-redirects here — otherwise this
+                 breadcrumb would be an internal link that depends on a
+                 redirect to reach its own page. Any page without one yet
+                 falls back to page.show unchanged. --}}
+            <li class="active"><a href="{{ Route::has($page->slug) ? route($page->slug) : route('page.show', $page->slug) }}">{{ $page->title }}</a></li>
           </ul>
         </div>
       </div>

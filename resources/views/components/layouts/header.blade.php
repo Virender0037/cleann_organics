@@ -238,8 +238,8 @@
 </div>
 </div>
 @php
-    $isOurStory = request()->routeIs('page.show') && request()->route('slug') === 'our-story';
-    $isOurMission = request()->routeIs('page.show') && request()->route('slug') === 'our-mission';
+    $isOurStory = request()->routeIs('our-story');
+    $isOurMission = request()->routeIs('our-mission');
     $isFaqActive = request()->routeIs('faq');
     $isPagesActive = $isOurStory || $isOurMission || $isFaqActive;
     $isBlogActive = request()->routeIs('bloglist') || request()->routeIs('singleblog');
@@ -270,10 +270,10 @@
             </a>
             <ul class="header__navigation-drop-menu">
                 <li class="header__navigation-drop-menu-link {{ $isOurStory ? 'active' : '' }}">
-                    <a href="{{ route('page.show', 'our-story') }}">Our Story</a>
+                    <a href="{{ route('our-story') }}">Our Story</a>
                 </li>
                 <li class="header__navigation-drop-menu-link {{ $isOurMission ? 'active' : '' }}">
-                    <a href="{{ route('page.show', 'our-mission') }}">Our Mission</a>
+                    <a href="{{ route('our-mission') }}">Our Mission</a>
                 </li>
                 <li class="header__navigation-drop-menu-link {{ $isFaqActive ? 'active' : '' }}">
                     <a href="{{ route('faq') }}">FAQ</a>
@@ -362,10 +362,10 @@
             </a>
             <ul class="header__mobile-dropdown-menu">
                 <li class="header__mobile-dropdown-menu-link {{ $isOurStory ? 'active' : '' }}">
-                    <a href="{{ route('page.show', 'our-story') }}">Our Story</a>
+                    <a href="{{ route('our-story') }}">Our Story</a>
                 </li>
                 <li class="header__mobile-dropdown-menu-link {{ $isOurMission ? 'active' : '' }}">
-                    <a href="{{ route('page.show', 'our-mission') }}">Our Mission</a>
+                    <a href="{{ route('our-mission') }}">Our Mission</a>
                 </li>
                 <li class="header__mobile-dropdown-menu-link {{ $isFaqActive ? 'active' : '' }}">
                     <a href="{{ route('faq') }}">FAQ</a>

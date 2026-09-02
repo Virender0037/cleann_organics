@@ -45,7 +45,7 @@ class PageSeeder extends Seeder
             'sort_order' => 7,
             'status' => 'active',
             'meta_title' => 'Disclaimer | CleannOrganics',
-            'canonical_url' => 'https://cleannorganics.com/page/disclaimer',
+            'canonical_url' => 'https://cleannorganics.com/disclaimer',
         ]);
     }
 
@@ -61,7 +61,7 @@ class PageSeeder extends Seeder
                 'sort_order' => 1,
                 'meta_title' => 'Privacy Policy | CleannOrganics',
                 'meta_description' => "Read CleannOrganics' Privacy Policy to understand how we collect, use, and protect your personal information when you shop with us.",
-                'canonical_url' => 'https://cleannorganics.com/page/privacy-policy',
+                'canonical_url' => 'https://cleannorganics.com/privacy-policy',
                 'content' => <<<'CONTENT'
 Privacy Policy — CleannOrganics
 Last Updated: January 2025
@@ -109,7 +109,7 @@ CONTENT,
                 'sort_order' => 2,
                 'meta_title' => 'Terms & Conditions | CleannOrganics',
                 'meta_description' => "Read CleannOrganics' Terms & Conditions before using our website or placing an order. Governs purchases, cancellations, and use of our platform.",
-                'canonical_url' => 'https://cleannorganics.com/page/terms-and-conditions',
+                'canonical_url' => 'https://cleannorganics.com/terms-and-conditions',
                 'content' => <<<'CONTENT'
 Terms & Conditions — CleannOrganics
 Last Updated: January 2025
@@ -152,7 +152,7 @@ CONTENT,
                 'sort_order' => 3,
                 'meta_title' => 'Refund & Return Policy | CleannOrganics',
                 'meta_description' => 'Read the CleannOrganics Refund & Return Policy for information about returns, refunds, replacements, and order cancellations.',
-                'canonical_url' => 'https://cleannorganics.com/page/refund-return-policy',
+                'canonical_url' => 'https://cleannorganics.com/refund-return-policy',
                 'content' => <<<'CONTENT'
 Refund & Return Policy — CleannOrganics
 Last Updated: January 2025
@@ -202,7 +202,7 @@ CONTENT,
                 'sort_order' => 4,
                 'meta_title' => 'Shipping Policy | CleannOrganics',
                 'meta_description' => 'Read the CleannOrganics Shipping Policy for information about order processing, shipping charges, delivery timelines, and order tracking.',
-                'canonical_url' => 'https://cleannorganics.com/page/shipping-policy',
+                'canonical_url' => 'https://cleannorganics.com/shipping-policy',
                 'content' => <<<'CONTENT'
 Shipping Policy — CleannOrganics
 Last Updated: January 2025
@@ -255,7 +255,7 @@ CONTENT,
                 'sort_order' => 5,
                 'meta_title' => 'Our Mission | CleannOrganics',
                 'meta_description' => 'Learn about the CleannOrganics mission and our commitment to quality products, transparency, customer trust, and thoughtful everyday choices.',
-                'canonical_url' => 'https://cleannorganics.com/page/our-mission',
+                'canonical_url' => 'https://cleannorganics.com/our-mission',
                 'content' => <<<'CONTENT'
 Our Mission — CleannOrganics
 
@@ -296,7 +296,7 @@ CONTENT,
                 'sort_order' => 6,
                 'meta_title' => 'Our Story | CleannOrganics',
                 'meta_description' => 'Learn about the story behind CleannOrganics, our journey, what we are building, and our commitment to creating a simple, transparent, and reliable shopping experience.',
-                'canonical_url' => 'https://cleannorganics.com/page/our-story',
+                'canonical_url' => 'https://cleannorganics.com/our-story',
                 'content' => <<<'CONTENT'
 Our Story – CleannOrganics
 [PLACEHOLDER CONTENT – REPLACE BEFORE PRODUCTION]
