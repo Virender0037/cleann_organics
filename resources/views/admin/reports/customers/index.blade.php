@@ -1,5 +1,5 @@
 <x-admin-layout title="Customers Report">
-<main class="pc-container-edit">
+<main class="pc-container-edit admin-content-padded">
 
     <x-admin.page-header title="Customers Report" subtitle="Customer registrations and purchase statistics">
         <x-slot:actions>

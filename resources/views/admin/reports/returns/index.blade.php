@@ -1,5 +1,5 @@
 <x-admin-layout title="Returns Report">
-<main class="pc-container-edit">
+<main class="pc-container-edit admin-content-padded">
 
     <x-admin.page-header title="Returns Report" subtitle="Track returned orders and refund requests">
         <x-slot:actions>

@@ -1,6 +1,6 @@
 <x-admin-layout title="Payment Details">
 
-    <main class="pc-container-edit">
+    <main class="pc-container-edit admin-content-padded">
 
         <x-admin.page-header title="Payment Details" subtitle="View complete transaction information">
             <x-slot:actions>

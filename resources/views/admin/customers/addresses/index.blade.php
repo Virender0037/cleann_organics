@@ -1,28 +1,20 @@
 <x-admin-layout title="Customer Addresses">
 
-    <main class="pc-container-edit">
+    <main class="pc-container-edit admin-content-padded">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Customer Addresses</h4>
-                <p class="text-muted mb-0">
-                    Manage customer billing and shipping addresses
-                </p>
-            </div>
+        <x-admin.page-header title="Customer Addresses" subtitle="Manage customer billing and shipping addresses">
+            <x-slot:actions>
+                <a href="{{ route('admin.customers.show', $customer) }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.customers.show', $customer) }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
-
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <a href="{{ route('admin.customers.index') }}">Customers</a>
-            <span class="mx-2">›</span>
-            <span>Addresses</span>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Customers', 'url' => route('admin.customers.index')],
+            ['label' => 'Addresses'],
+        ]" />
 
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -214,7 +206,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted">No saved addresses.</td>
+                                <td colspan="8">
+                                    <x-admin.empty-state>No saved addresses.</x-admin.empty-state>
+                                </td>
                             </tr>
                         @endforelse
 

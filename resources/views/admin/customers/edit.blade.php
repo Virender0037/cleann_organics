@@ -2,25 +2,19 @@
 
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Edit Customer</h4>
-                <p class="text-muted mb-0">Update customer account information</p>
-            </div>
+        <x-admin.page-header title="Edit Customer" subtitle="Update customer account information">
+            <x-slot:actions>
+                <a href="{{ route('admin.customers.index') }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.customers.index') }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
-
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <a href="{{ route('admin.customers.index') }}">Customers</a>
-            <span class="mx-2">›</span>
-            <span>Edit Customer</span>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Customers', 'url' => route('admin.customers.index')],
+            ['label' => 'Edit Customer'],
+        ]" />
 
         <form action="{{ route('admin.customers.update', $customer) }}" method="POST" enctype="multipart/form-data">
             @csrf

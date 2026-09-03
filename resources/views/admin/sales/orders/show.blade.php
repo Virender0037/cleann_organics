@@ -1,5 +1,5 @@
 <x-admin-layout title="Order Details">
-    <main class="pc-container-edit">
+    <main class="pc-container-edit admin-content-padded">
 
         <x-admin.page-header title="Order #{{ $order->order_number }}" subtitle="Complete order details and activity">
             <x-slot:actions>

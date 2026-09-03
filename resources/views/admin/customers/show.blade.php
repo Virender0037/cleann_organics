@@ -1,6 +1,6 @@
 <x-admin-layout title="Customer Details">
 
-    <main class="pc-container-edit">
+    <main class="pc-container-edit admin-content-padded">
 
         <x-admin.page-header title="Customer Details" subtitle="View customer profile, orders, wishlist and activity">
             <x-slot:actions>

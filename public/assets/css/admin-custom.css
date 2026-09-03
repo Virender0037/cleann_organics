@@ -208,6 +208,14 @@
   border-radius: var(--admin-radius-sm);
 }
 
+.table > :not(caption) > * > * {
+  border-bottom-color: var(--admin-border);
+}
+
+.table-hover > tbody > tr:hover > * {
+  background-color: var(--admin-primary-light-2);
+}
+
 /* ============================================================
    Forms / filter toolbars
    ============================================================ */
@@ -261,16 +269,21 @@
 }
 
 /* ============================================================
-   Dashboard — .pc-container-edit has zero horizontal padding
-   (relied on by every CRUD page, which wraps its content in a
-   padded .card-body so it's never an issue there). The dashboard's
-   stat-card rows sit directly in that unpadded container, so
-   Bootstrap's .row -12px gutter margins bleed 12px past the
-   viewport edge. Scoped to .admin-dashboard only (added to
-   dashboard.blade.php's <main> tag) so no other page is affected.
+   .pc-container-edit has zero horizontal padding (relied on by
+   every standard CRUD page, which wraps its content in a padded
+   .card-body so it's never an issue there). Pages that instead
+   place a raw stat-card/info-card .row directly in that unpadded
+   container get bled into by Bootstrap's .row -12px gutter
+   margins, past the viewport edge, causing real horizontal page
+   overflow on narrow screens. Scoped to .admin-content-padded
+   (added to the affected pages' <main> tag alongside
+   .pc-container-edit) so standard CRUD pages are unaffected.
+   .admin-dashboard was the original instance of this fix; kept as
+   an alias for backward compatibility.
    ============================================================ */
 
-.admin-dashboard {
+.admin-dashboard,
+.admin-content-padded {
   padding-left: 12px;
   padding-right: 12px;
 }
@@ -443,6 +456,48 @@ body[data-pc-preset="preset-1"] {
 .admin-badge--primary {
   background: var(--admin-primary-light);
   color: var(--admin-primary-hover);
+}
+
+/* ============================================================
+   Raw Bootstrap badges (.badge.bg-*) — a number of admin pages
+   (placeholders, reports, a few real pages) render status pills
+   via Bootstrap's own bg-{color} utilities instead of
+   <x-admin.status-badge>. Rather than rewriting that markup,
+   recolor the utility classes themselves to the same approved
+   palette so every badge in the panel matches regardless of
+   which markup path rendered it. Shape/padding already match
+   (.badge rule above applies to both). Bootstrap's utilities ship
+   with !important, so overrides need it too.
+   ============================================================ */
+
+.badge.bg-success {
+  background-color: var(--admin-success-bg) !important;
+  color: var(--admin-success-text) !important;
+}
+
+.badge.bg-warning {
+  background-color: var(--admin-warning-bg) !important;
+  color: var(--admin-warning-text) !important;
+}
+
+.badge.bg-danger {
+  background-color: var(--admin-danger-bg) !important;
+  color: var(--admin-danger-text) !important;
+}
+
+.badge.bg-info {
+  background-color: var(--admin-info-bg) !important;
+  color: var(--admin-info-text) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--admin-neutral-bg) !important;
+  color: var(--admin-neutral-text) !important;
+}
+
+.badge.bg-primary {
+  background-color: var(--admin-primary-light) !important;
+  color: var(--admin-primary-hover) !important;
 }
 
 /* ============================================================

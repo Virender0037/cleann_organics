@@ -1,27 +1,20 @@
 <x-admin-layout title="Add Coupon">
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Add Coupon</h4>
-                <p class="text-muted mb-0">Create a new discount coupon</p>
-            </div>
+        <x-admin.page-header title="Add Coupon" subtitle="Create a new discount coupon">
+            <x-slot:actions>
+                <a href="{{ route('admin.sales.coupons.index') }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.sales.coupons.index') }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
-
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Sales</span>
-            <span class="mx-2">›</span>
-            <a href="{{ route('admin.sales.coupons.index') }}">Coupons</a>
-            <span class="mx-2">›</span>
-            <span>Add Coupon</span>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Sales'],
+            ['label' => 'Coupons', 'url' => route('admin.sales.coupons.index')],
+            ['label' => 'Add Coupon'],
+        ]" />
 
         <form action="{{ route('admin.sales.coupons.store') }}" method="POST">
             @csrf

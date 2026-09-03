@@ -1,6 +1,6 @@
 <x-admin-layout title="Return Details">
 
-    <main class="pc-container-edit">
+    <main class="pc-container-edit admin-content-padded">
 
         <x-admin.page-header title="Return #{{ $return->return_number }}" subtitle="Review return request, refund details and activity">
             <x-slot:actions>

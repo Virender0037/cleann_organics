@@ -1,17 +1,20 @@
 <x-admin-layout title="Add Address">
     <main class="pc-container-edit">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Add Address</h4>
-                <p class="text-muted mb-0">Add a new customer address</p>
-            </div>
+        <x-admin.page-header title="Add Address" subtitle="Add a new customer address">
+            <x-slot:actions>
+                <a href="{{ route('admin.customers.addresses.index', $customer) }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.customers.addresses.index', $customer) }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Customers', 'url' => route('admin.customers.index')],
+            ['label' => 'Addresses', 'url' => route('admin.customers.addresses.index', $customer)],
+            ['label' => 'Add Address'],
+        ]" />
 
         <form action="{{ route('admin.customers.addresses.store', $customer) }}" method="POST">
             @csrf

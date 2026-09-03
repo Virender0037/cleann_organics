@@ -1,30 +1,20 @@
 <x-admin-layout title="Customer Wishlist">
 
-    <main class="pc-container-edit">
+    <main class="pc-container-edit admin-content-padded">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Customer Wishlist</h4>
-                <p class="text-muted mb-0">
-                    Products saved by the customer for future purchase
-                </p>
-            </div>
+        <x-admin.page-header title="Customer Wishlist" subtitle="Products saved by the customer for future purchase">
+            <x-slot:actions>
+                <a href="{{ route('admin.customers.show', $customer) }}" class="btn btn-light">
+                    <i class="ph ph-arrow-left me-1"></i>
+                    Back
+                </a>
+            </x-slot:actions>
+        </x-admin.page-header>
 
-            <a href="{{ route('admin.customers.show', $customer) }}" class="btn btn-light">
-                <i class="ph ph-arrow-left me-1"></i>
-                Back
-            </a>
-        </div>
-
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-
-            <a href="{{ route('admin.customers.index') }}">Customers</a>
-            <span class="mx-2">›</span>
-
-            <span>Wishlist</span>
-        </div>
+        <x-admin.breadcrumb :items="[
+            ['label' => 'Customers', 'url' => route('admin.customers.index')],
+            ['label' => 'Wishlist'],
+        ]" />
 
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -203,7 +193,9 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center text-muted">No wishlist items.</td>
+                                    <td colspan="9">
+                                        <x-admin.empty-state>No wishlist items.</x-admin.empty-state>
+                                    </td>
                                 </tr>
                             @endforelse
 
