@@ -497,15 +497,30 @@
 }
 
 /** 1.1 Typography */
+/* Phase 1 UI/UX foundation: the six heading tiers previously all collapsed
+   to an identical flat 28px/38px below 767px, losing all visual hierarchy
+   on mobile, and had no intermediate step for the 768-1024px tablet range
+   (they rendered at full desktop size right up to the 767px cutoff).
+   Desktop font-size values (72/56/48/40/36/32, declared earlier in this
+   file) are unchanged; only the responsive step-down is added/adjusted, so
+   every page currently using these classes keeps its existing desktop
+   appearance and gains a smoother, still-distinct scale on tablet/mobile. */
 .font-title--xxxl,
 .font-title--xxxl-n {
   line-height: 86.4px;
 }
+@media (max-width: 1024px) {
+  .font-title--xxxl,
+  .font-title--xxxl-n {
+    font-size: 42px;
+    line-height: 52px;
+  }
+}
 @media (max-width: 767px) {
   .font-title--xxxl,
   .font-title--xxxl-n {
-    font-size: 28px;
-    line-height: 38px;
+    font-size: 34px;
+    line-height: 44px;
   }
 }
 
@@ -513,11 +528,18 @@
 .font-title--xxl-n {
   line-height: 67.2px;
 }
+@media (max-width: 1024px) {
+  .font-title--xxl,
+  .font-title--xxl-n {
+    font-size: 40px;
+    line-height: 50px;
+  }
+}
 @media (max-width: 767px) {
   .font-title--xxl,
   .font-title--xxl-n {
-    font-size: 28px;
-    line-height: 38px;
+    font-size: 32px;
+    line-height: 42px;
   }
 }
 
@@ -525,17 +547,31 @@
 .font-title--xl-n {
   line-height: 57.6px;
 }
+@media (max-width: 1024px) {
+  .font-title--xl,
+  .font-title--xl-n {
+    font-size: 38px;
+    line-height: 48px;
+  }
+}
 @media (max-width: 767px) {
   .font-title--xl,
   .font-title--xl-n {
-    font-size: 28px;
-    line-height: 38px;
+    font-size: 30px;
+    line-height: 40px;
   }
 }
 
 .font-title--lg,
 .font-title--lg-n {
   line-height: 48px;
+}
+@media (max-width: 1024px) {
+  .font-title--lg,
+  .font-title--lg-n {
+    font-size: 34px;
+    line-height: 44px;
+  }
 }
 @media (max-width: 767px) {
   .font-title--lg,
@@ -549,11 +585,18 @@
 .font-title--md-n {
   line-height: 43.2px;
 }
+@media (max-width: 1024px) {
+  .font-title--md,
+  .font-title--md-n {
+    font-size: 32px;
+    line-height: 42px;
+  }
+}
 @media (max-width: 767px) {
   .font-title--md,
   .font-title--md-n {
-    font-size: 28px;
-    line-height: 38px;
+    font-size: 26px;
+    line-height: 36px;
   }
 }
 
@@ -561,11 +604,18 @@
 .font-title--sm-n {
   line-height: 38.4px;
 }
-@media (max-width: 767px) {
+@media (max-width: 1024px) {
   .font-title--sm,
   .font-title--sm-n {
     font-size: 28px;
     line-height: 38px;
+  }
+}
+@media (max-width: 767px) {
+  .font-title--sm,
+  .font-title--sm-n {
+    font-size: 24px;
+    line-height: 32px;
   }
 }
 
@@ -3871,15 +3921,22 @@ body.overlay::after {
   display: flex;
   align-items: center;
 }
+/* Phase 1: h5 reduced from 56px so the About Us hero heading (the real,
+   longer CleannOrganics copy — not the original short template text) has a
+   more balanced proportion against its paragraph instead of wrapping onto
+   four lines. h5/h6 also used to share every responsive value, so a
+   sub-heading like "OUR PROMISE TO YOU:" rendered at the identical size to
+   the page's primary heading on tablet/mobile — they're split into two
+   distinct scales below so h6 always stays visually secondary to h5. */
 .hero__text-content h5 {
-  font-size: 56px;
-  line-height: 67.2px;
+  font-size: 48px;
+  line-height: 58px;
   width: 607px;
   margin-bottom: 32px;
 }
 .hero__text-content h6 {
-  font-size: 48px;
-  line-height: 57.6px;
+  font-size: 34px;
+  line-height: 44px;
   margin-bottom: 24px;
   width: 552px;
 }
@@ -3888,20 +3945,29 @@ body.overlay::after {
   color: #1a1a1a;
   font-weight: 600;
 }
-@media (max-width: 1200px) {
-  .hero__text-content h5,
+@media (max-width: 1024px) {
+  .hero__text-content h5 {
+    max-width: 500px;
+    font-size: 40px;
+    line-height: 50px;
+  }
   .hero__text-content h6 {
     max-width: 500px;
-    font-size: 48px;
-    line-height: 58px;
+    font-size: 30px;
+    line-height: 40px;
   }
 }
 @media (max-width: 767px) {
-  .hero__text-content h5,
+  .hero__text-content h5 {
+    max-width: 100%;
+    font-size: 32px;
+    line-height: 42px;
+    margin-bottom: 15px;
+  }
   .hero__text-content h6 {
     max-width: 100%;
-    font-size: 28px;
-    line-height: 38px;
+    font-size: 26px;
+    line-height: 34px;
     margin-bottom: 15px;
   }
 }
@@ -3925,6 +3991,39 @@ body.overlay::after {
 @media (max-width: 767px) {
   .hero__text-content .info--two {
     font-size: 14px;
+  }
+}
+/* Phase 1 reading-typography class: applied only to specific long-form
+   paragraphs (the 7 CMS pages via page.blade.php, and About Us's real
+   content paragraphs) rather than changed globally, so unrelated .info /
+   .info--two usages elsewhere (e.g. Home's hero) keep their existing size.
+   The compound .hero__text-content .reading-text selector matches .info's
+   own specificity so it reliably overrides it wherever both are present. */
+.reading-text {
+  font-size: 16px;
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+.reading-text:last-child {
+  margin-bottom: 0;
+}
+.hero__text-content .reading-text {
+  font-size: 16px;
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+@media (max-width: 1024px) {
+  .reading-text,
+  .hero__text-content .reading-text {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+}
+@media (max-width: 767px) {
+  .reading-text,
+  .hero__text-content .reading-text {
+    font-size: 15px;
+    line-height: 1.65;
   }
 }
 .hero__text-content a.button {
@@ -11086,7 +11185,7 @@ body.overlay::after {
 
 /** CMS Page Content (resources/views/page.blade.php) */
 .page-content {
-  max-width: 860px;
+  max-width: 820px;
   margin: 0 auto;
   overflow-wrap: break-word;
   word-wrap: break-word;
@@ -11103,8 +11202,9 @@ body.overlay::after {
   border-radius: 10px;
 }
 .page-content__body {
+  /* font-size/line-height come from the .reading-text class applied in
+     page.blade.php (Phase 1 UI/UX foundation) — kept here only for color. */
   color: #4d4d4d;
-  line-height: 1.8;
 }
 .page-content__body br + br {
   content: "";
@@ -11167,4 +11267,76 @@ body.overlay::after {
 .header__account-menu li a:hover {
   color: #00b207;
   background: rgba(0, 178, 7, 0.08);
+}
+
+/** Phase 1 UI/UX foundation — accessible keyboard focus states
+    The theme's base rules (e.g. `button:focus { outline: none; }` near the
+    top of this file) strip the default focus outline with no replacement,
+    leaving keyboard users with no visible indicator of focus anywhere on
+    the storefront. :focus-visible only engages for keyboard/programmatic
+    focus (not mouse clicks), so this doesn't change the theme's existing
+    mouse-interaction appearance. !important is needed specifically here
+    because bootstrap.min.css (loaded before this file, but its own
+    `input:focus{outline:0}` reset carries the same specificity as an
+    unadorned `input:focus-visible` selector) would otherwise win the tie
+    unpredictably depending on rule order inside that vendor file, which
+    this project doesn't control. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #00b207 !important;
+  outline-offset: 2px !important;
+}
+
+/** Phase 1 UI/UX foundation — input typography consistency
+    Header search input was 15px while the contact form's inputs are 16px;
+    aligning it removes an unintentional 1px mismatch between two visually
+    similar text inputs. */
+.header__input-form input {
+  font-size: 16px;
+}
+
+/** Phase 1 UI/UX foundation — "Purchase Now" badge mobile overlap fix
+    This is TemplateCookie's own Shopery vendor/demo promotion (links to
+    their Envato Market listing), not CleannOrganics functionality — see
+    the Phase 1 report for the investigation. Retained as instructed, but
+    its `position: fixed` + `bottom: 20px; right: 20px` placement could sit
+    on top of page content at small viewport heights. Reserving bottom
+    space on the body at mobile widths guarantees no page's content ever
+    renders directly underneath it, and shrinking the badge itself reduces
+    its footprint further, without touching its behavior on any other page. */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: 64px;
+  }
+  .templatecookie-btn {
+    bottom: 12px !important;
+    right: 12px !important;
+  }
+  /* Collapses to an icon-only circular button (the "Purchase Now" text is a
+     bare text node in the markup, not its own element, so font-size: 0 is
+     the only way to hide just the text via CSS without touching the
+     markup in every file that includes this badge). A ~40px circle is a
+     far smaller target than the original ~185px-wide pill, giving a much
+     safer margin against overlapping short-page content like Sign In's
+     "Register" link. */
+  .templatecookie-btn .purchase-btn {
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    border-radius: 50% !important;
+    justify-content: center !important;
+  }
+  .templatecookie-btn .purchase-btn span {
+    margin-left: 0 !important;
+  }
+  .templatecookie-btn .purchase-btn span svg {
+    width: 18px;
+    height: 16px;
+  }
 }

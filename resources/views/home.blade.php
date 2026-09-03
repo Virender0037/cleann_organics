@@ -5543,7 +5543,7 @@
                     <div class="newsletter__rightcontent">
                         <form action="#">
                             <div class="newsletter__input">
-                                <input type="text" placeholder="Your Email Address" />
+                                <input type="email" id="newsletter-email" name="newsletter_email" placeholder="Your Email Address" />
                                 <button class="button button--lg" type="submit">
                                     Subscribe
                                 </button>
@@ -5619,7 +5619,7 @@
 
                                     <form action="#">
                                         <div class="contact-mail">
-                                            <input type="email" placeholder="Enter Your email" />
+                                            <input type="email" id="newsletter-modal-email" name="newsletter_modal_email" placeholder="Enter Your email" />
                                             <button class="button button--md">Subscribe</button>
                                         </div>
                                         <div class="form-check">

@@ -165,14 +165,14 @@
               <form action="#">
                 <div class="contact-form-group">
                   <div class="contact-form--input">
-                    <input type="text " placeholder="Your Name" />
+                    <input type="text" id="contact-name" name="name" placeholder="Your Name" />
                   </div>
                   <div class="contact-form--input">
-                    <input type="email" placeholder="Your Email" />
+                    <input type="email" id="contact-email" name="email" placeholder="Your Email" />
                   </div>
                 </div>
                 <div class="contact-form--input">
-                  <input type="text" placeholder="Title" />
+                  <input type="text" id="contact-title" name="title" placeholder="Title" />
                 </div>
                 <div
                   class="contact-form--input contact-form--input-area"
@@ -229,7 +229,7 @@
           <div class="newsletter__rightcontent">
             <form action="#">
               <div class="newsletter__input">
-                <input type="text" placeholder="Your Email Address" />
+                <input type="email" id="newsletter-email" name="newsletter_email" placeholder="Your Email Address" />
                 <button class="button button--lg" type="submit">
                   Subscribe
                 </button>

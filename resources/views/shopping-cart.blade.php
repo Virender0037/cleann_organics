@@ -409,7 +409,7 @@
               </h5>
               <form action="#">
                 <div class="newsletter-card__input">
-                  <input type="text" placeholder="Enter Code " />
+                  <input type="text" id="coupon-code" name="coupon_code" placeholder="Enter Code" />
                   <button class="button button--lg" type="submit">
                     Apply Coupon
                   </button>
@@ -477,7 +477,7 @@
           <div class="newsletter__rightcontent">
             <form action="#">
               <div class="newsletter__input">
-                <input type="text" placeholder="Your Email Address" />
+                <input type="email" id="newsletter-email" name="newsletter_email" placeholder="Your Email Address" />
                 <button class="button button--lg" type="submit">
                   Subscribe
                 </button>

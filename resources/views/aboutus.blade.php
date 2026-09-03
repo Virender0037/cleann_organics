@@ -37,18 +37,18 @@
                     <div class="col-lg-6 order-lg-0 order-2">
                         <div class="hero__text-content">
                             <h5>
-                                Welcome to CleannOrganics — Where Nature Meets Your Home.
+                               Where Nature Meets Your Home
                             </h5>
-                            <p class="info">
+                            <p class="info reading-text">
                                 At CleannOrganics, we believe that the products you use every day should be as pure and honest as the values you live by. Founded in 2022 by Himanshu Garg, CleannOrganics was born from a simple but powerful realisation — most household and personal care products on the market are filled with harsh chemicals, synthetic fragrances, and toxic ingredients that silently harm our families, our homes, and our planet.
                             </p>
-                            <p class="info">
+                            <p class="info reading-text">
                                 We set out to change that.
                             </p>
-                            <p class="info">
+                            <p class="info reading-text">
                                 Inspired by the wisdom of Ayurveda, the power of bio-enzymes, and an unwavering commitment to sustainability, we created a range of products that are 100% natural, plant-based, and completely safe for the people you love and the world you live in.
                             </p>
-                            <p class="info">
+                            <p class="info reading-text">
                                 Today, CleannOrganics proudly offers a thoughtfully curated range of organic home cleaning and personal care products — from bio-enzyme floor cleaners and Ayurvedic dental care to plastic-free alternatives for everyday living.
                             </p>
                         </div>
@@ -521,7 +521,7 @@
                                     <p>Made in India — with love and purpose.</p>
                                 </li>
                             </ul>
-                            <p class="info--two">
+                            <p class="info--two reading-text">
                                 At CleannOrganics, we are not just selling products. We are building a movement — one household at a time — towards a cleaner, greener, and healthier India. Join us on this journey.
                             </p>
                             <a href="#" class="button button--md">
@@ -1469,7 +1469,7 @@
                     <div class="newsletter__rightcontent">
                         <form action="#">
                             <div class="newsletter__input">
-                                <input type="text" placeholder="Your Email Address" />
+                                <input type="email" id="newsletter-email" name="newsletter_email" placeholder="Your Email Address" />
                                 <button class="button button--lg" type="submit">Subscribe</button>
                             </div>
                         </form>

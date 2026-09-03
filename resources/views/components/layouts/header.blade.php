@@ -187,7 +187,8 @@
     </div>
     <form action="#">
         <div class="header__input-form">
-            <input type="text" placeholder="Search" />
+            <label for="header-search-desktop" class="visually-hidden">Search products</label>
+            <input type="text" id="header-search-desktop" name="search" placeholder="Search" />
             <span class="search-icon">
                 <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -329,7 +330,8 @@
 <div class="header__mobile-top">
     <form action="#">
         <div class="header__mobile-input">
-            <input type="text" placeholder="Search" />
+            <label for="header-search-mobile" class="visually-hidden">Search products</label>
+            <input type="text" id="header-search-mobile" name="search" placeholder="Search" />
             <button class="search-btn">
                 <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path

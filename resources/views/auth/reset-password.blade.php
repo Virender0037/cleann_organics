@@ -246,7 +246,7 @@
           <div class="newsletter__rightcontent">
             <form action="#">
               <div class="newsletter__input">
-                <input type="text" placeholder="Your Email Address" />
+                <input type="email" id="newsletter-email" name="newsletter_email" placeholder="Your Email Address" />
                 <button class="button button--lg" type="submit">
                   Subscribe
                 </button>

@@ -44,7 +44,11 @@
           <div class="col-lg-10 offset-lg-1">
             <div class="page-content">
 
-              <h2 class="font-title--sm page-content__title">{{ $page->title }}</h2>
+              {{-- This is a standalone page (not embedded in a larger document),
+                   so its content title is the page's one true H1 — visual size
+                   is unchanged via the same font-title--sm/page-content__title
+                   classes, only the semantic tag is corrected. --}}
+              <h1 class="font-title--sm page-content__title">{{ $page->title }}</h1>
 
               @if ($page->featured_image)
                 <div class="page-content__image">
@@ -55,7 +59,7 @@
                 </div>
               @endif
 
-              <div class="font-body--md-400 page-content__body">
+              <div class="reading-text page-content__body">
                 {{-- Stored content is plain text with line breaks, so it is fully
                      escaped and then line breaks are restored. No raw HTML is
                      rendered, which keeps this safe without a sanitiser. --}}
