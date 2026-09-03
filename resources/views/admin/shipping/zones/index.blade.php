@@ -4,6 +4,14 @@
 
     <x-admin.page-header title="Shipping Zones" subtitle="Manage delivery zones by state, city and pincode">
         <x-slot:actions>
+            <a href="{{ route('admin.shipping.zones.import') }}" class="btn btn-light-primary me-2">
+                <i class="ph ph-upload-simple"></i>
+                Import
+            </a>
+            <a href="{{ route('admin.shipping.zones.export', request()->query()) }}" class="btn btn-light-secondary me-2">
+                <i class="ph ph-download-simple"></i>
+                Export
+            </a>
             <a href="{{ route('admin.shipping.zones.create') }}" class="btn btn-primary">
                 <i class="ph ph-plus me-1"></i>
                 Add Zone

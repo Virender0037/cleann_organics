@@ -3,6 +3,14 @@
 
         <x-admin.page-header title="Coupons" subtitle="Manage discount coupons and promotional offers">
             <x-slot:actions>
+                <a href="{{ route('admin.sales.coupons.import') }}" class="btn btn-light-primary me-2">
+                    <i class="ph ph-upload-simple"></i>
+                    Import
+                </a>
+                <a href="{{ route('admin.sales.coupons.export', request()->query()) }}" class="btn btn-light-secondary me-2">
+                    <i class="ph ph-download-simple"></i>
+                    Export
+                </a>
                 <a href="{{ route('admin.sales.coupons.create') }}" class="btn btn-primary">
                     <i class="ph ph-plus me-1"></i>
                     Add Coupon

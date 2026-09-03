@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShippingZoneRequest;
 use App\Http\Requests\Admin\UpdateShippingZoneRequest;
 use App\Models\ShippingZone;
+use App\Services\Admin\SpreadsheetImportReader;
+use App\Services\CsvExporter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ShippingZoneController extends Controller
 {
@@ -30,6 +34,165 @@ class ShippingZoneController extends Controller
             ->withQueryString();
 
         return view('admin.shipping.zones.index', compact('zones'));
+    }
+
+    public function export(Request $request, CsvExporter $exporter): StreamedResponse
+    {
+        $zones = ShippingZone::withCount('rates')
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->string('search');
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('state', 'like', "%{$search}%")
+                        ->orWhere('city', 'like', "%{$search}%")
+                        ->orWhere('pincode', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->orderBy('name')
+            ->lazy(200);
+
+        $headers = ['id', 'name', 'state', 'city', 'pincode', 'status', 'rates_count'];
+
+        $rows = $zones->map(fn (ShippingZone $zone) => [
+            $zone->id,
+            $zone->name,
+            $zone->state,
+            $zone->city,
+            $zone->pincode,
+            $zone->status,
+            $zone->rates_count,
+        ]);
+
+        return $exporter->stream('shipping-zones.csv', $headers, $rows);
+    }
+
+    public function importForm(): View
+    {
+        return view('admin.shipping.zones.import');
+    }
+
+    public function downloadTemplate(CsvExporter $exporter): StreamedResponse
+    {
+        $headers = ['name', 'state', 'city', 'pincode', 'status'];
+
+        $exampleRows = [
+            ['North Delhi', 'Delhi', 'New Delhi', '110001', 'active'],
+            ['Mumbai Metro', 'Maharashtra', 'Mumbai', '400001', 'active'],
+        ];
+
+        return $exporter->stream('shipping-zones-import-template.csv', $headers, $exampleRows);
+    }
+
+    public function import(Request $request, SpreadsheetImportReader $reader): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx', 'max:2048'],
+        ]);
+
+        try {
+            $parsed = $reader->parse($request->file('file'));
+        } catch (\RuntimeException $e) {
+            return back()->with('error', 'Unable to read the uploaded file: '.$e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('Shipping zone import: failed to parse uploaded file.', ['exception' => $e]);
+
+            return back()->with('error', 'Unable to read the uploaded file. Please check the file and try again.');
+        }
+
+        $header = $parsed['header'];
+        $rows = $parsed['rows'];
+
+        $missingColumns = array_diff(['name', 'status'], $header);
+
+        if (! empty($missingColumns)) {
+            return back()->with('error', 'Invalid file: missing required column(s): '.implode(', ', $missingColumns));
+        }
+
+        $success = 0;
+        $skipped = [];
+        $errors = [];
+
+        // Import-only duplicate protection (no DB unique constraint exists
+        // for shipping_zones): normalize name+state+city+pincode so blank
+        // values, whitespace, and casing don't create near-duplicate rows.
+        $existingKeys = [];
+
+        foreach (ShippingZone::select('name', 'state', 'city', 'pincode')->cursor() as $zone) {
+            $existingKeys[$this->normalizeZoneKey($zone->name, $zone->state, $zone->city, $zone->pincode)] = true;
+        }
+
+        foreach ($rows as $entry) {
+            $rowNum = $entry['row'];
+            $data = $entry['data'];
+
+            $name = $data['name'] ?? null;
+            $status = $data['status'] ?? null;
+
+            if (blank($name)) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Missing required field: name'];
+
+                continue;
+            }
+
+            if (! in_array($status, ['active', 'inactive'], true)) {
+                $errors[] = ['row' => $rowNum, 'message' => "Invalid status '{$status}' (must be active or inactive)"];
+
+                continue;
+            }
+
+            $state = $data['state'] ?? null;
+            $city = $data['city'] ?? null;
+            $pincode = $data['pincode'] ?? null;
+
+            $key = $this->normalizeZoneKey($name, $state, $city, $pincode);
+
+            if (isset($existingKeys[$key])) {
+                $skipped[] = ['row' => $rowNum, 'name' => $name, 'message' => 'Duplicate zone (matching name, state, city and pincode already exists)'];
+
+                continue;
+            }
+
+            try {
+                ShippingZone::create([
+                    'name' => $name,
+                    'state' => $state,
+                    'city' => $city,
+                    'pincode' => $pincode,
+                    'status' => $status,
+                ]);
+            } catch (\Throwable $e) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Failed to create shipping zone: '.$e->getMessage()];
+
+                continue;
+            }
+
+            $existingKeys[$key] = true;
+            $success++;
+        }
+
+        return redirect()->route('admin.shipping.zones.import')
+            ->with('import_results', [
+                'success' => $success,
+                'skipped' => $skipped,
+                'errors' => $errors,
+            ]);
+    }
+
+    /**
+     * Normalize a zone's identity fields for import-only duplicate
+     * detection: trimmed, case-insensitive, with blank/null treated alike.
+     */
+    private function normalizeZoneKey(?string $name, ?string $state, ?string $city, ?string $pincode): string
+    {
+        $normalize = fn (?string $value) => mb_strtolower(trim((string) $value));
+
+        return implode('|', [
+            $normalize($name),
+            $normalize($state),
+            $normalize($city),
+            $normalize($pincode),
+        ]);
     }
 
     public function create(): View

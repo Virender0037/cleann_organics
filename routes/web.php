@@ -244,6 +244,10 @@ Route::prefix('admin')
             // Tags
             Route::prefix('tags')->name('tags.')->controller(TagController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
+                Route::get('/export', 'export')->name('export');
+                Route::get('/import', 'importForm')->name('import');
+                Route::post('/import', 'import')->name('import.store');
+                Route::get('/import/template', 'downloadTemplate')->name('import.template');
                 Route::get('/create', 'create')->name('create');
                 Route::post('/', 'store')->name('store');
                 Route::get('/{tag}/edit', 'edit')->name('edit');
@@ -270,6 +274,10 @@ Route::prefix('admin')
             Route::get('/payments/{payment}', [SalesPaymentController::class, 'show'])->name('payments.show');
             Route::prefix('coupons')->name('coupons.')->controller(CouponController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
+                Route::get('/export', 'export')->name('export');
+                Route::get('/import', 'importForm')->name('import');
+                Route::post('/import', 'import')->name('import.store');
+                Route::get('/import/template', 'downloadTemplate')->name('import.template');
                 Route::get('/create', 'create')->name('create');
                 Route::post('/', 'store')->name('store');
                 Route::get('/{coupon}/edit', 'edit')->name('edit');
@@ -311,6 +319,10 @@ Route::prefix('admin')
             // Zones
             Route::prefix('zones')->name('zones.')->controller(ShippingZoneController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
+                Route::get('/export', 'export')->name('export');
+                Route::get('/import', 'importForm')->name('import');
+                Route::post('/import', 'import')->name('import.store');
+                Route::get('/import/template', 'downloadTemplate')->name('import.template');
                 Route::get('/create', 'create')->name('create');
                 Route::post('/', 'store')->name('store');
                 Route::get('/{zone}/edit', 'edit')->name('edit');
