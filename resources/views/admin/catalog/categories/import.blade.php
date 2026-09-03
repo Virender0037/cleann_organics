@@ -2,7 +2,7 @@
 
     <main class="pc-container-edit">
 
-        <x-admin.page-header title="Import Categories" subtitle="Bulk create categories from a CSV file">
+        <x-admin.page-header title="Import Categories" subtitle="Bulk create categories from a CSV or XLSX file">
             <x-slot:actions>
                 <a href="{{ route('admin.catalog.categories.index') }}" class="btn btn-light">
                     <i class="ph ph-arrow-left me-1"></i>
@@ -52,7 +52,7 @@
             </div>
         @endif
 
-        <x-admin.form-card title="Upload CSV" action="{{ route('admin.catalog.categories.import.store') }}" enctype="multipart/form-data">
+        <x-admin.form-card title="Upload File" action="{{ route('admin.catalog.categories.import.store') }}" enctype="multipart/form-data">
             @error('file')
                 <div class="alert alert-danger">{{ $message }}</div>
             @enderror
@@ -65,9 +65,9 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">CSV File <span class="text-danger">*</span></label>
-                <input type="file" name="file" class="form-control" accept=".csv" required>
-                <small class="text-muted">Required columns: name, status. Optional: slug, parent_slug, description, sort_order, meta_title, meta_keywords, meta_description.</small>
+                <label class="form-label">Import File <span class="text-danger">*</span></label>
+                <input type="file" name="file" class="form-control" accept=".csv,.xlsx" required>
+                <small class="text-muted">Accepted formats: CSV, XLSX. Required columns: name, status. Optional: slug, parent_slug, description, sort_order, meta_title, meta_keywords, meta_description.</small>
             </div>
 
             <x-slot:actions>

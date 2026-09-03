@@ -2,7 +2,7 @@
 
     <main class="pc-container-edit">
 
-        <x-admin.page-header title="Import Products" subtitle="Bulk create products from a CSV file">
+        <x-admin.page-header title="Import Products" subtitle="Bulk create products from a CSV or XLSX file">
             <x-slot:actions>
                 <a href="{{ route('admin.catalog.products.index') }}" class="btn btn-light">
                     <i class="ph ph-arrow-left me-1"></i>
@@ -52,7 +52,7 @@
             </div>
         @endif
 
-        <x-admin.form-card title="Upload CSV" action="{{ route('admin.catalog.products.import.store') }}" enctype="multipart/form-data">
+        <x-admin.form-card title="Upload File" action="{{ route('admin.catalog.products.import.store') }}" enctype="multipart/form-data">
             @error('file')
                 <div class="alert alert-danger">{{ $message }}</div>
             @enderror
@@ -65,9 +65,9 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">CSV File <span class="text-danger">*</span></label>
-                <input type="file" name="file" class="form-control" accept=".csv" required>
-                <small class="text-muted">Required columns: name, status. category_slug is required per row. Optional: slug, tax_rate_name, brand, short_description, description, is_returnable, return_days, is_featured, is_latest, is_best_seller, sort_order, meta_title, meta_keywords, meta_description, tags (comma-separated existing tag names).</small>
+                <label class="form-label">Import File <span class="text-danger">*</span></label>
+                <input type="file" name="file" class="form-control" accept=".csv,.xlsx" required>
+                <small class="text-muted">Accepted formats: CSV, XLSX. Required columns: name, status. category_slug is required per row. Optional: slug, tax_rate_name, brand, short_description, description, is_returnable, return_days, is_featured, is_latest, is_best_seller, sort_order, meta_title, meta_keywords, meta_description, tags (comma-separated existing tag names).</small>
             </div>
 
             <x-slot:actions>

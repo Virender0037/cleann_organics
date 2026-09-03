@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\UpdateCategoryRequest;
 use App\Models\Category;
+use App\Services\Admin\SpreadsheetImportReader;
 use App\Services\CsvExporter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -68,40 +70,30 @@ class CategoryController extends Controller
         return $exporter->stream('categories-import-template.csv', $headers, $exampleRows);
     }
 
-    public function import(Request $request): RedirectResponse
+    public function import(Request $request, SpreadsheetImportReader $reader): RedirectResponse
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx', 'max:2048'],
         ]);
 
-        $handle = fopen($request->file('file')->getRealPath(), 'r');
-        $header = array_map('trim', fgetcsv($handle));
+        try {
+            $parsed = $reader->parse($request->file('file'));
+        } catch (\RuntimeException $e) {
+            return back()->with('error', 'Unable to read the uploaded file: '.$e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('Category import: failed to parse uploaded file.', ['exception' => $e]);
+
+            return back()->with('error', 'Unable to read the uploaded file. Please check the file and try again.');
+        }
+
+        $header = $parsed['header'];
+        $rows = $parsed['rows'];
 
         $missingColumns = array_diff(['name', 'status'], $header);
 
         if (! empty($missingColumns)) {
-            fclose($handle);
-
-            return back()->with('error', 'Invalid CSV: missing required column(s): '.implode(', ', $missingColumns));
+            return back()->with('error', 'Invalid file: missing required column(s): '.implode(', ', $missingColumns));
         }
-
-        $rows = [];
-        $rowNumber = 1;
-
-        while (($line = fgetcsv($handle)) !== false) {
-            $rowNumber++;
-
-            if (count($line) === 1 && trim((string) $line[0]) === '') {
-                continue;
-            }
-
-            $data = array_combine($header, array_pad($line, count($header), null));
-            $data = array_map(fn ($value) => blank($value) ? null : trim((string) $value), $data);
-
-            $rows[] = ['row' => $rowNumber, 'data' => $data];
-        }
-
-        fclose($handle);
 
         $success = 0;
         $skipped = [];

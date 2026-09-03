@@ -2,7 +2,7 @@
 
     <main class="pc-container-edit">
 
-        <x-admin.page-header title="Import Product Variants" subtitle="Bulk create product variants from a CSV file">
+        <x-admin.page-header title="Import Product Variants" subtitle="Bulk create product variants from a CSV or XLSX file">
             <x-slot:actions>
                 <a href="{{ route('admin.catalog.variants.index') }}" class="btn btn-light">
                     <i class="ph ph-arrow-left me-1"></i>
@@ -52,7 +52,7 @@
             </div>
         @endif
 
-        <x-admin.form-card title="Upload CSV" action="{{ route('admin.catalog.variants.import.store') }}" enctype="multipart/form-data">
+        <x-admin.form-card title="Upload File" action="{{ route('admin.catalog.variants.import.store') }}" enctype="multipart/form-data">
             @error('file')
                 <div class="alert alert-danger">{{ $message }}</div>
             @enderror
@@ -65,9 +65,9 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">CSV File <span class="text-danger">*</span></label>
-                <input type="file" name="file" class="form-control" accept=".csv" required>
-                <small class="text-muted">Required columns: sku, product_slug, status. sku is mandatory for every row and is the unique import key. stock_status, enable_tiered_pricing, and is_default are also required. When enable_tiered_pricing is set, standard/discount quantity and price become required too.</small>
+                <label class="form-label">Import File <span class="text-danger">*</span></label>
+                <input type="file" name="file" class="form-control" accept=".csv,.xlsx" required>
+                <small class="text-muted">Accepted formats: CSV, XLSX. Required columns: sku, product_slug, status. sku is mandatory for every row and is the unique import key. stock_status, enable_tiered_pricing, and is_default are also required. When enable_tiered_pricing is set, standard/discount quantity and price become required too.</small>
             </div>
 
             <x-slot:actions>
