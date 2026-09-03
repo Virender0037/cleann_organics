@@ -82,7 +82,7 @@
                         <x-admin.status-badge :status="$displayStatus" :map="['expired' => 'danger']" />
                     </td>
                     <td>
-                        <a href="{{ route('admin.sales.coupons.edit', $coupon) }}" class="btn btn-sm btn-info" title="Edit Coupon">
+                        <a href="{{ route('admin.sales.coupons.edit', $coupon) }}" class="btn btn-sm btn-warning" title="Edit Coupon">
                             <i class="ph ph-pencil-simple"></i>
                         </a>
 

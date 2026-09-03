@@ -60,10 +60,10 @@
                         <td>09 Jul 2026</td>
                         <td><span class="badge bg-success">Active</span></td>
                         <td>
-                            <a href="{{ route('admin.administration.users.edit') }}" class="btn btn-sm btn-warning">
+                            <a href="{{ route('admin.administration.users.edit') }}" class="btn btn-sm btn-warning" title="Edit User">
                                 <i class="ph ph-pencil-simple"></i>
                             </a>
-                            <button class="btn btn-sm btn-danger">
+                            <button class="btn btn-sm btn-danger" title="Delete User">
                                 <i class="ph ph-trash"></i>
                             </button>
                         </td>

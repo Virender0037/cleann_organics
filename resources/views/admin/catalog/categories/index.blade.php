@@ -74,7 +74,7 @@
                 <td>{{ $category->products_count }}</td>
 
                 <td>
-                    <a href="{{ route('admin.catalog.categories.edit', $category) }}" class="btn btn-sm btn-info" title="Edit Category">
+                    <a href="{{ route('admin.catalog.categories.edit', $category) }}" class="btn btn-sm btn-warning" title="Edit Category">
                         <i class="ph ph-pencil-simple"></i>
                     </a>
 

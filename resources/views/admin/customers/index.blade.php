@@ -97,12 +97,12 @@
                     <td>
 
                         <a href="{{ route('admin.customers.show', $customer) }}"
-                           class="btn btn-sm btn-info">
+                           class="btn btn-sm btn-info" title="View Customer">
                             <i class="ph ph-eye"></i>
                         </a>
 
                         <a href="{{ route('admin.customers.edit', $customer) }}"
-                        class="btn btn-sm btn-warning">
+                        class="btn btn-sm btn-warning" title="Edit Customer">
                             <i class="ph ph-pencil-simple"></i>
                         </a>
 

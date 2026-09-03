@@ -76,7 +76,7 @@
                     <td>
 
                         <a href="{{ route('admin.sales.returns.show', $return) }}"
-                           class="btn btn-sm btn-info">
+                           class="btn btn-sm btn-info" title="View Return">
                             <i class="ph ph-eye"></i>
                         </a>
 

@@ -101,7 +101,7 @@
 
                 <td>
                     <a href="{{ route('admin.catalog.variants.edit', $variant) }}"
-                       class="btn btn-sm btn-info"
+                       class="btn btn-sm btn-warning"
                        title="Edit Variant">
                         <i class="ph ph-pencil-simple"></i>
                     </a>

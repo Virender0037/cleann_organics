@@ -39,11 +39,11 @@
                         <td>2</td>
                         <td><span class="badge bg-success">Active</span></td>
                         <td>
-                            <a href="{{ route('admin.administration.roles.edit') }}" class="btn btn-sm btn-warning">
+                            <a href="{{ route('admin.administration.roles.edit') }}" class="btn btn-sm btn-warning" title="Edit Role">
                                 <i class="ph ph-pencil-simple"></i>
                             </a>
 
-                            <button class="btn btn-sm btn-danger">
+                            <button class="btn btn-sm btn-danger" title="Delete Role">
                                 <i class="ph ph-trash"></i>
                             </button>
                         </td>
@@ -56,11 +56,11 @@
                         <td>5</td>
                         <td><span class="badge bg-success">Active</span></td>
                         <td>
-                            <a href="{{ route('admin.administration.roles.edit') }}" class="btn btn-sm btn-warning">
+                            <a href="{{ route('admin.administration.roles.edit') }}" class="btn btn-sm btn-warning" title="Edit Role">
                                 <i class="ph ph-pencil-simple"></i>
                             </a>
 
-                            <button class="btn btn-sm btn-danger">
+                            <button class="btn btn-sm btn-danger" title="Delete Role">
                                 <i class="ph ph-trash"></i>
                             </button>
                         </td>

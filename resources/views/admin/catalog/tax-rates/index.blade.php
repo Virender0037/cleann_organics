@@ -61,7 +61,7 @@
                 <td>{{ $taxRate->products_count }}</td>
 
                 <td>
-                    <a href="{{ route('admin.catalog.tax-rates.edit', $taxRate) }}" class="btn btn-sm btn-info" title="Edit Tax Rate">
+                    <a href="{{ route('admin.catalog.tax-rates.edit', $taxRate) }}" class="btn btn-sm btn-warning" title="Edit Tax Rate">
                         <i class="ph ph-pencil-simple"></i>
                     </a>
 

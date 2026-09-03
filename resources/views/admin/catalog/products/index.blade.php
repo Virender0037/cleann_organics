@@ -105,7 +105,7 @@
                 </td>
 
                 <td>
-                    <a href="{{ route('admin.catalog.products.edit', $product) }}" class="btn btn-sm btn-info" title="Edit Product">
+                    <a href="{{ route('admin.catalog.products.edit', $product) }}" class="btn btn-sm btn-warning" title="Edit Product">
                         <i class="ph ph-pencil-simple"></i>
                     </a>
 

@@ -146,7 +146,7 @@
             </a>
 
             <button type="submit" class="btn btn-primary">
-                <i class="ph ph-plus-circle me-1"></i>
+                <i class="ph ph-floppy-disk me-1"></i>
                 Create Category
             </button>
         </x-slot:actions>
