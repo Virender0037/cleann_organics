@@ -30,6 +30,72 @@
   --admin-status-danger: var(--bs-danger, #f44236);
   --admin-status-info: var(--bs-info, #3ebfea);
   --admin-status-secondary: var(--bs-secondary, #6c757d);
+
+  /* ============================================================
+     Cleann Organics Admin Color System (approved palette)
+     ============================================================ */
+  --admin-primary: #2F7D32;
+  --admin-primary-hover: #256628;
+  --admin-primary-light: #EAF5EB;
+  --admin-primary-light-2: #F4FAF4;
+
+  --admin-sidebar: #172033;
+  --admin-sidebar-secondary: #202B40;
+  --admin-sidebar-hover: #273449;
+  --admin-sidebar-text: #CBD5E1;
+  --admin-sidebar-muted: #94A3B8;
+  --admin-sidebar-section: #718096;
+
+  --admin-bg: #F6F8FB;
+  --admin-surface: #FFFFFF;
+  --admin-border: #E2E8F0;
+  --admin-border-strong: #CBD5E1;
+
+  --admin-text: #1E293B;
+  --admin-text-secondary: #475569;
+  --admin-muted: #64748B;
+  --admin-disabled: #94A3B8;
+
+  --admin-success-bg: #DCFCE7;
+  --admin-success-text: #166534;
+  --admin-info-bg: #DBEAFE;
+  --admin-info-text: #1D4ED8;
+  --admin-warning-bg: #FEF3C7;
+  --admin-warning-text: #92400E;
+  --admin-danger-bg: #FEE2E2;
+  --admin-danger-text: #B91C1C;
+  --admin-neutral-bg: #F1F5F9;
+  --admin-neutral-text: #475569;
+
+  --admin-danger: #DC2626;
+  --admin-danger-hover: #B91C1C;
+  --admin-warning: #F59E0B;
+  --admin-warning-hover: #D97706;
+
+  /* ---- Re-theme the vendor Datta Able "preset-1" variables in place ----
+     These are the actual variables style.css/style-preset.css read from at
+     render time; overriding them here (loaded after the vendor stylesheets)
+     recolors the whole template without editing any vendor file. */
+  --bs-body-bg: #F6F8FB;
+  --bs-body-bg-rgb: 246, 248, 251;
+  --bs-primary: #2F7D32;
+  --bs-primary-rgb: 47, 125, 50;
+  --bs-primary-light: #EAF5EB;
+  --bs-link-color: #2F7D32;
+  --bs-link-color-rgb: 47, 125, 50;
+  --bs-link-hover-color: #256628;
+
+  --pc-sidebar-background: #172033;
+  --pc-sidebar-color: #CBD5E1;
+  --pc-sidebar-color-rgb: 203, 213, 225;
+  --pc-sidebar-active-color: #FFFFFF;
+  --pc-sidebar-active-background: #2F7D32;
+  --pc-sidebar-main-active-color: #FFFFFF;
+  --pc-sidebar-caption-color: #718096;
+  --pc-sidebar-shadow: none;
+
+  --pc-header-background: #FFFFFF;
+  --pc-header-color: #475569;
 }
 
 /* ============================================================
@@ -153,7 +219,8 @@
 
 .form-control:focus,
 .form-select:focus {
-  box-shadow: 0 0 0 0.2rem rgba(4, 169, 245, 0.15);
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 0.2rem rgba(47, 125, 50, 0.15);
 }
 
 .form-label {
@@ -194,6 +261,21 @@
 }
 
 /* ============================================================
+   Dashboard — .pc-container-edit has zero horizontal padding
+   (relied on by every CRUD page, which wraps its content in a
+   padded .card-body so it's never an issue there). The dashboard's
+   stat-card rows sit directly in that unpadded container, so
+   Bootstrap's .row -12px gutter margins bleed 12px past the
+   viewport edge. Scoped to .admin-dashboard only (added to
+   dashboard.blade.php's <main> tag) so no other page is affected.
+   ============================================================ */
+
+.admin-dashboard {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* ============================================================
    Empty states
    ============================================================ */
 
@@ -208,6 +290,223 @@
   display: block;
   margin-bottom: var(--admin-space-2);
   opacity: 0.5;
+}
+
+/* ============================================================
+   Buttons — recolor the specific button variants used across the
+   admin (Bootstrap bakes hex directly into each .btn-* block's own
+   --bs-btn-* custom properties at compile time, so the root
+   --bs-primary override above does not reach them on its own).
+   ============================================================ */
+
+/*
+ * Selectors below are prefixed with body[data-pc-preset="preset-1"]
+ * rather than the bare class. The vendor's style-preset.css declares
+ * [data-pc-preset=preset-1] .btn-primary (specificity 0,2,0) with a
+ * hardcoded blue, which otherwise wins over a plain .btn-primary rule
+ * (0,1,0) regardless of file load order. Adding the body[...] element
+ * prefix (0,2,1) beats it without touching any vendor file.
+ */
+body[data-pc-preset="preset-1"] .btn-primary {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: var(--admin-primary);
+  --bs-btn-border-color: var(--admin-primary);
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-hover-bg: var(--admin-primary-hover);
+  --bs-btn-hover-border-color: var(--admin-primary-hover);
+  --bs-btn-active-color: #ffffff;
+  --bs-btn-active-bg: var(--admin-primary-hover);
+  --bs-btn-active-border-color: var(--admin-primary-hover);
+  --bs-btn-disabled-bg: var(--admin-primary);
+  --bs-btn-disabled-border-color: var(--admin-primary);
+  --bs-btn-focus-shadow-rgb: 47, 125, 50;
+}
+
+body[data-pc-preset="preset-1"] .btn-light-primary {
+  background: var(--admin-primary-light);
+  color: var(--admin-primary);
+  border-color: var(--admin-primary-light);
+}
+
+body[data-pc-preset="preset-1"] .btn-light-primary:hover,
+body[data-pc-preset="preset-1"] .btn-light-primary:focus {
+  background: #dcefdd;
+  color: var(--admin-primary-hover);
+  border-color: #dcefdd;
+}
+
+/*
+ * Same body[data-pc-preset="preset-1"] shadowing affects these
+ * variables directly (the vendor declares them on the body element
+ * itself via the same attribute selector, so a plain :root override
+ * is only ever inherited — and a same-element direct declaration
+ * always wins over an inherited one, regardless of specificity
+ * elsewhere). Re-declared here, scoped the same way, so our green
+ * values apply instead. Only the specific properties confirmed
+ * shadowed are listed — --pc-sidebar-background, --pc-header-*, etc.
+ * are declared solely in the vendor's unscoped :root and are not
+ * affected by this issue.
+ */
+body[data-pc-preset="preset-1"] {
+  --bs-primary: var(--admin-primary);
+  --bs-primary-rgb: 47, 125, 50;
+  --bs-primary-light: var(--admin-primary-light);
+  --bs-link-color: var(--admin-primary);
+  --bs-link-color-rgb: 47, 125, 50;
+  --bs-link-hover-color: var(--admin-primary-hover);
+  --pc-sidebar-active-color: #ffffff;
+}
+
+.btn-light-secondary {
+  background: var(--admin-neutral-bg);
+  color: #334155;
+  border-color: var(--admin-border-strong);
+}
+
+.btn-light-secondary:hover,
+.btn-light-secondary:focus {
+  background: var(--admin-border);
+  color: #334155;
+  border-color: var(--admin-border-strong);
+}
+
+.btn-danger {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: var(--admin-danger);
+  --bs-btn-border-color: var(--admin-danger);
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-hover-bg: var(--admin-danger-hover);
+  --bs-btn-hover-border-color: var(--admin-danger-hover);
+  --bs-btn-active-bg: var(--admin-danger-hover);
+  --bs-btn-active-border-color: var(--admin-danger-hover);
+}
+
+.btn-warning {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: var(--admin-warning);
+  --bs-btn-border-color: var(--admin-warning);
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-hover-bg: var(--admin-warning-hover);
+  --bs-btn-hover-border-color: var(--admin-warning-hover);
+  --bs-btn-active-bg: var(--admin-warning-hover);
+  --bs-btn-active-border-color: var(--admin-warning-hover);
+}
+
+.btn:focus,
+.btn:focus-visible {
+  box-shadow: 0 0 0 0.2rem rgba(47, 125, 50, 0.2);
+}
+
+/* ============================================================
+   Status badges — dedicated classes with exact approved colors,
+   rendered by <x-admin.status-badge> instead of Bootstrap's
+   bg-{color} utilities (whose compiled hex values don't match the
+   approved palette). Status-to-color mapping logic is unchanged;
+   only the rendered class names/colors are.
+   ============================================================ */
+
+.admin-badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.4em 0.85em;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+.admin-badge--success {
+  background: var(--admin-success-bg);
+  color: var(--admin-success-text);
+}
+
+.admin-badge--info {
+  background: var(--admin-info-bg);
+  color: var(--admin-info-text);
+}
+
+.admin-badge--warning {
+  background: var(--admin-warning-bg);
+  color: var(--admin-warning-text);
+}
+
+.admin-badge--danger {
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger-text);
+}
+
+.admin-badge--secondary {
+  background: var(--admin-neutral-bg);
+  color: var(--admin-neutral-text);
+}
+
+.admin-badge--primary {
+  background: var(--admin-primary-light);
+  color: var(--admin-primary-hover);
+}
+
+/* ============================================================
+   Sidebar — logo, section headings, active/hover states.
+   The vendor template shares one rule for :focus/.active/:hover
+   (style.css line ~16121), so hover and active need to be split
+   out explicitly here to get two distinct states.
+   ============================================================ */
+
+.pc-sidebar .m-header {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+}
+
+.pc-sidebar .b-brand img {
+  max-width: 150px;
+  height: auto;
+}
+
+.pc-sidebar .pc-navbar > .pc-item.pc-caption label {
+  color: var(--admin-sidebar-section);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pc-sidebar .pc-link {
+  border-radius: var(--admin-radius-sm);
+  margin: 0 0.5rem;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.pc-sidebar .pc-link:hover {
+  background: var(--admin-sidebar-hover);
+  color: #ffffff;
+}
+
+.pc-sidebar .pc-link.active,
+.pc-sidebar .pc-link:focus {
+  background: var(--admin-primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.pc-sidebar .pc-navbar > .pc-item:not(.pc-caption) .pc-submenu {
+  background: var(--admin-sidebar-secondary);
+}
+
+/* ============================================================
+   Header / topbar
+   ============================================================ */
+
+.pc-header {
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.pc-header .pc-h-item .pc-head-link {
+  color: var(--admin-text-secondary);
+}
+
+.pc-header .pc-h-item .pc-head-link:hover {
+  color: var(--admin-primary);
 }
 
 /* ============================================================
@@ -251,5 +550,204 @@
 
   .card .card-body {
     padding: 1rem;
+  }
+}
+
+/* ============================================================
+   Admin login page — standalone, does not load the vendor
+   Datta Able theme (no sidebar/topbar chrome needed), so its
+   layout is self-contained here rather than fighting vendor CSS.
+   ============================================================ */
+
+.admin-login-body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--admin-bg);
+  padding: 1.5rem;
+  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-card);
+  padding: 2.5rem 2.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-login-accent {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: var(--admin-primary-light);
+  z-index: 0;
+}
+
+.admin-login-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.admin-login-logo {
+  display: block;
+  margin: 0 auto 1.75rem;
+  max-width: 190px;
+  height: auto;
+}
+
+.admin-login-heading {
+  text-align: center;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #172033;
+  margin-bottom: 0.375rem;
+}
+
+.admin-login-subtext {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--admin-muted);
+  margin-bottom: 2rem;
+}
+
+.admin-login-field {
+  margin-bottom: 1.25rem;
+}
+
+.admin-login-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin-bottom: 0.4rem;
+}
+
+.admin-login-input-wrap {
+  position: relative;
+}
+
+.admin-login-input {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.9375rem;
+  color: var(--admin-text);
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border-strong);
+  border-radius: var(--admin-radius-sm);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.admin-login-input::placeholder {
+  color: #94a3b8;
+}
+
+.admin-login-input:focus {
+  outline: none;
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 0.2rem rgba(47, 125, 50, 0.15);
+}
+
+.admin-login-input.is-invalid {
+  border-color: var(--admin-danger);
+}
+
+.admin-login-input.is-invalid:focus {
+  box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.15);
+}
+
+.admin-login-toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  color: var(--admin-muted);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.admin-login-toggle-password:hover {
+  color: var(--admin-text-secondary);
+}
+
+.admin-login-toggle-password:focus-visible {
+  outline: 2px solid var(--admin-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.admin-login-error {
+  margin-top: 0.4rem;
+  font-size: 0.8125rem;
+  color: var(--admin-danger-hover);
+}
+
+.admin-login-alert {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--admin-radius-sm);
+  font-size: 0.875rem;
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger-hover);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.admin-login-remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--admin-text-secondary);
+}
+
+.admin-login-remember input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--admin-primary);
+}
+
+.admin-login-submit {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--admin-primary);
+  border: 1px solid var(--admin-primary);
+  border-radius: var(--admin-radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.admin-login-submit:hover,
+.admin-login-submit:focus {
+  background: var(--admin-primary-hover);
+  border-color: var(--admin-primary-hover);
+}
+
+.admin-login-submit:focus-visible {
+  outline: 2px solid var(--admin-primary-hover);
+  outline-offset: 2px;
+}
+
+@media (max-width: 390px) {
+  .admin-login-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .admin-login-logo {
+    max-width: 160px;
   }
 }

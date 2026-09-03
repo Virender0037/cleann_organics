@@ -36,11 +36,9 @@
     $color = $colorMap[$status] ?? 'primary';
     $text = $label ?? ucwords(str_replace('_', ' ', (string) $status));
 
-    // success/warning/info are too light for legible white text (WCAG contrast ~1.6-2.1:1);
-    // dark text keeps the same fill colors but stays readable, matching the text-dark fix
-    // the contact-messages page already applied by hand for its warning badge.
-    $needsDarkText = in_array($color, ['success', 'warning', 'info'], true);
-    $badgeClass = 'badge bg-'.$color.($needsDarkText ? ' text-dark' : '');
+    // Dedicated admin-badge classes (not Bootstrap's bg-{color} utilities)
+    // so the exact approved status colors/contrast apply consistently.
+    $badgeClass = 'admin-badge admin-badge--'.$color;
 @endphp
 
 <span {{ $attributes->merge(['class' => $badgeClass]) }}>{{ $text }}</span>

@@ -1,5 +1,5 @@
 <x-admin-layout title="Dashboard">
-    <main class="pc-container-edit">
+    <main class="pc-container-edit admin-dashboard">
 
         <x-admin.page-header title="Dashboard" subtitle="Overview of your store's performance" />
 

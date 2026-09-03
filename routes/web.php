@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BlogTagController;
@@ -178,10 +179,27 @@ Route::get('/shop', function () {
     return view('shop');
 })->name('shop');
 
+// Admin login/logout are intentionally outside the protected group below —
+// the login form must be reachable by guests, and logout only needs `auth`.
 Route::prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::view('/', 'admin-dist.pages.login')->name('admin');
+        Route::get('/login', [AdminAuthController::class, 'create'])
+            ->middleware('guest')
+            ->name('login');
+        Route::post('/login', [AdminAuthController::class, 'store'])
+            ->middleware('guest')
+            ->name('login.store');
+        Route::post('/logout', [AdminAuthController::class, 'destroy'])
+            ->middleware('auth')
+            ->name('logout');
+    });
+
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'superadmin', 'no-admin-cache'])
+    ->group(function () {
+        Route::get('/', fn () => redirect()->route('admin.dashboard'))->name('admin');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         // Catalog routes...
         Route::prefix('catalog')->name('catalog.')->group(function () {

@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\TaxRate;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -21,6 +22,13 @@ use Tests\TestCase;
 class AdminCsvXlsxImportTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create(['role' => 'superadmin']));
+    }
 
     private const CATEGORIES_IMPORT = '/admin/catalog/categories/import';
 

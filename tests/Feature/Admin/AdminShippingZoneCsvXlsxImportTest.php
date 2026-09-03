@@ -3,6 +3,7 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\ShippingZone;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -12,6 +13,13 @@ use Tests\TestCase;
 class AdminShippingZoneCsvXlsxImportTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->create(['role' => 'superadmin']));
+    }
 
     private const ZONES_INDEX = '/admin/shipping/zones';
 
