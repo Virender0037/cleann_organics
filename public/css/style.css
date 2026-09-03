@@ -1083,7 +1083,13 @@ a {
 .header__navigation-menu-link.active a {
   color: #fff;
 }
-.header__navigation-menu-link:hover .header__navigation-drop-menu {
+/* Phase 2A: keyboard users tabbing to "Pages" previously landed inside a
+   dropdown that only ever opened on :hover, so the submenu stayed invisible
+   while focused. :focus-within keeps it open for as long as focus is
+   anywhere inside this <li> (trigger or any submenu link), mirroring the
+   existing mouse-hover behavior without changing it. */
+.header__navigation-menu-link:hover .header__navigation-drop-menu,
+.header__navigation-menu-link:focus-within .header__navigation-drop-menu {
   top: 100%;
   opacity: 1;
   pointer-events: all;
@@ -1709,7 +1715,11 @@ a {
   height: 100%;
   padding: 24px 0px;
   z-index: 9999;
-  transition: all 0.3s linear;
+  /* Phase 2A: same off-canvas focus-order fix as .shopping-cart above —
+     this mobile nav panel was hidden off-screen via `left` only, so its
+     links/logout button stayed keyboard-focusable while invisible. */
+  visibility: hidden;
+  transition: left 0.3s linear, visibility 0s linear 0.3s;
 }
 @media (min-width: 992px) {
   .header__sidebar {
@@ -1719,7 +1729,8 @@ a {
 .header__sidebar.active {
   left: 0px;
   width: 308px;
-  transition: all 0.3s linear;
+  visibility: visible;
+  transition: left 0.3s linear, visibility 0s linear 0s;
 }
 @media (max-width: 380px) {
   .header__sidebar.active {
@@ -3320,6 +3331,26 @@ body.overlay::after {
     overflow-x: auto;
   }
 }
+@media (max-width: 575px) {
+  /* Phase 2A: the tag list already scrolls horizontally by design at this
+     width (overflow-x:auto above) rather than wrapping, but with no visual
+     cue it read as clipped/cut-off content during the Phase 2 audit. A
+     subtle right-edge fade hints that more tags continue off-screen,
+     without changing the existing scroll behavior or wrapping the tags. */
+  .products__content-tags {
+    position: relative;
+  }
+  .products__content-tags::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 28px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff 80%);
+    pointer-events: none;
+  }
+}
 .products__content-tags-item a {
   color: #808080;
   text-transform: capitalize;
@@ -4702,19 +4733,28 @@ body.overlay::after {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: all 0.6s linear;
+  /* Phase 2A: this panel was hidden purely by pushing it off-screen with
+     `right`, so its close/delete buttons stayed in the keyboard Tab order
+     even while invisible (confirmed during Phase 1 QA). `visibility` is
+     added alongside the existing position transition, delayed so it only
+     flips to hidden once the slide-out animation finishes closing, and
+     flips to visible instantly on open — the slide animation itself is
+     unchanged, only when the panel exits the tab order. */
+  visibility: hidden;
+  transition: right 0.6s linear, visibility 0s linear 0.6s;
 }
 @media (max-width: 767px) {
   .shopping-cart {
     right: -100%;
     width: 100%;
-    transition: all 0.3s linear;
+    transition: right 0.3s linear, visibility 0s linear 0.3s;
   }
 }
 .shopping-cart.active {
   right: 0px;
   width: 455px;
-  transition: all 0.3s linear;
+  visibility: visible;
+  transition: right 0.3s linear, visibility 0s linear 0s;
 }
 @media (max-width: 575px) {
   .shopping-cart.active {
@@ -5218,6 +5258,20 @@ body.overlay::after {
 @media (max-width: 991px) {
   .footer__brand-info {
     margin-bottom: 38px;
+  }
+}
+@media (min-width: 768px) and (max-width: 991px) {
+  /* Phase 2A: the 4 nav columns (My Account/Customer Help/Company/
+     Categories) use Bootstrap's col-md-3, which packs all 4 into one row
+     at 25% width as soon as the md breakpoint (768px) is reached — one
+     link ("Refund & Return Policy") wraps awkwardly in the cramped column.
+     A 2x2 grid gives each column roughly double the width in this range
+     only; the desktop 4-across (>=992px, col-lg-2) and mobile stacked
+     (<768px, col-6) layouts are untouched. */
+  .footer__top .col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 24px;
   }
 }
 .footer__brand-info-logo,
@@ -11338,5 +11392,40 @@ select:focus-visible,
   .templatecookie-btn .purchase-btn span svg {
     width: 18px;
     height: 16px;
+  }
+}
+
+/** Phase 2A UI/UX polish — "Purchase Now" badge desktop/tablet overlap fix
+    Confirmed during the Phase 2 pre-flight audit: at 1440px and 1280px the
+    full ~185px-wide "Purchase Now" pill sits directly on top of a Shop
+    product card's price and Add-to-Cart button, and at 1024px it covers
+    the end of the Product Details "Tag:" list. Because the badge is
+    position:fixed to the viewport corner (not the page), no amount of
+    reserved page-bottom spacing prevents this — it can cover whatever
+    happens to be in that corner as the user scrolls a tall grid. The only
+    reliable fix that keeps the vendor badge visible/clickable without
+    removing it is shrinking it to the same small icon-only circle already
+    used at <=767px (Phase 1), extended up through tablet and desktop. This
+    block is scoped to (min-width: 768px) so it never touches the Phase 1
+    <=767px rule above. */
+@media (min-width: 768px) {
+  .templatecookie-btn {
+    bottom: 16px !important;
+    right: 16px !important;
+  }
+  .templatecookie-btn .purchase-btn {
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    border-radius: 50% !important;
+    justify-content: center !important;
+  }
+  .templatecookie-btn .purchase-btn span {
+    margin-left: 0 !important;
+  }
+  .templatecookie-btn .purchase-btn span svg {
+    width: 20px;
+    height: 18px;
   }
 }
