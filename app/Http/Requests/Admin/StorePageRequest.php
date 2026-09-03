@@ -20,7 +20,7 @@ class StorePageRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique(Page::class)],
             'content' => ['nullable', 'string'],
-            'featured_image' => ['nullable', 'image', 'max:2048'],
+            'featured_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'status' => ['required', 'in:active,inactive'],
             'meta_title' => ['nullable', 'string', 'max:255'],

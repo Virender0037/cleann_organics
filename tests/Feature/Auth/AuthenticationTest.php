@@ -12,9 +12,12 @@ class AuthenticationTest extends TestCase
 
     public function test_login_screen_can_be_rendered(): void
     {
+        // The storefront's real sign-in page is /sign-in (Shopery view); the
+        // Breeze GET /login route is intentionally kept only so route('login')
+        // resolves internally, and forwards here — see routes/auth.php.
         $response = $this->get('/login');
 
-        $response->assertStatus(200);
+        $response->assertRedirect(route('sign-in'));
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void
@@ -27,7 +30,9 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        // AuthenticatedSessionController redirects to the storefront's real
+        // customer dashboard route, user-dashboard — see routes/web.php.
+        $response->assertRedirect(route('user-dashboard', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void

@@ -40,7 +40,8 @@
           <form action="{{ route('login') }}" method="POST">
             @csrf
             <div class="form-input @error('email') error @enderror">
-              <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" />
+              <label for="sign-in-email" class="visually-hidden">Email</label>
+              <input type="email" name="email" id="sign-in-email" value="{{ old('email') }}" placeholder="Email" />
               <span class="icon icon-warning">
                 <svg
                   width="20"
@@ -125,6 +126,7 @@
               <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
             @enderror
             <div class="form-input @error('password') error @enderror">
+              <label for="password" class="visually-hidden">Password</label>
               <input type="password" name="password" placeholder="Password" id="password" />
               <button
                 type="button"

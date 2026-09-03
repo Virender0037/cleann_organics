@@ -21,7 +21,7 @@ class UpdateCustomerRequest extends FormRequest
             'email' => ['required', 'email', 'max:255', Rule::unique(User::class)->ignore($this->route('customer'))],
             'phone' => ['nullable', 'string', 'max:20'],
             'status' => ['required', 'in:active,inactive'],
-            'avatar' => ['nullable', 'image', 'max:2048'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
         ];
     }
 }

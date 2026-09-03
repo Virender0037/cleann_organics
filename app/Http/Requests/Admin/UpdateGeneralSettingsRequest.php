@@ -24,8 +24,8 @@ class UpdateGeneralSettingsRequest extends FormRequest
             'timezone' => ['required', 'string', 'max:100'],
             'currency' => ['required', 'string', 'max:10'],
             'language' => ['required', 'string', 'max:10'],
-            'logo' => ['nullable', 'image', 'max:2048'],
-            'favicon' => ['nullable', 'image', 'max:1024'],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
+            'favicon' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:1024'],
         ];
     }
 }

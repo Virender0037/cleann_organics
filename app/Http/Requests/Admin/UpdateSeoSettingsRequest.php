@@ -22,7 +22,7 @@ class UpdateSeoSettingsRequest extends FormRequest
             'google_analytics_code' => ['nullable', 'string', 'max:50'],
             'google_tag_manager' => ['nullable', 'string', 'max:50'],
             'facebook_pixel_id' => ['nullable', 'string', 'max:50'],
-            'og_image' => ['nullable', 'image', 'max:2048'],
+            'og_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'robots_txt' => ['nullable', 'string'],
         ];
     }

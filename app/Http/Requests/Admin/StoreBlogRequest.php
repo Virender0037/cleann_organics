@@ -20,7 +20,7 @@ class StoreBlogRequest extends FormRequest
             'blog_category_id' => ['required', 'integer', 'exists:blog_categories,id'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique(Blog::class)],
-            'featured_image' => ['nullable', 'image', 'max:2048'],
+            'featured_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'short_description' => ['nullable', 'string'],
             'content' => ['required', 'string'],
             'is_featured' => ['nullable', 'boolean'],

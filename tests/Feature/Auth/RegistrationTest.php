@@ -11,9 +11,13 @@ class RegistrationTest extends TestCase
 
     public function test_registration_screen_can_be_rendered(): void
     {
+        // The storefront's real registration page is /create-account (Shopery
+        // view); the Breeze GET /register route is intentionally kept only so
+        // route('register') resolves internally, and forwards here — see
+        // routes/auth.php.
         $response = $this->get('/register');
 
-        $response->assertStatus(200);
+        $response->assertRedirect(route('create-account'));
     }
 
     public function test_new_users_can_register(): void
@@ -26,6 +30,8 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        // RegisteredUserController redirects to the storefront's real customer
+        // dashboard route, user-dashboard — see app/Http/Controllers/Auth/RegisteredUserController.php.
+        $response->assertRedirect(route('user-dashboard', absolute: false));
     }
 }

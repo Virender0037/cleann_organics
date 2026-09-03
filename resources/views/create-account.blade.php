@@ -41,7 +41,8 @@
           <form action="{{ route('register') }}" method="POST">
             @csrf
             <div class="form-input @error('name') error @enderror">
-              <input type="text" name="name" value="{{ old('name') }}" placeholder="Name" />
+              <label for="create-account-name" class="visually-hidden">Name</label>
+              <input type="text" name="name" id="create-account-name" value="{{ old('name') }}" placeholder="Name" />
               <span class="icon icon-warning">
                 <svg
                   width="20"
@@ -126,7 +127,8 @@
               <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
             @enderror
             <div class="form-input @error('email') error @enderror">
-              <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" />
+              <label for="create-account-email" class="visually-hidden">Email</label>
+              <input type="email" name="email" id="create-account-email" value="{{ old('email') }}" placeholder="Email" />
               <span class="icon icon-warning">
                 <svg
                   width="20"
@@ -211,6 +213,7 @@
               <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
             @enderror
             <div class="form-input @error('password') error @enderror">
+              <label for="password" class="visually-hidden">Password</label>
               <input type="password" name="password" placeholder="Password" id="password" />
               <button
                 type="button"
@@ -324,6 +327,7 @@
               <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
             @enderror
             <div class="form-input">
+              <label for="confirmPassword" class="visually-hidden">Confirm Password</label>
               <input
                 type="password"
                 name="password_confirmation"

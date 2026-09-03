@@ -30,7 +30,7 @@
 <div class="shopping-cart-top">
 <div class="shopping-cart-header">
 <h5 class="font-body--xxl-500">Shopping Cart (<span class="count">2</span>)</h5>
-<button class="close">
+<button class="close" aria-label="Close cart">
     <svg width="45" height="45" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="22.5" cy="22.5" r="22.5" fill="white" />
         <path d="M28.75 16.25L16.25 28.75" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -49,7 +49,7 @@
         <p class="font-body--md-400">1kg x <span class="font-body--md-500">12.00</span></p>
     </div>
 </div>
-<button class="delete-item">
+<button class="delete-item" aria-label="Remove item from cart">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 23C18.0748 23 23 18.0748 23 12C23 5.92525 18.0748 1 12 1C5.92525 1 1 5.92525 1 12C1 18.0748 5.92525 23 12 23Z" stroke="#CCCCCC" stroke-miterlimit="10" />
         <path d="M16 8L8 16" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -68,7 +68,7 @@
         <p class="font-body--md-400">1kg x <span class="font-body--md-500">12.00</span></p>
     </div>
 </div>
-<button class="delete-item">
+<button class="delete-item" aria-label="Remove item from cart">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 23C18.0748 23 23 18.0748 23 12C23 5.92525 18.0748 1 12 1C5.92525 1 1 5.92525 1 12C1 18.0748 5.92525 23 12 23Z" stroke="#CCCCCC" stroke-miterlimit="10" />
         <path d="M16 8L8 16" stroke="#666666" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -174,7 +174,7 @@
 <div class="container">
 <div class="header__center-content">
     <div class="header__brand">
-        <button class="header__sidebar-btn">
+        <button class="header__sidebar-btn" aria-label="Open menu">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 12H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                 <path d="M3 6H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -208,7 +208,7 @@
     </form>
     <div class="header__cart">
         <div class="header__cart-item">
-            <a class="fav" href="wishlist.html">
+            <a class="fav" href="wishlist.html" aria-label="Wishlist">
                 <svg width="25" height="23" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9.9996 16.5451C-6.66672 7.3333 4.99993 -2.6667 9.9996 3.65668C14.9999 -2.6667 26.6666 7.3333 9.9996 16.5451Z" stroke="#1A1A1A" stroke-width="1.5" />
                 </svg>
@@ -216,7 +216,7 @@
         </div>
         <div class="header__cart-item">
             <div class="header__cart-item-content" id="cart-bag">
-                <button class="cart-bag">
+                <button class="cart-bag" aria-label="Open shopping cart">
                     <svg width="34" height="35" viewBox="0 0 34 35" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M11.3333 14.6667H7.08333L4.25 30.25H29.75L26.9167 14.6667H22.6667M11.3333 14.6667V10.4167C11.3333 7.28705 13.8704 4.75 17 4.75V4.75C20.1296 4.75 22.6667 7.28705 22.6667 10.4167V14.6667M11.3333 14.6667H22.6667M11.3333 14.6667V18.9167M22.6667 14.6667V18.9167"
@@ -320,7 +320,7 @@
 </div>
 </div>
 <div class="header__sidebar">
-<button class="header__cross">
+<button class="header__cross" aria-label="Close menu">
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -332,7 +332,7 @@
         <div class="header__mobile-input">
             <label for="header-search-mobile" class="visually-hidden">Search products</label>
             <input type="text" id="header-search-mobile" name="search" placeholder="Search" />
-            <button class="search-btn">
+            <button class="search-btn" aria-label="Search">
                 <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M9.16667 16.3333C12.8486 16.3333 15.8333 13.3486 15.8333 9.66667C15.8333 5.98477 12.8486 3 9.16667 3C5.48477 3 2.5 5.98477 2.5 9.66667C2.5 13.3486 5.48477 16.3333 9.16667 16.3333Z"

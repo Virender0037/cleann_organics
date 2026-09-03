@@ -40,7 +40,7 @@ class UpdateProductVariantRequest extends FormRequest
             'is_default' => ['required', 'boolean'],
             'status' => ['required', 'in:active,inactive'],
             'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'max:2048'],
+            'images.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'primary_image' => [
                 'nullable',
                 'integer',

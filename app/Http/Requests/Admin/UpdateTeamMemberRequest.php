@@ -17,7 +17,7 @@ class UpdateTeamMemberRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'designation' => ['required', 'string', 'max:255'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'short_bio' => ['nullable', 'string'],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:30'],
