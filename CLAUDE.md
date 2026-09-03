@@ -65,30 +65,26 @@ When adding a new admin page, follow the existing pattern in `admin/<module>/<en
 
 ## Admin backend module status
 
-Status below reflects this repo's actual git state (verify with `git log`/`grep -r Controller app/Http/Controllers` before trusting it — work may exist in other environments, e.g. Claude Code Web sessions, that was never pushed here).
+Status below reflects this repo's actual git state (verify with `git log`/`grep -r Controller app/Http/Controllers`/`ls app/Http/Controllers/Admin` before trusting it — work may exist in other environments, e.g. Claude Code Web sessions, that was never pushed here). New controllers/requests live under an `Admin` sub-namespace — follow that convention for any remaining work.
 
-**Done:**
-- Categories (`app/Http/Controllers/Admin/CategoryController.php`, `app/Http/Requests/Admin/{Store,Update}CategoryRequest.php`) — full CRUD incl. parent/child hierarchy (`parent_id`, self-referencing, `nullOnDelete`) and manual `sort_order`; delete is blocked if the category has products or child categories. New controllers/requests live under an `Admin` sub-namespace — follow that convention for the remaining modules.
+**Done, with full CSV + XLSX import/export** (`Import`/`Export`/`Add …` actions on the list page; import screen has Download Sample Template, accepted-format help, row-level error/skip reporting; shared parsing via `app/Services/Admin/SpreadsheetImportReader.php`, shared CSV output via `app/Services/CsvExporter.php`):
+- Categories (`CategoryController`) — parent/child hierarchy (`parent_id`, self-referencing, `nullOnDelete`), manual `sort_order`; delete blocked if the category has products or child categories.
+- Products (`ProductController`) — category/tax-rate/tag relationships, specifications (`syncSpecifications()`, no separate "Product Specifications" module/controller).
+- Product Variants (`ProductVariantController`) — tiered pricing, default-variant enforcement, stock/unit/status rules.
+- Product Tags (`TagController`) — slug uniqueness, soft deletes; import creates tags only, never touches the `product_tag` pivot.
+- Coupons (`CouponController`, under Sales) — `used_count` is import-excluded (always starts at 0); strict `YYYY-MM-DD` dates; percentage/fixed value caps match `StoreCouponRequest`.
+- Shipping Zones (`ShippingZoneController`) — includes free-text `zone_type` field (nullable at DB level for legacy rows, required via validation); import-only duplicate detection on `name+state+city+pincode` (zone_type excluded); creates zone records only, never `ShippingRate`/`ShippingMethod`.
 
-**Pending** — no controllers yet (every other `/admin` route is still a bare `Route::view(...)`); views/markup already exist under `resources/views/admin/`:
+**Done, CRUD only** (no import/export):
+- Tax Rates, Shipping Methods, Shipping Rates (child of Shipping Zones via `shipping_zone_id`), Blogs, Blog Categories, Blog Tags, Pages, FAQs, Team Members, Testimonials, Settings, Contact Messages (inbox-style: view/status/delete), Customers + Customer Addresses/Wishlists, Dashboard.
 
-- Products
-- Product Variants
-- Product Reviews
-- Product Tags
-- Product Specifications
-- Tax Rates
-- Inventory
-- Customers
-- Sales
-- Shipping
-- CMS
-- Reports
-- Administration
-- Settings
-- Dashboard
+**Done, export only** (no import, no manual create — records originate elsewhere): Product Reviews, Inventory (stock levels/low-stock/out-of-stock), Sales Orders, Sales Payments, Returns.
 
-Update this list (move a module out of "pending") once its controller/routes/tests actually land — don't rely on chat history to track this.
+**Pending** — still bare `Route::view(...)`, no controller:
+- Reports (sales/orders/products/inventory/payments/coupons dashboards)
+- Administration (users, roles, permissions, activity logs)
+
+Update this list as work lands — don't rely on chat history to track this.
 
 ## Workflow: implementing a module
 
