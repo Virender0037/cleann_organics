@@ -19,6 +19,7 @@ class StoreShippingZoneRequest extends FormRequest
             'state' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'pincode' => ['nullable', 'string', 'max:255'],
+            'zone_type' => ['required', 'string', 'max:255'],
             'status' => ['required', 'in:active,inactive'],
         ];
     }

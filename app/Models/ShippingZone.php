@@ -11,6 +11,7 @@ class ShippingZone extends Model
         'state',
         'city',
         'pincode',
+        'zone_type',
         'status',
     ];
 

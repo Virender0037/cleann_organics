@@ -67,7 +67,7 @@
             <div class="mb-3">
                 <label class="form-label">Import File <span class="text-danger">*</span></label>
                 <input type="file" name="file" class="form-control" accept=".csv,.xlsx" required>
-                <small class="text-muted">Accepted formats: CSV, XLSX. Required columns: name, status. Optional: state, city, pincode. A row is skipped as a duplicate if a zone with the same name, state, city and pincode already exists (this importer only creates zone records &mdash; shipping rates and methods are managed separately).</small>
+                <small class="text-muted">Accepted formats: CSV, XLSX. Required columns: name, zone_type, status. Optional: state, city, pincode. zone_type is free text (e.g. Local, Regional). A row is skipped as a duplicate if a zone with the same name, state, city and pincode already exists, regardless of zone_type (this importer only creates zone records &mdash; shipping rates and methods are managed separately).</small>
             </div>
 
             <x-slot:actions>

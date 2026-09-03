@@ -51,6 +51,7 @@
             <th>State</th>
             <th>City</th>
             <th>Pincode</th>
+            <th>Zone Type</th>
             <th>Status</th>
             <th width="130">Action</th>
         </x-slot:head>
@@ -62,6 +63,7 @@
                 <td>{{ $zone->state ?? '—' }}</td>
                 <td>{{ $zone->city ?? '—' }}</td>
                 <td>{{ $zone->pincode ?? '—' }}</td>
+                <td>{{ $zone->zone_type ?? '—' }}</td>
                 <td>
                     <x-admin.status-badge :status="$zone->status" />
                 </td>
@@ -81,7 +83,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="7">
+                <td colspan="8">
                     <x-admin.empty-state>No shipping zones found.</x-admin.empty-state>
                 </td>
             </tr>

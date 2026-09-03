@@ -58,6 +58,12 @@
             </div>
 
             <div class="col-md-6 mb-3">
+                <label class="form-label">Zone Type <span class="text-danger">*</span></label>
+                <input type="text" name="zone_type" class="form-control @error('zone_type') is-invalid @enderror" value="{{ old('zone_type', $zone->zone_type) }}">
+                @error('zone_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="col-md-6 mb-3">
                 <label class="form-label">Status</label>
                 <select name="status" class="form-select @error('status') is-invalid @enderror">
                     <option value="active" @selected(old('status', $zone->status) === 'active')>Active</option>

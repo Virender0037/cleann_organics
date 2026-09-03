@@ -52,7 +52,7 @@ class ShippingZoneController extends Controller
             ->orderBy('name')
             ->lazy(200);
 
-        $headers = ['id', 'name', 'state', 'city', 'pincode', 'status', 'rates_count'];
+        $headers = ['id', 'name', 'state', 'city', 'pincode', 'zone_type', 'status', 'rates_count'];
 
         $rows = $zones->map(fn (ShippingZone $zone) => [
             $zone->id,
@@ -60,6 +60,7 @@ class ShippingZoneController extends Controller
             $zone->state,
             $zone->city,
             $zone->pincode,
+            $zone->zone_type,
             $zone->status,
             $zone->rates_count,
         ]);
@@ -74,11 +75,11 @@ class ShippingZoneController extends Controller
 
     public function downloadTemplate(CsvExporter $exporter): StreamedResponse
     {
-        $headers = ['name', 'state', 'city', 'pincode', 'status'];
+        $headers = ['name', 'state', 'city', 'pincode', 'zone_type', 'status'];
 
         $exampleRows = [
-            ['North Delhi', 'Delhi', 'New Delhi', '110001', 'active'],
-            ['Mumbai Metro', 'Maharashtra', 'Mumbai', '400001', 'active'],
+            ['North Delhi', 'Delhi', 'New Delhi', '110001', 'Local', 'active'],
+            ['Mumbai Metro', 'Maharashtra', 'Mumbai', '400001', 'Regional', 'active'],
         ];
 
         return $exporter->stream('shipping-zones-import-template.csv', $headers, $exampleRows);
@@ -103,7 +104,7 @@ class ShippingZoneController extends Controller
         $header = $parsed['header'];
         $rows = $parsed['rows'];
 
-        $missingColumns = array_diff(['name', 'status'], $header);
+        $missingColumns = array_diff(['name', 'zone_type', 'status'], $header);
 
         if (! empty($missingColumns)) {
             return back()->with('error', 'Invalid file: missing required column(s): '.implode(', ', $missingColumns));
@@ -127,10 +128,17 @@ class ShippingZoneController extends Controller
             $data = $entry['data'];
 
             $name = $data['name'] ?? null;
+            $zoneType = $data['zone_type'] ?? null;
             $status = $data['status'] ?? null;
 
             if (blank($name)) {
                 $errors[] = ['row' => $rowNum, 'message' => 'Missing required field: name'];
+
+                continue;
+            }
+
+            if (blank($zoneType)) {
+                $errors[] = ['row' => $rowNum, 'message' => 'Missing required field: zone_type'];
 
                 continue;
             }
@@ -159,6 +167,7 @@ class ShippingZoneController extends Controller
                     'state' => $state,
                     'city' => $city,
                     'pincode' => $pincode,
+                    'zone_type' => $zoneType,
                     'status' => $status,
                 ]);
             } catch (\Throwable $e) {
