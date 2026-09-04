@@ -9,7 +9,7 @@
  */
 
 :root {
-  /* ---- Design tokens (extend, do not replace, the existing --pc-*/--bs-* vars) ---- */
+  /* ---- Design tokens (extend, do not replace, the existing --pc-* / --bs-* vars) ---- */
   --admin-radius-sm: 6px;
   --admin-radius-md: 10px;
   --admin-radius-lg: 14px;

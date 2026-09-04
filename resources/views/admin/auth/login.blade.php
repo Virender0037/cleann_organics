@@ -7,8 +7,8 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="{{ asset('assets/images/favicon.svg') }}">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/fonts/phosphor/regular/style.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/admin-custom.css') }}" />
+    <link rel="stylesheet" href="{{ admin_asset('assets/fonts/phosphor/regular/style.css') }}" />
+    <link rel="stylesheet" href="{{ admin_asset('assets/css/admin-custom.css') }}" />
 </head>
 <body class="admin-login-body">
 

@@ -14,14 +14,14 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <!-- Phosphor Icons -->
-    <link rel="stylesheet" href="{{ asset('assets/fonts/phosphor/regular/style.css') }}" />
+    <link rel="stylesheet" href="{{ admin_asset('assets/fonts/phosphor/regular/style.css') }}" />
     <!-- Tabler Icons -->
-    <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons.min.css') }}" />
+    <link rel="stylesheet" href="{{ admin_asset('assets/fonts/tabler-icons.min.css') }}" />
     <!-- Template CSS -->
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" id="main-style-link" />
-    <link rel="stylesheet" href="{{ asset('assets/css/style-preset.css') }}" />
+    <link rel="stylesheet" href="{{ admin_asset('assets/css/style.css') }}" id="main-style-link" />
+    <link rel="stylesheet" href="{{ admin_asset('assets/css/style-preset.css') }}" />
     <!-- Cleann Organics Admin Design System -->
-    <link rel="stylesheet" href="{{ asset('assets/css/admin-custom.css') }}" />
+    <link rel="stylesheet" href="{{ admin_asset('assets/css/admin-custom.css') }}" />
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-14K1GBX9FG"></script>
 <script>
