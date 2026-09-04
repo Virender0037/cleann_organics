@@ -1,78 +1,55 @@
 <x-admin-layout title="Users">
 <main class="pc-container-edit">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4 class="mb-1">Users</h4>
-        <p class="text-muted mb-0">Manage admin users</p>
-    </div>
+    <x-admin.page-header title="Users" subtitle="Admin panel users">
+    </x-admin.page-header>
 
-    <a href="{{ route('admin.administration.users.create') }}" class="btn btn-primary">
-        <i class="ph ph-plus me-1"></i> Add User
-    </a>
-</div>
+    <x-admin.breadcrumb :items="[['label' => 'Administration'], ['label' => 'Users']]" />
 
-<div class="card">
-    <div class="card-header"><h5>User List</h5></div>
+    @include('admin.partials.alerts')
 
-    <div class="card-body">
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <input type="text" class="form-control" placeholder="Search user">
-            </div>
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option>All Roles</option>
-                    <option>Super Admin</option>
-                    <option>Manager</option>
-                    <option>Staff</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option>All Status</option>
-                    <option>Active</option>
-                    <option>Inactive</option>
-                </select>
-            </div>
-        </div>
+    <x-admin.table-card title="User List">
+        <x-slot:toolbar>
+            <x-admin.filter-toolbar action="{{ route('admin.administration.users.index') }}">
+                <div class="col-md-4">
+                    <input type="text"
+                           name="search"
+                           class="form-control"
+                           value="{{ request('search') }}"
+                           placeholder="Search name or email"
+                           onchange="this.form.submit()">
+                </div>
+            </x-admin.filter-toolbar>
+        </x-slot:toolbar>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Last Login</th>
-                        <th>Status</th>
-                        <th width="130">Action</th>
-                    </tr>
-                </thead>
+        <x-slot:head>
+            <th width="80">#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+        </x-slot:head>
 
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><strong>Admin User</strong></td>
-                        <td>admin@example.com</td>
-                        <td>Super Admin</td>
-                        <td>09 Jul 2026</td>
-                        <td><span class="badge bg-success">Active</span></td>
-                        <td>
-                            <a href="{{ route('admin.administration.users.edit') }}" class="btn btn-sm btn-warning" title="Edit User">
-                                <i class="ph ph-pencil-simple"></i>
-                            </a>
-                            <button class="btn btn-sm btn-danger" title="Delete User">
-                                <i class="ph ph-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+        @forelse ($users as $user)
+            <tr>
+                <td>{{ $user->id }}</td>
+                <td>{{ $user->name }}</td>
+                <td>{{ $user->email }}</td>
+                <td>{{ ucfirst($user->role) }}</td>
+                <td><x-admin.status-badge :status="$user->status" /></td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="5">
+                    <x-admin.empty-state>No admin users found.</x-admin.empty-state>
+                </td>
+            </tr>
+        @endforelse
+
+        <x-slot:pagination>
+            {{ $users->links() }}
+        </x-slot:pagination>
+    </x-admin.table-card>
 
 </main>
 </x-admin-layout>

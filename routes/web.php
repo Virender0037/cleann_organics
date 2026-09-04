@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductVariantController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\ReturnController;
 use App\Http\Controllers\Admin\SalesOrderController;
 use App\Http\Controllers\Admin\SalesPaymentController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TaxRateController;
 use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\FaqPageController;
 use App\Http\Controllers\PageController as PublicPageController;
 use App\Http\Controllers\ProfileController;
@@ -447,7 +449,7 @@ Route::prefix('admin')
         });
         Route::prefix('administration')->name('administration.')->group(function () {
             Route::prefix('users')->name('users.')->group(function () {
-                Route::view('/', 'admin.administration.users.index')->name('index');
+                Route::get('/', [UserController::class, 'index'])->name('index');
                 Route::view('/create', 'admin.administration.users.create')->name('create');
                 Route::view('/edit', 'admin.administration.users.edit')->name('edit');
             });
@@ -470,6 +472,12 @@ Route::prefix('admin')
             Route::put('/email', 'updateEmail')->name('email.update');
             Route::get('/payment', 'payment')->name('payment.index');
             Route::put('/payment', 'updatePayment')->name('payment.update');
+        });
+        Route::prefix('profile')->name('profile.')->controller(AdminProfileController::class)->group(function () {
+            Route::get('/', 'edit')->name('edit');
+            Route::put('/', 'update')->name('update');
+            Route::put('/password', 'updatePassword')->name('password');
+            Route::delete('/avatar', 'destroyAvatar')->name('avatar.destroy');
         });
     });
 

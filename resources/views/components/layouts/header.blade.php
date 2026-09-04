@@ -4,14 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>{{ $metaTitle ?: 'Cleann Organics' }}</title>
+    <title>{{ $metaTitle ?: ($generalSettings['site_name'] ?? 'Cleann Organics') }}</title>
     @if ($metaDescription)
         <meta name="description" content="{{ $metaDescription }}" />
     @endif
     @if ($canonicalUrl)
         <link rel="canonical" href="{{ $canonicalUrl }}" />
     @endif
-    <link rel="icon" type="image/png" href="{{ asset('images/favicon/favicon-16x16.png') }}" />
+    @if (! empty($generalSettings['favicon']))
+        <link rel="icon" type="image/png" href="{{ \Illuminate\Support\Facades\Storage::url($generalSettings['favicon']) }}" />
+    @else
+        <link rel="icon" type="image/png" href="{{ asset('images/favicon/favicon-16x16.png') }}" />
+    @endif
     <link rel="stylesheet" href="{{ asset('lib/css/swiper-bundle.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('lib/css/bvselect.css') }}" />
     <link rel="stylesheet" href="{{ asset('lib/css/venobox.css') }}" />
@@ -116,7 +120,7 @@
                     />
                 </svg>
             </span>
-            Store Location: Warehouse : L-3, South West Delhi, 110059
+            Store Location: {{ $generalSettings['company_address'] ?? 'Warehouse : L-3, South West Delhi, 110059' }}
         </p>
     </div>
     <div class="header__top-right">
@@ -181,8 +185,8 @@
                 <path d="M3 18H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </button>
-        <img src="{{ asset('images/vertical-logo.jpeg') }}"
-     alt="brand-logo"
+        <img src="{{ ! empty($generalSettings['logo']) ? \Illuminate\Support\Facades\Storage::url($generalSettings['logo']) : asset('images/vertical-logo.jpeg') }}"
+     alt="{{ $generalSettings['site_name'] ?? 'brand-logo' }}"
      style="height: 39px; width: auto;">
     </div>
     <form action="#">
@@ -293,7 +297,7 @@
         </li>
     </ul>
 
-    <a href="#" class="header__telephone-number">
+    <a href="tel:{{ $generalSettings['company_phone'] ?? '+91-9999667014' }}" class="header__telephone-number">
         <span>
             <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14.4359 2.375C15.9193 2.77396 17.2718 3.55567 18.358 4.64184C19.4441 5.72801 20.2258 7.08051 20.6248 8.56388" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -313,7 +317,7 @@
                 />
             </svg>
 
-            +91-9999667014
+            {{ $generalSettings['company_phone'] ?? '+91-9999667014' }}
         </span>
     </a>
 </div>

@@ -566,6 +566,9 @@
         </div>
         <div class="dropdown-body">
           <div class="profile-notification-scroll position-relative" style="max-height: calc(100vh - 225px)">
+            <a href="{{ route('admin.profile.edit') }}" class="dropdown-item">
+              <i class="ph ph-user-circle align-middle me-2"></i>My Profile
+            </a>
             <div class="d-grid my-2">
               <form method="POST" action="{{ route('admin.logout') }}">
                 @csrf

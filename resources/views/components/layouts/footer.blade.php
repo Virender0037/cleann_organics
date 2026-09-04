@@ -6,17 +6,19 @@
                 <div class="col-lg-4">
                     <div class="footer__brand-info">
                         <div class="footer__brand-info-logo">
-                            <img src="{{ asset('images/vertical-logo.jpeg') }}"
-                            alt="brand-logo"
+                            <img src="{{ ! empty($generalSettings['logo']) ? \Illuminate\Support\Facades\Storage::url($generalSettings['logo']) : asset('images/vertical-logo.jpeg') }}"
+                            alt="{{ $generalSettings['site_name'] ?? 'brand-logo' }}"
                             style="height: 39px; width: auto;">
                         </div>
                         <p class="font-body--md-400">
                             Morbi cursus porttitor enim lobortis molestie. Duis gravida turpis dui, eget bibendum magna congue nec.
                         </p>
                         <div class="footer__brand-info-contact">
-                            <a href="#"><span>(219)555-0114</span></a>
-                            or
-                            <a href="#"><span>Proxy@gmail.com</span></a>
+                            <a href="tel:{{ $generalSettings['company_phone'] ?? '+91-9999667014' }}"><span>{{ $generalSettings['company_phone'] ?? '+91-9999667014' }}</span></a>
+                            @if (! empty($generalSettings['company_email']))
+                                or
+                                <a href="mailto:{{ $generalSettings['company_email'] }}"><span>{{ $generalSettings['company_email'] }}</span></a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -110,7 +112,7 @@
         </div>
         <div class="footer__bottom">
             <p class="footer__copyright-text">
-                Shopery eCommerce © 2021. All Rights Reserved
+                {{ $generalSettings['site_name'] ?? 'Cleann Organics' }} © {{ now()->year }}. All Rights Reserved
             </p>
             <div class="footer__partner d-flex">
             <a href="#" class="footer__partner-item">

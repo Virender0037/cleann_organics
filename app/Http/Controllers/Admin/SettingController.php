@@ -42,6 +42,7 @@ class SettingController extends Controller
         }
 
         Setting::setMany('general', $data);
+        Setting::forget('general');
 
         return back()->with('success', 'General settings updated.');
     }
