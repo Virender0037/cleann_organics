@@ -636,22 +636,6 @@ body[data-pc-preset="preset-1"] {
   overflow: hidden;
 }
 
-.admin-login-accent {
-  position: absolute;
-  top: -60px;
-  right: -60px;
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  background: var(--admin-primary-light);
-  z-index: 0;
-}
-
-.admin-login-card > * {
-  position: relative;
-  z-index: 1;
-}
-
 .admin-login-logo {
   display: block;
   margin: 0 auto 1.75rem;

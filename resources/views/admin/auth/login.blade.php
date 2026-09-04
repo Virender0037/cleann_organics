@@ -13,7 +13,6 @@
 <body class="admin-login-body">
 
     <div class="admin-login-card">
-        <div class="admin-login-accent" aria-hidden="true"></div>
 
         <img src="{{ asset('assets/images/vertical-logo.jpeg') }}" alt="Cleann Organics" class="admin-login-logo">
 
