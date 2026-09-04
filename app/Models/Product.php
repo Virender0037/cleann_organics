@@ -72,4 +72,39 @@ class Product extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
+
+    /**
+     * The image to show as this product's thumbnail (e.g. the admin product
+     * list), or null if none exists anywhere. Never returns a video.
+     *
+     * Walks the product's active variants in priority order (default variant
+     * first, then sort_order) and returns the first one's primary image, or
+     * its first image by sort_order if it has no primary — falling through
+     * to the next active variant if this one has no image at all.
+     *
+     * Expects `variants` (constrained to active, ordered is_default desc
+     * then sort_order) and each variant's `images` to already be
+     * eager-loaded by the caller; querying media type/order is done here in
+     * PHP defensively (belt-and-braces against a caller that eager-loaded
+     * images unconstrained) rather than assumed from the eager-load shape.
+     */
+    public function thumbnailImage(): ?ProductVariantImage
+    {
+        foreach ($this->variants as $variant) {
+            if ($variant->status !== 'active') {
+                continue;
+            }
+
+            $images = $variant->images->where('media_type', 'image');
+
+            $image = $images->firstWhere('is_primary', true)
+                ?? $images->sortBy('sort_order')->first();
+
+            if ($image) {
+                return $image;
+            }
+        }
+
+        return null;
+    }
 }

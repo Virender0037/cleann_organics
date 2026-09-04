@@ -24,6 +24,16 @@ class ProductController extends Controller
     public function index(Request $request): View
     {
         $products = Product::with('category')
+            ->with(['variants' => function ($query) {
+                $query->where('status', 'active')
+                    ->orderByDesc('is_default')
+                    ->orderBy('sort_order')
+                    ->with(['images' => function ($query) {
+                        $query->where('media_type', 'image')
+                            ->orderByDesc('is_primary')
+                            ->orderBy('sort_order');
+                    }]);
+            }])
             ->withCount('variants')
             ->withSum('variants', 'stock_quantity')
             ->withMin('variants', 'single_price')

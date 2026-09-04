@@ -57,11 +57,20 @@
                 <td>{{ $product->id }}</td>
 
                 <td>
-                    <img src="https://placehold.co/50x50"
-                         class="rounded"
-                         width="50"
-                         height="50"
-                         alt="Product">
+                    @if ($thumbnail = $product->thumbnailImage())
+                        <img src="{{ \Illuminate\Support\Facades\Storage::url($thumbnail->image) }}"
+                             class="rounded"
+                             width="50"
+                             height="50"
+                             style="object-fit: cover;"
+                             alt="{{ $product->name }}">
+                    @else
+                        <img src="https://placehold.co/50x50"
+                             class="rounded"
+                             width="50"
+                             height="50"
+                             alt="Product">
+                    @endif
                 </td>
 
                 <td>
