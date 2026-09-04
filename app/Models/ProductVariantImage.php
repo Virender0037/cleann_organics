@@ -9,6 +9,7 @@ class ProductVariantImage extends Model
     protected $fillable = [
         'product_variant_id',
         'image',
+        'media_type',
         'is_primary',
         'sort_order',
     ];
@@ -20,5 +21,15 @@ class ProductVariantImage extends Model
     public function variant()
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    public function isVideo(): bool
+    {
+        return $this->media_type === 'video';
+    }
+
+    public function isImage(): bool
+    {
+        return $this->media_type === 'image';
     }
 }

@@ -2,13 +2,17 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Http\Requests\Admin\Concerns\ValidatesVariantMediaLimits;
 use App\Models\ProductVariant;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreProductVariantRequest extends FormRequest
 {
+    use ValidatesVariantMediaLimits;
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -16,7 +20,7 @@ class StoreProductVariantRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return array_merge($this->variantMediaRules(), [
             'product_id' => ['required', 'integer', 'exists:products,id'],
             'variant_name' => ['nullable', 'string', 'max:255'],
             'sku' => ['nullable', 'string', 'max:255', Rule::unique(ProductVariant::class)],
@@ -39,8 +43,11 @@ class StoreProductVariantRequest extends FormRequest
             'stock_status' => ['required', 'in:in_stock,out_of_stock'],
             'is_default' => ['required', 'boolean'],
             'status' => ['required', 'in:active,inactive'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
-        ];
+        ]);
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $this->withValidatorMediaLimits($validator, null);
     }
 }

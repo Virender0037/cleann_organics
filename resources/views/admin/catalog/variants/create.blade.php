@@ -213,21 +213,7 @@
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5>Variant Images</h5>
-            </div>
-
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Upload Images</label>
-                    <input type="file" name="images[]" class="form-control @error('images') is-invalid @enderror @error('images.*') is-invalid @enderror" multiple>
-                    <small class="text-muted">You can upload multiple images for this variant. The first image becomes the primary image.</small>
-                    @error('images') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    @error('images.*') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-            </div>
-        </div>
+        @include('admin.catalog.variants.partials.media-manager', ['variant' => null])
 
         <div class="text-end mb-4">
             <a href="{{ route('admin.catalog.variants.index') }}" class="btn btn-light">
@@ -241,5 +227,7 @@
         </div>
 
     </form>
+
+    <script src="{{ admin_asset('assets/js/admin/variant-media-manager.js') }}"></script>
 </main>
 </x-admin-layout>

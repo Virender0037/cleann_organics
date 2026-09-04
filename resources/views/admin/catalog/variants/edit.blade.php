@@ -216,51 +216,7 @@
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5>Variant Images</h5>
-            </div>
-
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Upload New Images</label>
-                    <input type="file" name="images[]" class="form-control @error('images') is-invalid @enderror @error('images.*') is-invalid @enderror" multiple>
-                    <small class="text-muted">Uploading new images will add them to this variant.</small>
-                    @error('images') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                    @error('images.*') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-
-                @error('primary_image') <div class="text-danger small mb-2">{{ $message }}</div> @enderror
-
-                <label class="form-label">Existing Images</label>
-
-                <div class="row mt-2">
-                    @forelse ($variant->images as $image)
-                        <div class="col-md-2 mb-3">
-                            <div class="border rounded p-2 text-center">
-                                <img src="{{ \Illuminate\Support\Facades\Storage::url($image->image) }}"
-                                     class="img-fluid rounded mb-2"
-                                     alt="Variant Image">
-
-                                <div class="form-check d-flex justify-content-center">
-                                    <input class="form-check-input me-1" type="radio" name="primary_image" value="{{ $image->id }}" @checked($image->is_primary)>
-                                    <label class="form-check-label">Primary</label>
-                                </div>
-
-                                <button type="submit" form="delete-variant-image-{{ $image->id }}" class="btn btn-sm btn-danger mt-2">
-                                    <i class="ph ph-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <p class="text-muted">No images uploaded for this variant yet.</p>
-                        </div>
-                    @endforelse
-                </div>
-
-            </div>
-        </div>
+        @include('admin.catalog.variants.partials.media-manager', ['variant' => $variant])
 
         <div class="text-end mb-4">
             <a href="{{ route('admin.catalog.variants.index') }}" class="btn btn-light">
@@ -275,11 +231,6 @@
 
     </form>
 
-    @foreach ($variant->images as $image)
-        <form id="delete-variant-image-{{ $image->id }}" action="{{ route('admin.catalog.variants.images.destroy', [$variant, $image]) }}" method="POST" onsubmit="return confirm('Delete this image?');">
-            @csrf
-            @method('DELETE')
-        </form>
-    @endforeach
+    <script src="{{ admin_asset('assets/js/admin/variant-media-manager.js') }}"></script>
 </main>
 </x-admin-layout>

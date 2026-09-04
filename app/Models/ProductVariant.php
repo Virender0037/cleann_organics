@@ -39,14 +39,21 @@ class ProductVariant extends Model
         return $this->belongsTo(Product::class);
     }
 
+    /**
+     * All media (images and videos) for this variant, in gallery order.
+     * Kept named `images` for backward compatibility with existing callers;
+     * it now returns every media type, not images exclusively.
+     */
     public function images()
     {
-        return $this->hasMany(ProductVariantImage::class);
+        return $this->hasMany(ProductVariantImage::class)->orderBy('sort_order');
     }
 
     public function primaryImage()
     {
-        return $this->hasOne(ProductVariantImage::class)->where('is_primary', true);
+        return $this->hasOne(ProductVariantImage::class)
+            ->where('is_primary', true)
+            ->where('media_type', 'image');
     }
 
     public function cartItems()
