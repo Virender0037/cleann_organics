@@ -26,10 +26,10 @@ use App\Http\Controllers\Admin\ShippingRateController;
 use App\Http\Controllers\Admin\ShippingZoneController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TaxRateController;
-use App\Http\Controllers\PageController as PublicPageController;
 use App\Http\Controllers\Admin\TeamMemberController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\FaqPageController;
+use App\Http\Controllers\PageController as PublicPageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -215,6 +215,7 @@ Route::prefix('admin')
                 Route::get('/{category}/edit', 'edit')->name('edit');
                 Route::put('/{category}', 'update')->name('update');
                 Route::delete('/{category}', 'destroy')->name('destroy');
+                Route::delete('/{category}/image', 'destroyImage')->name('image.destroy');
             });
             // Products
             Route::prefix('products')->name('products.')->controller(ProductController::class)->group(function () {

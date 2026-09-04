@@ -56,8 +56,18 @@
                 @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror
 
                 @if ($category->image)
-                    <div class="mt-2">
+                    <div class="mt-2" style="position:relative; width:80px;">
                         <img src="{{ \Illuminate\Support\Facades\Storage::url($category->image) }}" width="80" height="80" class="rounded border" alt="Category Image">
+                        <button
+                            type="submit"
+                            form="delete-category-image"
+                            class="vmm-card-remove"
+                            title="Delete image"
+                            aria-label="Delete image"
+                            onclick="return confirm('Are you sure you want to delete this category image?');"
+                        >
+                            <i class="ph ph-x"></i>
+                        </button>
                     </div>
                 @endif
             </div>
@@ -115,5 +125,12 @@
             </div>
         </x-slot:actions>
     </x-admin.form-card>
+
+    @if ($category->image)
+        <form id="delete-category-image" action="{{ route('admin.catalog.categories.image.destroy', $category) }}" method="POST">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endif
     </main>
 </x-admin-layout>

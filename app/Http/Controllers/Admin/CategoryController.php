@@ -276,6 +276,16 @@ class CategoryController extends Controller
         return redirect()->route('admin.catalog.categories.index')->with('success', 'Category updated.');
     }
 
+    public function destroyImage(Category $category): RedirectResponse
+    {
+        if ($category->image) {
+            Storage::disk('public')->delete($category->image);
+            $category->update(['image' => null]);
+        }
+
+        return back()->with('success', 'Category image deleted.');
+    }
+
     public function destroy(Category $category): RedirectResponse
     {
         if ($category->products()->exists() || $category->children()->exists()) {
