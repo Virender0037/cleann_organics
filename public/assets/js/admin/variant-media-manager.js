@@ -144,24 +144,44 @@
       })
         .then(function (response) {
           if (!response.ok) throw new Error('Delete failed');
+
+          // No content, or a response that isn't actually JSON (e.g. a
+          // redirect fetch() silently followed to an HTML page) — treat as
+          // success with no extra data rather than letting .json() throw
+          // a SyntaxError that would otherwise be indistinguishable from a
+          // real failure below.
+          if (response.status === 204) return {};
+
+          var contentType = response.headers.get('Content-Type') || '';
+          if (contentType.indexOf('json') === -1) return {};
+
           return response.json();
         })
-        .then(function (data) {
-          items = items.filter(function (i) {
-            return i.localId !== item.localId;
-          });
-
-          if (data.promoted_primary_id) {
-            items.forEach(function (i) {
-              i.isPrimary = i.kind === 'existing' && i.id === data.promoted_primary_id;
+        .then(
+          function (data) {
+            // Reaching here means the HTTP layer already confirmed success
+            // (or we deliberately treated it as such above) — the deletion
+            // itself is done. Anything that goes wrong from this point is a
+            // local display update, not a delete failure, so it must never
+            // surface the "could not delete" message.
+            items = items.filter(function (i) {
+              return i.localId !== item.localId;
             });
-          }
 
-          render();
-        })
-        .catch(function () {
-          showError('Could not delete this item. Please try again.');
-        });
+            if (data && data.promoted_primary_id) {
+              items.forEach(function (i) {
+                i.isPrimary = i.kind === 'existing' && i.id === data.promoted_primary_id;
+              });
+            }
+
+            render();
+          },
+          function () {
+            // Only the fetch/response stage above rejects into this handler
+            // — a real network failure or a non-2xx response.
+            showError('Could not delete this item. Please try again.');
+          }
+        );
     }
 
     function removeItem(localId) {

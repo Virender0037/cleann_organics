@@ -467,6 +467,33 @@ class ProductVariantMediaTest extends TestCase
         $this->assertDatabaseMissing('product_variant_images', ['id' => $image->id]);
     }
 
+    public function test_ajax_delete_returns_json_success_contract_even_with_a_permissive_accept_header(): void
+    {
+        // Regression test: the JS always sends X-Requested-With, but the
+        // Accept header it sends could arrive at the app altered by an
+        // intermediary (e.g. a CDN) into something generic like "*/*".
+        // expectsJson() must still recognize this as an AJAX call wanting
+        // JSON — wantsJson() alone would not, and the endpoint would fall
+        // through to a redirect despite the deletion having succeeded.
+        Storage::fake('public');
+        $admin = $this->superadmin();
+        $product = $this->product();
+        $variant = $this->variant($product);
+
+        $image = $variant->images()->create(['image' => 'variants/a.jpg', 'media_type' => 'image', 'is_primary' => true, 'sort_order' => 1]);
+
+        $response = $this->actingAs($admin)->delete(
+            "/admin/catalog/variants/{$variant->id}/images/{$image->id}",
+            [],
+            ['X-Requested-With' => 'XMLHttpRequest', 'Accept' => '*/*']
+        );
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/json');
+        $response->assertJson(['success' => true]);
+        $this->assertDatabaseMissing('product_variant_images', ['id' => $image->id]);
+    }
+
     public function test_delete_video(): void
     {
         Storage::fake('public');

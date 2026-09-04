@@ -406,7 +406,13 @@ class ProductVariantController extends Controller
             }
         });
 
-        if ($request->wantsJson()) {
+        // expectsJson(), not wantsJson(): the JS sends X-Requested-With and an
+        // Accept header, but wantsJson() only trusts the Accept header — if a
+        // proxy/CDN in front of the app normalizes it, this endpoint would
+        // silently fall through to the redirect below despite the deletion
+        // having already succeeded, and fetch() would then choke trying to
+        // parse the redirected-to HTML page as JSON.
+        if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'promoted_primary_id' => $promoted?->id,
