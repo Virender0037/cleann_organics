@@ -13,6 +13,11 @@
         ? 'Best Seller'
         : ($product->is_featured ? 'Featured' : ($product->is_latest ? 'New' : null));
     $productUrl = route('products.show', $product->slug);
+    // WishlistService is bound as a singleton (see AppServiceProvider) and
+    // memoizes the current user's wishlisted product ids for the whole
+    // request, so this is safe to call once per card without N+1 — the
+    // underlying query runs at most once no matter how many cards render.
+    $isWishlisted = app(\App\Services\Storefront\WishlistService::class)->isWishlisted($product->id);
 @endphp
 <div class="{{ $wrapperClass }}">
     <div class="cards-md cards-md--four w-100">
@@ -28,11 +33,28 @@
                 <span class="tag danger font-body--md-400">{{ $badge }}</span>
             @endif
             <div class="cards-md__favs-list">
-                <span class="action-btn" aria-hidden="true">
-                    <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9.9996 16.5451C-6.66672 7.3333 4.99993 -2.6667 9.9996 3.65668C14.9999 -2.6667 26.6666 7.3333 9.9996 16.5451Z" stroke="currentColor" stroke-width="1.5"></path>
-                    </svg>
-                </span>
+                <form
+                    action="{{ $isWishlisted ? route('wishlist.destroy', $product) : route('wishlist.store') }}"
+                    method="POST"
+                    data-wishlist-form
+                >
+                    @csrf
+                    @if ($isWishlisted)
+                        @method('DELETE')
+                    @else
+                        <input type="hidden" name="product_id" value="{{ $product->id }}" />
+                    @endif
+                    <button
+                        type="submit"
+                        class="action-btn"
+                        aria-label="{{ $isWishlisted ? 'Remove '.$product->name.' from wishlist' : 'Add '.$product->name.' to wishlist' }}"
+                        aria-pressed="{{ $isWishlisted ? 'true' : 'false' }}"
+                    >
+                        <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.9996 16.5451C-6.66672 7.3333 4.99993 -2.6667 9.9996 3.65668C14.9999 -2.6667 26.6666 7.3333 9.9996 16.5451Z" stroke="currentColor" fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke-width="1.5"></path>
+                        </svg>
+                    </button>
+                </form>
                 {{-- Real link to the product page rather than a Bootstrap
                      modal — every card previously opened the exact same
                      hardcoded "Quick View" modal regardless of which

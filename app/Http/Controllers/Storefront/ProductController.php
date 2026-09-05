@@ -4,11 +4,17 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\Storefront\WishlistService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
+    public function __construct(private readonly WishlistService $wishlist)
+    {
+    }
+
     /**
      * Looked up manually rather than via {product:slug} implicit binding —
      * see CategoryController::show() for why: the admin catalog routes bind
@@ -46,6 +52,15 @@ class ProductController extends Controller
         $ogImage = $defaultVariant?->images->firstWhere('is_primary', true)
             ?? $defaultVariant?->images->where('media_type', 'image')->sortBy('sort_order')->first();
 
+        // The current user's own review for this product, regardless of its
+        // status — used only to decide what the review form area shows
+        // (the submit form, a pending/rejected note, or nothing to submit
+        // since one already exists); never shown to anyone else, and never
+        // mixed into $reviews above, which stays approved-only.
+        $userReview = Auth::check()
+            ? $product->reviews()->withTrashed()->where('user_id', Auth::id())->first()
+            : null;
+
         return view('products.show', [
             'product' => $product,
             'variants' => $product->variants,
@@ -54,6 +69,8 @@ class ProductController extends Controller
             'reviews' => $approvedReviews,
             'reviewCount' => $reviewCount,
             'averageRating' => $averageRating,
+            'isWishlisted' => $this->wishlist->isWishlisted($product->id),
+            'userReview' => $userReview,
             'relatedProducts' => $product->relatedProducts(),
             'metaTitle' => $product->meta_title ?: $product->name,
             'metaDescription' => $product->meta_description ?: $product->short_description,

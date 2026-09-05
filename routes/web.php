@@ -36,7 +36,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CategoryController as StorefrontCategoryController;
 use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
+use App\Http\Controllers\Storefront\ProductReviewController as StorefrontProductReviewController;
 use App\Http\Controllers\Storefront\ShopController;
+use App\Http\Controllers\Storefront\WishlistController;
 use Illuminate\Support\Facades\Route;
 
 // Breeze's scaffold dashboard is not the storefront's customer dashboard: the
@@ -105,9 +107,21 @@ Route::middleware('auth')->group(function () {
         return view('order-history');
     })->name('order-history');
 
-    Route::get('/wishlist', function () {
-        return view('wishlist');
-    })->name('wishlist');
+    // Real wishlist (Phase H). Deliberately inside this auth group, not a
+    // standalone route with its own middleware call — a guest hitting any
+    // of these is redirected to /sign-in by redirectGuestsTo() in
+    // bootstrap/app.php, and Laravel's own redirect()->guest()/->intended()
+    // get them back afterwards (to the referring page for the POST/DELETE
+    // routes, since those aren't safely replayable after login; straight
+    // back to /wishlist itself for the GET). No custom redirect code needed.
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
+    Route::post('/wishlist', [WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+
+    // Review submission (Phase H). Moderation stays entirely with the
+    // existing admin ProductReviewController — this only ever creates a
+    // status=pending row.
+    Route::post('/reviews', [StorefrontProductReviewController::class, 'store'])->name('reviews.store');
 });
 
 Route::get('/order-details', function () {

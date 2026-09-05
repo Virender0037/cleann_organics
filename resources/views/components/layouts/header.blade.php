@@ -167,10 +167,11 @@
     </form>
     <div class="header__cart">
         <div class="header__cart-item">
-            <a class="fav" href="wishlist.html" aria-label="Wishlist">
+            <a class="fav" href="{{ route('wishlist') }}" aria-label="Wishlist ({{ $wishlistCount }} {{ $wishlistCount === 1 ? 'item' : 'items' }})">
                 <svg width="25" height="23" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M9.9996 16.5451C-6.66672 7.3333 4.99993 -2.6667 9.9996 3.65668C14.9999 -2.6667 26.6666 7.3333 9.9996 16.5451Z" stroke="#1A1A1A" stroke-width="1.5" />
                 </svg>
+                <span class="item-number" id="wishlist-count">{{ $wishlistCount }}</span>
             </a>
         </div>
         <div class="header__cart-item">

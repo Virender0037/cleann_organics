@@ -49,6 +49,35 @@
     }
   }
 
+  // Wishlist count badge (Phase H) — same .item-number treatment as
+  // .cart-bag above, just scoped to .fav instead, since .fav is an <a> with
+  // no badge of its own in the original template.
+  .fav {
+    position: relative;
+    margin-right: 16px;
+    .item-number {
+      position: absolute;
+      top: -2px;
+      right: -4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: color(hard-primary);
+      font-size: 10px;
+      line-height: 10px;
+      color: #fff;
+      font-weight: 500;
+    }
+    &:hover .item-number {
+      top: 0px;
+      transition: all 0.6s ease-in-out;
+    }
+  }
+
   // cart
   &__cart-single {
     .header__telephone-number {

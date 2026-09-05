@@ -154,31 +154,52 @@
                     </div>
                     <!-- Action button -->
                     <div class="products__content">
-                        <form action="{{ route('cart.items.store') }}" method="POST" class="products__content-action" id="add-to-cart-form" data-cart-form="add">
-                            @csrf
-                            <input type="hidden" name="product_variant_id" id="add-to-cart-variant-id" value="{{ $defaultVariant?->id }}" />
-                            <div class="counter-btn-wrapper products__content-action-item">
-                                <button type="button" class="counter-btn-dec counter-btn" onclick="decrement()" aria-label="Decrease quantity">-</button>
-                                <input type="number" name="quantity" id="counter-btn-counter" class="counter-btn-counter" min="1" max="{{ $defaultVariant?->stock_quantity ?? 1 }}" value="1" aria-label="Quantity" />
-                                <button type="button" class="counter-btn-inc counter-btn" onclick="increment()" aria-label="Increase quantity">+</button>
-                            </div>
-                            <button type="submit" class="button button--md products__content-action-item" id="add-to-cart-btn" @unless ($defaultVariant?->isPurchasable()) disabled aria-disabled="true" @endunless>
-                                Add to Cart
-                                <span>
-                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M5.66667 7.33333H3.16667L1.5 16.5H16.5L14.8333 7.33333H12.3333M5.66667 7.33333V4.83333C5.66667 2.99239 7.15905 1.5 9 1.5V1.5C10.8409 1.5 12.3333 2.99238 12.3333 4.83333V7.33333M5.66667 7.33333H12.3333M5.66667 7.33333V9.83333M12.3333 7.33333V9.83333"
-                                            stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                </span>
-                            </button>
+                        <div class="products__content-action">
+                            <form action="{{ route('cart.items.store') }}" method="POST" id="add-to-cart-form" data-cart-form="add" style="display:contents;">
+                                @csrf
+                                <input type="hidden" name="product_variant_id" id="add-to-cart-variant-id" value="{{ $defaultVariant?->id }}" />
+                                <div class="counter-btn-wrapper products__content-action-item">
+                                    <button type="button" class="counter-btn-dec counter-btn" onclick="decrement()" aria-label="Decrease quantity">-</button>
+                                    <input type="number" name="quantity" id="counter-btn-counter" class="counter-btn-counter" min="1" max="{{ $defaultVariant?->stock_quantity ?? 1 }}" value="1" aria-label="Quantity" />
+                                    <button type="button" class="counter-btn-inc counter-btn" onclick="increment()" aria-label="Increase quantity">+</button>
+                                </div>
+                                <button type="submit" class="button button--md products__content-action-item" id="add-to-cart-btn" @unless ($defaultVariant?->isPurchasable()) disabled aria-disabled="true" @endunless>
+                                    Add to Cart
+                                    <span>
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M5.66667 7.33333H3.16667L1.5 16.5H16.5L14.8333 7.33333H12.3333M5.66667 7.33333V4.83333C5.66667 2.99239 7.15905 1.5 9 1.5V1.5C10.8409 1.5 12.3333 2.99238 12.3333 4.83333V7.33333M5.66667 7.33333H12.3333M5.66667 7.33333V9.83333M12.3333 7.33333V9.83333"
+                                                stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </form>
 
-                            <button type="button" class="button-fav products__content-action-item" aria-label="Add to wishlist" disabled aria-disabled="true">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M9.9996 17.5451C-6.66672 8.33336 4.99993 -1.66664 9.9996 4.65674C14.9999 -1.66664 26.6666 8.33336 9.9996 17.5451Z" stroke="currentColor" stroke-width="1.5" />
-                                </svg>
-                            </button>
-                        </form>
+                            <form
+                                action="{{ $isWishlisted ? route('wishlist.destroy', $product) : route('wishlist.store') }}"
+                                method="POST"
+                                class="products__content-action-item"
+                                data-wishlist-form
+                                style="display:contents;"
+                            >
+                                @csrf
+                                @if ($isWishlisted)
+                                    @method('DELETE')
+                                @else
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}" />
+                                @endif
+                                <button
+                                    type="submit"
+                                    class="button-fav"
+                                    aria-label="{{ $isWishlisted ? 'Remove from wishlist' : 'Add to wishlist' }}"
+                                    aria-pressed="{{ $isWishlisted ? 'true' : 'false' }}"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M9.9996 17.5451C-6.66672 8.33336 4.99993 -1.66664 9.9996 4.65674C14.9999 -1.66664 26.6666 8.33336 9.9996 17.5451Z" stroke="currentColor" fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke-width="1.5" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                     <!-- Tags  -->
                     <div class="products__content">
@@ -308,7 +329,69 @@
                                     @empty
                                         <p class="font-body--md-400">No reviews yet.</p>
                                     @endforelse
-                                    {{-- Review submission is out of scope for Phase F (Phase H). --}}
+
+                                    <div class="products-tab__feedback-content" style="border-top:1px solid #e5e5e5;padding-top:24px;margin-top:8px;">
+                                        <h5 class="font-body--lg-500" style="margin-bottom:16px;">Write a Review</h5>
+
+                                        @auth
+                                            @if ($userReview)
+                                                @if ($userReview->status === 'pending')
+                                                    <p class="font-body--md-400">Your review has been submitted and is awaiting moderation. It isn't public yet.</p>
+                                                @elseif ($userReview->status === 'rejected')
+                                                    <p class="font-body--md-400">Your review was not approved for publication.</p>
+                                                @else
+                                                    <p class="font-body--md-400">You've already reviewed this product. Thanks for your feedback!</p>
+                                                @endif
+                                            @else
+                                                @if (session('success'))
+                                                    <p class="font-body--md-400" style="color:#00B307;margin-bottom:16px;">{{ session('success') }}</p>
+                                                @endif
+                                                <form action="{{ route('reviews.store') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="product_id" value="{{ $product->id }}" />
+
+                                                    <div class="contact-form__content">
+                                                        <div class="contact-form-input">
+                                                            <label for="review-rating">Rating</label>
+                                                            <select name="rating" id="review-rating" required>
+                                                                <option value="">Select a rating</option>
+                                                                @foreach (['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'] as $index => $label)
+                                                                    <option value="{{ $index + 1 }}" @selected((int) old('rating') === $index + 1)>{{ $index + 1 }} - {{ $label }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            @error('rating')
+                                                                <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
+                                                            @enderror
+                                                        </div>
+
+                                                        <div class="contact-form-input">
+                                                            <label for="review-title">Title <span>(optional)</span></label>
+                                                            <input type="text" id="review-title" name="title" value="{{ old('title') }}" placeholder="Sum up your review" maxlength="255" />
+                                                            @error('title')
+                                                                <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
+                                                            @enderror
+                                                        </div>
+
+                                                        <div class="contact-form-textarea" style="margin-bottom:16px;">
+                                                            <label for="review-content" style="display:block;font-size:14px;line-height:21px;color:#1a1a1a;margin-bottom:6px;">Your review</label>
+                                                            <textarea id="review-content" name="review" placeholder="What did you like or dislike?" required>{{ old('review') }}</textarea>
+                                                            @error('review')
+                                                                <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
+                                                            @enderror
+                                                        </div>
+
+                                                        <div class="contact-form-btn">
+                                                            <button class="button button--md" type="submit">Submit Review</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            @endif
+                                        @else
+                                            <p class="font-body--md-400">
+                                                <a href="{{ route('sign-in') }}">Sign in</a> to write a review.
+                                            </p>
+                                        @endauth
+                                    </div>
                                 </div>
                             </div>
                         </div>

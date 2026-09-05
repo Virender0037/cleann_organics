@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Listeners\MergeGuestCartOnLogin;
 use App\Models\Setting;
 use App\Services\Storefront\CartService;
+use App\Services\Storefront\WishlistService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
@@ -18,7 +19,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Singleton, not the CartService default of resolve-fresh: product
+        // cards call WishlistService::isWishlisted() once per card (shop
+        // grid, related products), and its internal once()-memoized id
+        // lookup only avoids N+1 if every call in the request shares the
+        // same instance — a fresh instance per app() call would re-run the
+        // query once per card.
+        $this->app->singleton(WishlistService::class);
     }
 
     /**
@@ -70,5 +77,15 @@ class AppServiceProvider extends ServiceProvider
         // so this single listener covers Phase G section 5 without any
         // change to Breeze's own controllers.
         Event::listen(Login::class, MergeGuestCartOnLogin::class);
+
+        // Header wishlist count (Phase H) — 0 for guests, one COUNT query
+        // for an authenticated customer, shared via the singleton above so
+        // this and any product-card on the same page hit the database once.
+        View::composer(
+            'components.layouts.header',
+            function ($view) {
+                $view->with('wishlistCount', app(WishlistService::class)->count());
+            }
+        );
     }
 }

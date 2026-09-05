@@ -266,6 +266,27 @@
       }
     }
 
+    // Plain <select> (Phase H review-form rating field) — same box as the
+    // text input above, minus the password-icon padding-right that doesn't
+    // apply here.
+    select {
+      width: 100%;
+      height: 50px;
+      padding-left: 16px;
+      font-size: 16px;
+      line-height: 20.8px;
+      color: color(gray-6);
+      font-weight: 400;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      background-color: #fff;
+      &:hover,
+      &:focus {
+        border-color: color(primary);
+        transition: all 0.3s linear;
+      }
+    }
+
     // Dropdown input
     .bv_mainselect {
       padding: 0px;
