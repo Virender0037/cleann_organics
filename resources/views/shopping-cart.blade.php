@@ -349,16 +349,25 @@
                       <span class="font-body--xl-500">₹{{ number_format($subtotal, 2) }}</span>
                     </div>
                   </div>
-                  <form action="#">
+                  @if ($lines->isEmpty())
                     <button
                       class="button button--lg w-100"
                       style="margin-top: 20px"
-                      type="submit"
-                      @if ($lines->isEmpty()) disabled aria-disabled="true" @endif
+                      type="button"
+                      disabled
+                      aria-disabled="true"
                     >
-                      Place Order
+                      Proceed to Checkout
                     </button>
-                  </form>
+                  @else
+                    <a
+                      href="{{ route('checkout') }}"
+                      class="button button--lg w-100"
+                      style="margin-top: 20px; display: block; text-align: center;"
+                    >
+                      Proceed to Checkout
+                    </a>
+                  @endif
                 </div>
               </div>
             </div>

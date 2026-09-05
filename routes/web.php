@@ -33,8 +33,11 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\FaqPageController;
 use App\Http\Controllers\PageController as PublicPageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Storefront\AddressController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CategoryController as StorefrontCategoryController;
+use App\Http\Controllers\Storefront\CheckoutController;
+use App\Http\Controllers\Storefront\OrderController as StorefrontOrderController;
 use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
 use App\Http\Controllers\Storefront\ProductReviewController as StorefrontProductReviewController;
 use App\Http\Controllers\Storefront\ShopController;
@@ -89,23 +92,43 @@ Route::get('/singleblog', function () {
 })->name('singleblog');
 
 // Customer-only storefront pages. Grouped under auth so a guest is redirected
-// to /sign-in instead of seeing another customer's account UI. order-details
-// stays out of this group deliberately: it has no {order} parameter yet, so
-// gating it here would protect the page without protecting a specific order —
-// that needs a proper /orders/{order} route with ownership authorization,
-// which is a separate task.
+// to /sign-in instead of seeing another customer's account UI. The old bare
+// /order-details (no {order} parameter) is left exactly as it was —
+// order-history.blade.php and user-dashboard.blade.php still link to it from
+// their static demo rows, which are unrelated to Phase I and untouched here.
+// Real per-order viewing (from checkout's own confirmation redirect, and
+// anything else that has an actual Order to show) uses the new
+// /orders/{order} route below instead, with real ownership authorization.
 Route::middleware('auth')->group(function () {
     Route::get('/user-dashboard', function () {
         return view('user-dashboard');
     })->name('user-dashboard');
 
-    Route::get('/account-setting', function () {
-        return view('account-setting');
-    })->name('account-setting');
+    // Real "My Addresses" (Phase I). account-setting.blade.php also has an
+    // unrelated static "Account Settings" (name/email/phone) card — that
+    // one is Breeze's own /profile territory, untouched here.
+    Route::get('/account-setting', [AddressController::class, 'index'])->name('account-setting');
+    Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
+    Route::put('/addresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
+    Route::delete('/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
 
     Route::get('/order-history', function () {
         return view('order-history');
     })->name('order-history');
+
+    // Real order confirmation/detail page (Phase I). {order} ownership is
+    // re-verified inside OrderController::show() — never assumed from the
+    // route parameter alone.
+    Route::get('/orders/{order}', [StorefrontOrderController::class, 'show'])->name('orders.show');
+
+    // Checkout (Phase I). Authenticated-only — an Address belongs to a
+    // customer, so there is no meaningful guest checkout without inventing
+    // account-less order ownership. CheckoutService reuses CartService for
+    // lines/subtotal/stock, exactly as the mini-cart and cart page do.
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('/checkout/coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.coupon.apply');
+    Route::delete('/checkout/coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.coupon.remove');
 
     // Real wishlist (Phase H). Deliberately inside this auth group, not a
     // standalone route with its own middleware call — a guest hitting any

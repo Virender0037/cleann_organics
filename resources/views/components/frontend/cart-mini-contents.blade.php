@@ -69,9 +69,11 @@
         <span class="product-price font-body--lg-500">₹{{ number_format($subtotal, 2) }}</span>
     </div>
 
-    {{-- Checkout is a later phase — kept visible for the design but honestly
-         inert rather than pretending to place an order. --}}
-    <button class="button button--lg w-100" disabled aria-disabled="true" title="Checkout is coming soon">Checkout</button>
+    @if ($itemCount > 0)
+        <a href="{{ route('checkout') }}" class="button button--lg w-100" style="display:block; text-align:center;">Checkout</a>
+    @else
+        <button class="button button--lg w-100" disabled aria-disabled="true">Checkout</button>
+    @endif
     <a href="{{ route('shopping-cart') }}" class="button button--lg button--disable w-100" style="display:block; text-align:center;">
         Go to Cart
     </a>

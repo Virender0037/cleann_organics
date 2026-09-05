@@ -281,114 +281,68 @@
                 </div>
               </div>
 
-              <!-- Billing Address  -->
+              <!-- My Addresses (Phase I) -->
               <div class="dashboard__content-card">
                 <div class="dashboard__content-card-header">
-                  <h5 class="font-body--xxl-500">Billing Address</h5>
+                  <h5 class="font-body--xxl-500">My Addresses</h5>
                 </div>
                 <div class="dashboard__content-card-body">
-                  <form action="#">
-                    <div class="contact-form__content">
-                      <div class="contact-form__content-group">
-                        <div class="contact-form-input">
-                          <label for="fname">First Name </label>
-                          <input
-                            type="text"
-                            id="fname"
-                            placeholder="First Name"
-                          />
-                        </div>
-                        <div class="contact-form-input">
-                          <label for="lname">Last Name </label>
-                          <input
-                            type="text"
-                            id="lname"
-                            placeholder="Last Name"
-                          />
-                        </div>
-                        <div class="contact-form-input">
-                          <label for="cname"
-                            >Company Name <span>(Optional)</span>
-                          </label>
-                          <input
-                            type="text"
-                            id="cname"
-                            placeholder="Your Company Name"
-                          />
-                        </div>
-                      </div>
-                      <div class="contact-form-input">
-                        <label for="address">Street Address </label>
-                        <input
-                          type="text"
-                          id="address"
-                          placeholder="Your address"
-                        />
-                      </div>
-                      <div class="contact-form__content-group">
-                        <!-- Country -->
-                        <div class="contact-form-input">
-                          <label for="country">Country / Region </label>
-                          <select
-                            id="country"
-                            class="contact-form-input__dropdown"
-                          >
-                            <option value="01">United States</option>
-                            <option value="02">Canada</option>
-                            <option value="03">United Kingdom</option>
-                            <option value="04">Bangladesh</option>
-                          </select>
-                        </div>
-                        <!-- states -->
-                        <div class="contact-form-input">
-                          <label for="states">states </label>
-                          <select
-                            id="states"
-                            class="contact-form-input__dropdown"
-                          >
-                            <option value="01">Washington DC</option>
-                            <option value="02">Nova Scotia</option>
-                            <option value="03">Alberta</option>
-                            <option value="04">Manitoba</option>
-                            <option value="05">Dhaka</option>
-                          </select>
-                        </div>
-                        <!-- zip -->
-                        <div class="contact-form-input">
-                          <label for="zip">Zip Code</label>
-                          <select id="zip" class="contact-form-input__dropdown">
-                            <option value="01">20033</option>
-                            <option value="02">975</option>
-                            <option value="03">880</option>
-                            <option value="04">95</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="contact-form__content-group">
-                        <div class="contact-form-input">
-                          <label for="email"> email </label>
-                          <input
-                            type="text"
-                            id="email"
-                            placeholder="Email Address"
-                          />
-                        </div>
-                        <div class="contact-form-input">
-                          <label for="phone"> Phone </label>
-                          <input
-                            type="number"
-                            id="phone"
-                            placeholder="Phone number"
-                          />
-                        </div>
-                      </div>
-                      <div class="contact-form-btn">
-                        <button class="button button--md" type="submit">
-                          Save Changes
-                        </button>
-                      </div>
+                  @if ($errors->any())
+                    <div style="margin-bottom:16px;">
+                      @foreach ($errors->all() as $error)
+                        <p class="font-body--md-400" style="color:#EA4B48;">{{ $error }}</p>
+                      @endforeach
                     </div>
-                  </form>
+                  @endif
+                  @forelse ($addresses as $savedAddress)
+                    <div style="border:1px solid #e5e5e5;border-radius:8px;padding:16px;margin-bottom:16px;">
+                      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+                        <div>
+                          <p class="font-body--md-500">
+                            {{ $savedAddress->name }}
+                            <span class="font-body--md-400" style="text-transform:capitalize;color:#666666;">({{ $savedAddress->type }})</span>
+                            @if ($savedAddress->is_default)
+                              <span class="font-body--md-400" style="color:#00B307;">&middot; Default</span>
+                            @endif
+                          </p>
+                          <p class="font-body--md-400">
+                            {{ $savedAddress->address_line_1 }}@if ($savedAddress->address_line_2), {{ $savedAddress->address_line_2 }}@endif,
+                            {{ $savedAddress->city }}, {{ $savedAddress->state }} {{ $savedAddress->pincode }}, {{ $savedAddress->country }}
+                          </p>
+                          <p class="font-body--md-400">{{ $savedAddress->phone }}</p>
+                        </div>
+                        <form action="{{ route('addresses.destroy', $savedAddress) }}" method="POST" onsubmit="return confirm('Delete this address?');">
+                          @csrf
+                          @method('DELETE')
+                          <button type="submit" class="button button--outline" style="padding:6px 16px;">Delete</button>
+                        </form>
+                      </div>
+                      <details style="margin-top:12px;">
+                        <summary style="cursor:pointer;color:#00B307;">Edit this address</summary>
+                        <form action="{{ route('addresses.update', $savedAddress) }}" method="POST" style="margin-top:16px;">
+                          @csrf
+                          @method('PUT')
+                          @include('partials.address-fields', ['address' => $savedAddress, 'prefix' => 'edit-'.$savedAddress->id])
+                          <div class="contact-form-btn">
+                            <button class="button button--md" type="submit">Save Address</button>
+                          </div>
+                        </form>
+                      </details>
+                    </div>
+                  @empty
+                    <p class="font-body--md-400" style="margin-bottom:16px;">You haven't saved any addresses yet.</p>
+                  @endforelse
+
+                  <details @if ($addresses->isEmpty()) open @endif>
+                    <summary style="cursor:pointer;color:#00B307;font-weight:500;">+ Add a new address</summary>
+                    <form action="{{ route('addresses.store') }}" method="POST" style="margin-top:16px;">
+                      @csrf
+                      @include('partials.address-fields', ['address' => null, 'prefix' => 'new'])
+                      <div class="contact-form-btn">
+                        <button class="button button--md" type="submit">Save Address</button>
+                      </div>
+                    </form>
+                  </details>
                 </div>
               </div>
 
