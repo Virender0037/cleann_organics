@@ -26,6 +26,11 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            // Phase J: the only field added to the customer-editable set.
+            // role / status / provider / provider_id / email_verified_at /
+            // avatar are deliberately absent — validated() never returns
+            // them, so ProfileController::update()'s fill() can't touch them.
+            'phone' => ['nullable', 'string', 'max:20'],
         ];
     }
 }

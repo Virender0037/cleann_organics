@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\FaqPageController;
 use App\Http\Controllers\PageController as PublicPageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Storefront\AccountController;
 use App\Http\Controllers\Storefront\AddressController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CategoryController as StorefrontCategoryController;
@@ -54,7 +55,13 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    // Phase J: /profile and /account-setting are the same consolidated
+    // "Account Settings" page. profile.edit stays a named route (Breeze's
+    // ProfileController::update()/PasswordController::update() redirect to
+    // it, and Breeze's own scaffold navigation references it) but now
+    // renders the Shopery account page. update/destroy stay on Breeze's
+    // ProfileController unchanged.
+    Route::get('/profile', [AccountController::class, 'settings'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
@@ -92,29 +99,22 @@ Route::get('/singleblog', function () {
 })->name('singleblog');
 
 // Customer-only storefront pages. Grouped under auth so a guest is redirected
-// to /sign-in instead of seeing another customer's account UI. The old bare
-// /order-details (no {order} parameter) is left exactly as it was —
-// order-history.blade.php and user-dashboard.blade.php still link to it from
-// their static demo rows, which are unrelated to Phase I and untouched here.
-// Real per-order viewing (from checkout's own confirmation redirect, and
-// anything else that has an actual Order to show) uses the new
-// /orders/{order} route below instead, with real ownership authorization.
+// to /sign-in instead of seeing another customer's account UI. Real per-order
+// viewing is /orders/{order} (ownership-checked); the legacy parameterless
+// /order-details now just redirects here (see below).
 Route::middleware('auth')->group(function () {
-    Route::get('/user-dashboard', function () {
-        return view('user-dashboard');
-    })->name('user-dashboard');
+    // Customer account area (Phase J) — real, Auth::user()-scoped.
+    Route::get('/user-dashboard', [AccountController::class, 'dashboard'])->name('user-dashboard');
+    Route::get('/order-history', [AccountController::class, 'orderHistory'])->name('order-history');
 
-    // Real "My Addresses" (Phase I). account-setting.blade.php also has an
-    // unrelated static "Account Settings" (name/email/phone) card — that
-    // one is Breeze's own /profile territory, untouched here.
-    Route::get('/account-setting', [AddressController::class, 'index'])->name('account-setting');
+    // Consolidated "Account Settings" — profile + password + My Addresses,
+    // same page as /profile (see the profile.edit route above).
+    Route::get('/account-setting', [AccountController::class, 'settings'])->name('account-setting');
+
+    // My Addresses CRUD — unchanged from Phase I.
     Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
     Route::put('/addresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
     Route::delete('/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
-
-    Route::get('/order-history', function () {
-        return view('order-history');
-    })->name('order-history');
 
     // Real order confirmation/detail page (Phase I). {order} ownership is
     // re-verified inside OrderController::show() — never assumed from the
@@ -147,9 +147,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/reviews', [StorefrontProductReviewController::class, 'store'])->name('reviews.store');
 });
 
-Route::get('/order-details', function () {
-    return view('order-details');
-})->name('order-details');
+// Legacy static order page (never carried an {order} parameter or any
+// order context). Superseded by /orders/{order}; kept as a plain redirect
+// for stray bookmarks. Not a 301 — there is no specific order to point a
+// permanent redirect at.
+Route::get('/order-details', fn () => redirect()->route('order-history'))->name('order-details');
 
 // The old static product page is superseded by /products/{slug} (see
 // StorefrontProductController below). It's kept as a redirect rather than

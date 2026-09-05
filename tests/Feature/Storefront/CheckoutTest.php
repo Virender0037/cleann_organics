@@ -733,4 +733,33 @@ class CheckoutTest extends TestCase
         $this->assertSame($order->shippingSnapshot(), $order->billingSnapshot());
         $this->assertSame('One Address', $order->billingSnapshot()['name']);
     }
+
+    /**
+     * Phase J extensions to the order-detail page: the account nav, the
+     * billing block, the noindex tag, and per-line variant snapshot data —
+     * none of which may weaken Phase I's ownership/immutability.
+     */
+    public function test_order_detail_page_shows_phase_j_additions(): void
+    {
+        $user = User::factory()->create();
+        $product = $this->product($this->category(), 'Green Apple');
+        $variant = $this->variant($product, ['sku' => 'GA-500', 'variant_name' => '500g Pack', 'single_price' => 120]);
+        $this->actingAs($user);
+        $this->addToCart($variant, 2);
+        $address = $this->address($user);
+        $this->post('/checkout', ['address_id' => $address->id, 'payment_method' => 'upi']);
+        $order = Order::first();
+
+        $response = $this->actingAs($user)->get('/orders/'.$order->id);
+
+        $response->assertOk();
+        $response->assertSee('noindex', false);
+        $response->assertSee('Billing Address');
+        $response->assertSee('Same as delivery address.');
+        $response->assertSee('SKU GA-500');
+        $response->assertSee('UPI');
+        // Account sidebar nav is present (shared component).
+        $response->assertSee(route('order-history'), false);
+        $response->assertSee('₹240.00'); // 2 * 120 line total
+    }
 }

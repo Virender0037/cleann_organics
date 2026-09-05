@@ -69,6 +69,22 @@
                     @endif
                 </div>
 
+                <div class="contact-form-input">
+                    <label for="phone">{{ __('Phone') }} <span>({{ __('optional') }})</span></label>
+                    <input
+                        type="text"
+                        id="phone"
+                        name="phone"
+                        value="{{ old('phone', $user->phone) }}"
+                        placeholder="{{ __('Phone number') }}"
+                        maxlength="20"
+                        autocomplete="tel"
+                    />
+                    @error('phone')
+                        <span style="color:#EA4B48;font-size:12px;">{{ $message }}</span>
+                    @enderror
+                </div>
+
                 <div class="contact-form-btn">
                     <button class="button button--md" type="submit">{{ __('Save') }}</button>
                 </div>

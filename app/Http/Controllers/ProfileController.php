@@ -7,20 +7,16 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 
+/**
+ * Phase J: the profile *page* is now rendered by
+ * Storefront\AccountController::settings() (the consolidated Shopery
+ * account-settings page). This controller keeps only the update/destroy
+ * actions — Breeze's secure profile-update and account-deletion flows,
+ * unchanged.
+ */
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
-    public function edit(Request $request): View
-    {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
-    }
-
     /**
      * Update the user's profile information.
      */

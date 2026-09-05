@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
+    @if ($noindex ?? false)
+        <meta name="robots" content="noindex, nofollow" />
+    @endif
     <title>{{ $metaTitle ?: ($generalSettings['site_name'] ?? 'Cleann Organics') }}</title>
     @if ($metaDescription)
         <meta name="description" content="{{ $metaDescription }}" />

@@ -18,6 +18,11 @@ class Header extends Component
         public ?string $metaDescription = null,
         public ?string $canonicalUrl = null,
         public ?string $ogImage = null,
+        // Phase J: emit <meta name="robots" content="noindex, nofollow">
+        // for authenticated account/order pages. A class-based component
+        // only exposes constructor parameters to its view, so this must be
+        // declared here (same reason $ogImage had to be — Phase F QA).
+        public bool $noindex = false,
     ) {
     }
 
