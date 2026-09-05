@@ -1,101 +1,145 @@
 <x-admin-layout title="Orders Report">
-    <main class="pc-container-edit">
+<main class="pc-container-edit admin-content-padded">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Orders Report</h4>
-                <p class="text-muted mb-0">Track order status, delivery progress and order volume</p>
-            </div>
+    <x-admin.page-header title="Orders Report" subtitle="Order volume, fulfilment progress and status breakdown">
+        <x-slot:actions>
+            <a href="{{ route('admin.reports.orders.export', request()->query()) }}" class="btn btn-light-secondary">
+                <i class="ph ph-download-simple me-1"></i>Export
+            </a>
+        </x-slot:actions>
+    </x-admin.page-header>
 
-            <button class="btn btn-light-secondary">
-                <i class="ph ph-download-simple me-1"></i>
-                Export
-            </button>
+    <x-admin.breadcrumb :items="[['label' => 'Reports'], ['label' => 'Orders Report']]" />
+
+    @include('admin.partials.alerts')
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
+    @endif
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Reports</span>
-            <span class="mx-2">›</span>
-            <span>Orders Report</span>
-        </div>
+    <div class="row mb-4">
+        <div class="col-md-3"><div class="card"><div class="card-body">
+            <p class="text-muted mb-1">Total Orders</p>
+            <h4 class="mb-0">{{ number_format($stats['total']) }}</h4>
+        </div></div></div>
 
-        <div class="row mb-4">
+        <div class="col-md-3"><div class="card"><div class="card-body">
+            <p class="text-muted mb-1">Delivered</p>
+            <h4 class="mb-0 text-success">{{ number_format($stats['delivered']) }}</h4>
+        </div></div></div>
 
-            <div class="col-md-3">
-                <div class="card"><div class="card-body">
-                    <p class="text-muted mb-1">Total Orders</p>
-                    <h4>320</h4>
-                </div></div>
-            </div>
+        <div class="col-md-3"><div class="card"><div class="card-body">
+            <p class="text-muted mb-1">In Progress</p>
+            <h4 class="mb-0 text-warning">{{ number_format($stats['in_progress']) }}</h4>
+            <small class="text-muted">Not delivered, not cancelled</small>
+        </div></div></div>
 
-            <div class="col-md-3">
-                <div class="card"><div class="card-body">
-                    <p class="text-muted mb-1">Delivered</p>
-                    <h4 class="text-success">245</h4>
-                </div></div>
-            </div>
+        <div class="col-md-3"><div class="card"><div class="card-body">
+            <p class="text-muted mb-1">Cancelled</p>
+            <h4 class="mb-0 text-danger">{{ number_format($stats['cancelled']) }}</h4>
+        </div></div></div>
+    </div>
 
-            <div class="col-md-3">
-                <div class="card"><div class="card-body">
-                    <p class="text-muted mb-1">Pending</p>
-                    <h4 class="text-warning">48</h4>
-                </div></div>
-            </div>
+    <x-admin.table-card title="Orders">
+        <x-slot:toolbar>
+            <x-admin.filter-toolbar action="{{ route('admin.reports.orders.index') }}">
+                <div class="col-md-3">
+                    <input name="search" class="form-control" value="{{ request('search') }}"
+                           placeholder="Order # / Customer / Email">
+                </div>
 
-            <div class="col-md-3">
-                <div class="card"><div class="card-body">
-                    <p class="text-muted mb-1">Cancelled</p>
-                    <h4 class="text-danger">27</h4>
-                </div></div>
-            </div>
+                <div class="col-md-2">
+                    <input type="date" name="from" class="form-control" value="{{ request('from') }}">
+                </div>
 
-        </div>
+                <div class="col-md-2">
+                    <input type="date" name="to" class="form-control" value="{{ request('to') }}">
+                </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h5>Order Status Report</h5>
-            </div>
+                <div class="col-md-2">
+                    <select name="order_status" class="form-select">
+                        <option value="">All Order Status</option>
+                        @foreach ($orderStatuses as $status)
+                            <option value="{{ $status }}" @selected(request('order_status') === $status)>
+                                {{ ucwords(str_replace('_', ' ', $status)) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="card-body table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Order No.</th>
-                            <th>Customer</th>
-                            <th>Order Date</th>
-                            <th>Payment</th>
-                            <th>Order Status</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
+                <div class="col-md-2">
+                    <select name="payment_status" class="form-select">
+                        <option value="">All Payment Status</option>
+                        @foreach ($paymentStatuses as $status)
+                            <option value="{{ $status }}" @selected(request('payment_status') === $status)>
+                                {{ ucwords(str_replace('_', ' ', $status)) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>#ORD-1001</td>
-                            <td>Rahul Sharma</td>
-                            <td>09 Jul 2026</td>
-                            <td><span class="badge bg-success">Paid</span></td>
-                            <td><span class="badge bg-success">Delivered</span></td>
-                            <td>₹1,250.00</td>
-                        </tr>
+                <div class="col-md-2">
+                    <select name="payment_method" class="form-select">
+                        <option value="">All Methods</option>
+                        @foreach ($paymentMethods as $method)
+                            <option value="{{ $method }}" @selected(request('payment_method') === $method)>
+                                {{ ucwords(str_replace('_', ' ', $method)) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                        <tr>
-                            <td>2</td>
-                            <td>#ORD-1002</td>
-                            <td>Amit Verma</td>
-                            <td>08 Jul 2026</td>
-                            <td><span class="badge bg-warning text-dark">Pending</span></td>
-                            <td><span class="badge bg-warning text-dark">Pending</span></td>
-                            <td>₹799.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                <x-slot:submit>
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </x-slot:submit>
+            </x-admin.filter-toolbar>
+        </x-slot:toolbar>
 
-    </main>
+        <x-slot:head>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Payment Method</th>
+            <th>Payment Status</th>
+            <th>Order Status</th>
+            <th class="text-end">Grand Total</th>
+            <th></th>
+        </x-slot:head>
+
+        @forelse ($orders as $order)
+            <tr>
+                <td>#{{ $order->order_number }}</td>
+                <td>
+                    {{ $order->user->name ?? '—' }}
+                    <div class="text-muted small">{{ $order->user->email ?? '' }}</div>
+                </td>
+                <td>{{ $order->created_at->format('d M Y') }}</td>
+                <td>{{ ucwords(str_replace('_', ' ', (string) $order->payment_method)) }}</td>
+                <td><x-admin.status-badge :status="$order->payment_status" /></td>
+                <td><x-admin.status-badge :status="$order->order_status" /></td>
+                <td class="text-end">₹{{ number_format((float) $order->grand_total, 2) }}</td>
+                <td>
+                    <a href="{{ route('admin.sales.orders.show', $order) }}" class="btn btn-sm btn-light-primary">View</a>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="8">
+                    <x-admin.empty-state>No orders found.</x-admin.empty-state>
+                </td>
+            </tr>
+        @endforelse
+
+        <x-slot:pagination>
+            {{ $orders->links() }}
+        </x-slot:pagination>
+    </x-admin.table-card>
+
+</main>
 </x-admin-layout>

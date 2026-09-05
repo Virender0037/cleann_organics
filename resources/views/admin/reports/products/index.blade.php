@@ -1,91 +1,126 @@
 <x-admin-layout title="Products Report">
-    <main class="pc-container-edit">
+<main class="pc-container-edit admin-content-padded">
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Products Report</h4>
-                <p class="text-muted mb-0">Track product sales, stock and performance</p>
-            </div>
+    <x-admin.page-header title="Products Report" subtitle="Units sold, orders and revenue per product from paid orders">
+        <x-slot:actions>
+            <a href="{{ route('admin.reports.products.export', request()->query()) }}" class="btn btn-light-secondary">
+                <i class="ph ph-download-simple me-1"></i>Export
+            </a>
+        </x-slot:actions>
+    </x-admin.page-header>
 
-            <button class="btn btn-light-secondary">
-                <i class="ph ph-download-simple me-1"></i>
-                Export
-            </button>
+    <x-admin.breadcrumb :items="[['label' => 'Reports'], ['label' => 'Products Report']]" />
+
+    @include('admin.partials.alerts')
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
+    @endif
 
-        <div class="mb-3">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a>
-            <span class="mx-2">›</span>
-            <span>Reports</span>
-            <span class="mx-2">›</span>
-            <span>Products Report</span>
-        </div>
+    <div class="row mb-4">
+        <div class="col-md-3"><div class="card"><div class="card-body">
+            <p class="text-muted mb-1">Total Products</p>
+            <h4 class="mb-0">{{ number_format($stats['total_products']) }}</h4>
+        </div></div></div>
 
-        <div class="row mb-4">
-            <div class="col-md-3"><div class="card"><div class="card-body">
-                <p class="text-muted mb-1">Total Products</p>
-                <h4>158</h4>
-            </div></div></div>
+        <div class="col-md-3"><div class="card"><div class="card-body">
+            <p class="text-muted mb-1">Active Products</p>
+            <h4 class="mb-0 text-success">{{ number_format($stats['active_products']) }}</h4>
+        </div></div></div>
 
-            <div class="col-md-3"><div class="card"><div class="card-body">
-                <p class="text-muted mb-1">Active Products</p>
-                <h4 class="text-success">142</h4>
-            </div></div></div>
+        <div class="col-md-3"><div class="card"><div class="card-body">
+            <p class="text-muted mb-1">Products With Sales</p>
+            <h4 class="mb-0">{{ number_format($stats['products_with_sales']) }}</h4>
+            <small class="text-muted">In selected period</small>
+        </div></div></div>
 
-            <div class="col-md-3"><div class="card"><div class="card-body">
-                <p class="text-muted mb-1">Best Sellers</p>
-                <h4>18</h4>
-            </div></div></div>
+        <div class="col-md-3"><div class="card"><div class="card-body">
+            <p class="text-muted mb-1">Units Sold</p>
+            <h4 class="mb-0">{{ number_format($stats['units_sold']) }}</h4>
+            <small class="text-muted">Paid orders only</small>
+        </div></div></div>
+    </div>
 
-            <div class="col-md-3"><div class="card"><div class="card-body">
-                <p class="text-muted mb-1">Out of Stock</p>
-                <h4 class="text-danger">7</h4>
-            </div></div></div>
-        </div>
+    <x-admin.table-card title="Product Performance">
+        <x-slot:toolbar>
+            <x-admin.filter-toolbar action="{{ route('admin.reports.products.index') }}">
+                <div class="col-md-3">
+                    <input name="search" class="form-control" value="{{ request('search') }}"
+                           placeholder="Search product name">
+                </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h5>Product Performance</h5>
-            </div>
+                <div class="col-md-2">
+                    <input type="date" name="from" class="form-control" value="{{ request('from') }}">
+                </div>
 
-            <div class="card-body table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Product</th>
-                            <th>Category</th>
-                            <th>Sold Qty</th>
-                            <th>Revenue</th>
-                            <th>Stock</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
+                <div class="col-md-2">
+                    <input type="date" name="to" class="form-control" value="{{ request('to') }}">
+                </div>
 
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Organic Honey</td>
-                            <td>Organic Foods</td>
-                            <td>120</td>
-                            <td>₹35,880</td>
-                            <td>80</td>
-                            <td><span class="badge bg-success">Active</span></td>
-                        </tr>
+                <div class="col-md-3">
+                    <select name="category_id" class="form-select">
+                        <option value="">All Categories</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}" @selected((string) request('category_id') === (string) $category->id)>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                        <tr>
-                            <td>2</td>
-                            <td>Cold Pressed Oil</td>
-                            <td>Organic Oils</td>
-                            <td>72</td>
-                            <td>₹46,800</td>
-                            <td>4</td>
-                            <td><span class="badge bg-warning text-dark">Low Stock</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                <x-slot:submit>
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </x-slot:submit>
+            </x-admin.filter-toolbar>
+        </x-slot:toolbar>
 
-    </main>
+        <x-slot:head>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th class="text-end">Units Sold</th>
+            <th class="text-end">Orders</th>
+            <th class="text-end">Revenue</th>
+        </x-slot:head>
+
+        @forelse ($rows as $row)
+            <tr>
+                <td>
+                    {{ $row['name'] }}
+                    @if (! $row['product_id'])
+                        <span class="badge bg-secondary">Deleted</span>
+                    @endif
+                </td>
+                <td>{{ $row['category'] }}</td>
+                <td>
+                    @if ($row['product_status'])
+                        <x-admin.status-badge :status="$row['product_status']" />
+                    @else
+                        <span class="text-muted">—</span>
+                    @endif
+                </td>
+                <td class="text-end">{{ number_format($row['units_sold']) }}</td>
+                <td class="text-end">{{ number_format($row['order_count']) }}</td>
+                <td class="text-end">₹{{ number_format($row['revenue'], 2) }}</td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="6">
+                    <x-admin.empty-state>No product sales found for this period.</x-admin.empty-state>
+                </td>
+            </tr>
+        @endforelse
+
+        <x-slot:pagination>
+            {{ $rows->links() }}
+        </x-slot:pagination>
+    </x-admin.table-card>
+
+</main>
 </x-admin-layout>
