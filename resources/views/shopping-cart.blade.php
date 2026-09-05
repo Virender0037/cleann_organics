@@ -6,7 +6,7 @@
         <div class="container">
           <ul class="breedcrumb__content">
             <li>
-              <a href="index.html">
+              <a href="{{ route('home') }}">
                 <svg
                   width="18"
                   height="19"
@@ -26,7 +26,7 @@
               </a>
             </li>
             <li class="active">
-              <a href="shopping-cart.html">Shopping cart</a>
+              <a href="{{ route('shopping-cart') }}">Shopping cart</a>
             </li>
           </ul>
         </div>
@@ -54,50 +54,72 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
+                    @forelse ($lines as $line)
+                    <tr data-cart-line data-item-key="{{ $line['key'] }}">
                       <!-- Product item  -->
                       <td class="cart-table-item align-middle">
                         <a
-                          href="{{route('product-details')}}"
+                          href="{{ $line['product_url'] ?? '#' }}"
                           class="cart-table__product-item"
                         >
                           <div class="cart-table__product-item-img">
                             <img
-                              src="{{ asset('images/products/img-01.png') }}"
-                              alt="product"
+                              src="{{ $line['thumbnail_url'] ?? asset('images/products/img-01.png') }}"
+                              alt="{{ $line['product']->name ?? 'Product' }}"
                             />
                           </div>
-                          <h5 class="font-body--lg-400">Green Apple</h5>
+                          <div>
+                            <h5 class="font-body--lg-400">{{ $line['product']->name ?? 'Product' }}</h5>
+                            @if ($line['available'])
+                              <p class="font-body--md-400">{{ $line['variant_label'] }}</p>
+                            @else
+                              <p class="font-body--md-400" style="color:#c0392b;">No longer available</p>
+                            @endif
+                          </div>
                         </a>
                       </td>
                       <!-- Price  -->
                       <td class="cart-table-item order-date align-middle">
-                        $14.00
+                        @if ($line['available'])
+                          ₹{{ number_format($line['unit_price'], 2) }}
+                        @else
+                          —
+                        @endif
                       </td>
                       <!-- quantity -->
                       <td class="cart-table-item order-total align-middle">
-                        <div class="counter-btn-wrapper">
-                          <button
-                            class="counter-btn-dec counter-btn"
-                            onclick="decrement()"
-                          >
-                            -
-                          </button>
-                          <input
-                            type="number"
-                            id="counter-btn-counter"
-                            class="counter-btn-counter"
-                            min="1"
-                            max="1000"
-                            placeholder="1"
-                          />
-                          <button
-                            class="counter-btn-inc counter-btn"
-                            onclick="increment()"
-                          >
-                            +
-                          </button>
-                        </div>
+                        @if ($line['available'])
+                          <form action="{{ route('cart.items.update', $line['key']) }}" method="POST" data-cart-form="update">
+                            @csrf
+                            @method('PATCH')
+                            <div class="counter-btn-wrapper">
+                              <button
+                                type="button"
+                                class="counter-btn-dec counter-btn"
+                                aria-label="Decrease quantity for {{ $line['product']->name ?? 'item' }}"
+                                onclick="var i=this.nextElementSibling; if (parseInt(i.value,10) > parseInt(i.min,10)) { i.stepDown(); i.form.requestSubmit(); }"
+                              >-</button>
+                              <input
+                                type="number"
+                                name="quantity"
+                                class="counter-btn-counter"
+                                min="1"
+                                max="{{ $line['variant']->stock_quantity }}"
+                                value="{{ $line['quantity'] }}"
+                                aria-label="Quantity for {{ $line['product']->name ?? 'item' }}"
+                                onchange="this.form.requestSubmit()"
+                              />
+                              <button
+                                type="button"
+                                class="counter-btn-inc counter-btn"
+                                aria-label="Increase quantity for {{ $line['product']->name ?? 'item' }}"
+                                onclick="var i=this.previousElementSibling; if (parseInt(i.value,10) < parseInt(i.max,10)) { i.stepUp(); i.form.requestSubmit(); }"
+                              >+</button>
+                            </div>
+                          </form>
+                        @else
+                          —
+                        @endif
                       </td>
                       <!-- Subtotal  -->
                       <td class="cart-table-item order-subtotal align-middle">
@@ -108,298 +130,180 @@
                             align-items-center
                           "
                         >
-                          <p class="font-body--md-500">$70.00</p>
-                          <button class="delete-item">
-                            <svg
-                              width="24"
-                              height="25"
-                              viewBox="0 0 24 25"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M12 23.5C18.0748 23.5 23 18.5748 23 12.5C23 6.42525 18.0748 1.5 12 1.5C5.92525 1.5 1 6.42525 1 12.5C1 18.5748 5.92525 23.5 12 23.5Z"
-                                stroke="#CCCCCC"
-                                stroke-miterlimit="10"
-                              />
-                              <path
-                                d="M16 8.5L8 16.5"
-                                stroke="#666666"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M16 16.5L8 8.5"
-                                stroke="#666666"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </button>
+                          <p class="font-body--md-500">₹{{ number_format($line['subtotal'], 2) }}</p>
+                          <form action="{{ route('cart.items.destroy', $line['key']) }}" method="POST" data-cart-form="remove">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="delete-item" aria-label="Remove {{ $line['product']->name ?? 'item' }} from cart">
+                              <svg
+                                width="24"
+                                height="25"
+                                viewBox="0 0 24 25"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M12 23.5C18.0748 23.5 23 18.5748 23 12.5C23 6.42525 18.0748 1.5 12 1.5C5.92525 1.5 1 6.42525 1 12.5C1 18.5748 5.92525 23.5 12 23.5Z"
+                                  stroke="#CCCCCC"
+                                  stroke-miterlimit="10"
+                                />
+                                <path
+                                  d="M16 8.5L8 16.5"
+                                  stroke="#666666"
+                                  stroke-width="1.5"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                                <path
+                                  d="M16 16.5L8 8.5"
+                                  stroke="#666666"
+                                  stroke-width="1.5"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                />
+                              </svg>
+                            </button>
+                          </form>
                         </div>
                       </td>
                     </tr>
+                    @empty
                     <tr>
-                      <!-- Product item  -->
-                      <td class="cart-table-item align-middle">
-                        <a
-                          href="product-details.html"
-                          class="cart-table__product-item"
-                        >
-                          <div class="cart-table__product-item-img">
-                            <img
-                              src="{{ asset('images/products/img-02.png') }}"
-                              alt="product"
-                            />
-                          </div>
-                          <h5 class="font-body--lg-400">Fresh Orrange</h5>
-                        </a>
-                      </td>
-                      <!-- Price  -->
-                      <td class="cart-table-item order-date align-middle">
-                        $14.00
-                      </td>
-                      <!-- quantity -->
-                      <td class="cart-table-item order-total align-middle">
-                        <div class="counter-btn-wrapper">
-                          <button
-                            class="counter-btn-dec counter-btn"
-                            onclick="decrement()"
-                          >
-                            -
-                          </button>
-                          <input
-                            type="number"
-                            id="counter-btn-counter"
-                            class="counter-btn-counter"
-                            min="1"
-                            max="1000"
-                            placeholder="1"
-                          />
-                          <button
-                            class="counter-btn-inc counter-btn"
-                            onclick="increment()"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-                      <!-- Subtotal  -->
-                      <td class="cart-table-item order-subtotal align-middle">
-                        <div
-                          class="
-                            d-flex
-                            justify-content-between
-                            align-items-center
-                          "
-                        >
-                          <p class="font-body--md-500">$70.00</p>
-                          <button class="delete-item">
-                            <svg
-                              width="24"
-                              height="25"
-                              viewBox="0 0 24 25"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M12 23.5C18.0748 23.5 23 18.5748 23 12.5C23 6.42525 18.0748 1.5 12 1.5C5.92525 1.5 1 6.42525 1 12.5C1 18.5748 5.92525 23.5 12 23.5Z"
-                                stroke="#CCCCCC"
-                                stroke-miterlimit="10"
-                              />
-                              <path
-                                d="M16 8.5L8 16.5"
-                                stroke="#666666"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M16 16.5L8 8.5"
-                                stroke="#666666"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </button>
-                        </div>
+                      <td colspan="4" class="align-middle" style="text-align:center; padding: 40px 0;">
+                        <p class="font-body--lg-400" style="margin-bottom:16px;">Your cart is empty.</p>
+                        <a href="{{ route('shop') }}" class="button button--md">Continue Shopping</a>
                       </td>
                     </tr>
+                    @endforelse
                   </tbody>
                 </table>
               </div>
               <!-- Action Buttons  -->
-              <form action="#">
-                <div class="cart-table-action-btn d-flex">
-                  <a
-                    href="shop-01.html"
-                    class="button button--md button--disable shop"
-                    >Return to Shop</a
-                  >
-                  <a href="#" class="button button--md button--disable update"
-                    >Update to Cart</a
-                  >
-                </div>
-              </form>
+              <div class="cart-table-action-btn d-flex">
+                <a
+                  href="{{ route('shop') }}"
+                  class="button button--md button--disable shop"
+                  >Return to Shop</a
+                >
+                @if ($lines->isNotEmpty())
+                  <form action="{{ route('cart.clear') }}" method="POST" data-cart-form="clear" style="display:inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="button button--md button--disable update">Clear Cart</button>
+                  </form>
+                @endif
+              </div>
             </div>
 
             <div class="shoping-cart__mobile">
-              <div class="shoping-card">
+              @forelse ($lines as $line)
+              <div class="shoping-card" data-cart-line data-item-key="{{ $line['key'] }}">
                 <div class="shoping-card__img-wrapper">
                   <img
-                    src="src/images/products/img-01.png "
-                    alt="product-item"
+                    src="{{ $line['thumbnail_url'] ?? asset('images/products/img-01.png') }}"
+                    alt="{{ $line['product']->name ?? 'product-item' }}"
                   />
                 </div>
                 <h5 class="shoping-card__product-caption font-body--lg-400">
-                  Green Apple
+                  {{ $line['product']->name ?? 'Product' }}
                 </h5>
 
                 <h6 class="shoping-card__product-price font-body--lg-400">
-                  $45.00
+                  @if ($line['available'])
+                    ₹{{ number_format($line['unit_price'], 2) }}
+                  @else
+                    <span style="color:#c0392b;">Unavailable</span>
+                  @endif
                 </h6>
 
-                <div class="counter-btn-wrapper">
-                  <button
-                    class="counter-btn-dec counter-btn"
-                    onclick="decrement()"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    id="counter-btn-counter"
-                    class="counter-btn-counter"
-                    min="0"
-                    max="1000"
-                    placeholder="0"
-                  />
-                  <button
-                    class="counter-btn-inc counter-btn"
-                    onclick="increment()"
-                  >
-                    +
-                  </button>
-                </div>
+                @if ($line['available'])
+                  <form action="{{ route('cart.items.update', $line['key']) }}" method="POST" data-cart-form="update">
+                    @csrf
+                    @method('PATCH')
+                    <div class="counter-btn-wrapper">
+                      <button
+                        type="button"
+                        class="counter-btn-dec counter-btn"
+                        aria-label="Decrease quantity for {{ $line['product']->name ?? 'item' }}"
+                        onclick="var i=this.nextElementSibling; if (parseInt(i.value,10) > parseInt(i.min,10)) { i.stepDown(); i.form.requestSubmit(); }"
+                      >-</button>
+                      <input
+                        type="number"
+                        name="quantity"
+                        class="counter-btn-counter"
+                        min="1"
+                        max="{{ $line['variant']->stock_quantity }}"
+                        value="{{ $line['quantity'] }}"
+                        aria-label="Quantity for {{ $line['product']->name ?? 'item' }}"
+                        onchange="this.form.requestSubmit()"
+                      />
+                      <button
+                        type="button"
+                        class="counter-btn-inc counter-btn"
+                        aria-label="Increase quantity for {{ $line['product']->name ?? 'item' }}"
+                        onclick="var i=this.previousElementSibling; if (parseInt(i.value,10) < parseInt(i.max,10)) { i.stepUp(); i.form.requestSubmit(); }"
+                      >+</button>
+                    </div>
+                  </form>
+                @endif
                 <h6 class="shoping-card__product-totalprice font-body--lg-600">
-                  $225.00
+                  ₹{{ number_format($line['subtotal'], 2) }}
                 </h6>
-                <button class="close-btn">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 23C18.0748 23 23 18.0748 23 12C23 5.92525 18.0748 1 12 1C5.92525 1 1 5.92525 1 12C1 18.0748 5.92525 23 12 23Z"
-                      stroke="#CCCCCC"
-                      stroke-miterlimit="10"
-                    />
-                    <path
-                      d="M16 8L8 16"
-                      stroke="#666666"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M16 16L8 8"
-                      stroke="#666666"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </button>
+                <form action="{{ route('cart.items.destroy', $line['key']) }}" method="POST" data-cart-form="remove">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="close-btn" aria-label="Remove {{ $line['product']->name ?? 'item' }} from cart">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M12 23C18.0748 23 23 18.0748 23 12C23 5.92525 18.0748 1 12 1C5.92525 1 1 5.92525 1 12C1 18.0748 5.92525 23 12 23Z"
+                        stroke="#CCCCCC"
+                        stroke-miterlimit="10"
+                      />
+                      <path
+                        d="M16 8L8 16"
+                        stroke="#666666"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M16 16L8 8"
+                        stroke="#666666"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </form>
               </div>
+              @empty
               <div class="shoping-card">
-                <div class="shoping-card__img-wrapper">
-                  <img
-                    src="src/images/products/img-02.png "
-                    alt="product-item"
-                  />
-                </div>
-                <h5 class="shoping-card__product-caption font-body--lg-400">
-                  Fresh orange
-                </h5>
-
-                <h6 class="shoping-card__product-price font-body--lg-400">
-                  $45.00
-                </h6>
-
-                <div class="counter-btn-wrapper">
-                  <button
-                    class="counter-btn-dec counter-btn"
-                    onclick="decrement()"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    id="counter-btn-counter"
-                    class="counter-btn-counter"
-                    min="0"
-                    max="1000"
-                    placeholder="0"
-                  />
-                  <button
-                    class="counter-btn-inc counter-btn"
-                    onclick="increment()"
-                  >
-                    +
-                  </button>
-                </div>
-                <h6 class="shoping-card__product-totalprice font-body--lg-600">
-                  $225.00
-                </h6>
-                <button class="close-btn">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 23C18.0748 23 23 18.0748 23 12C23 5.92525 18.0748 1 12 1C5.92525 1 1 5.92525 1 12C1 18.0748 5.92525 23 12 23Z"
-                      stroke="#CCCCCC"
-                      stroke-miterlimit="10"
-                    />
-                    <path
-                      d="M16 8L8 16"
-                      stroke="#666666"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                    <path
-                      d="M16 16L8 8"
-                      stroke="#666666"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </button>
+                <p class="font-body--lg-400" style="text-align:center; padding: 24px 0;">Your cart is empty.</p>
+                <a href="{{ route('shop') }}" class="button button--md" style="display:block; text-align:center;">Continue Shopping</a>
               </div>
+              @endforelse
 
-              <form action="#">
-                <div class="cart-table-action-btn d-flex">
-                  <a
-                    href="shop-01.html"
-                    class="button button--md button--disable shop"
-                    >Return to Shop</a
-                  >
-                  <a href="#" class="button button--md button--disable update"
-                    >Update to Cart</a
-                  >
-                </div>
-              </form>
+              @if ($lines->isNotEmpty())
+              <div class="cart-table-action-btn d-flex">
+                <a
+                  href="{{ route('shop') }}"
+                  class="button button--md button--disable shop"
+                  >Return to Shop</a
+                >
+                <form action="{{ route('cart.clear') }}" method="POST" data-cart-form="clear" style="display:inline;">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="button button--md button--disable update">Clear Cart</button>
+                </form>
+              </div>
+              @endif
             </div>
 
             <!-- newsletter  -->
@@ -432,7 +336,7 @@
                     <!-- Subtotal  -->
                     <div class="bill-card__memo-item subtotal">
                       <p class="font-body--md-400">Subtotal:</p>
-                      <span class="font-body--md-500">$84.00</span>
+                      <span class="font-body--md-500">₹{{ number_format($subtotal, 2) }}</span>
                     </div>
                     <!-- Shipping  -->
                     <div class="bill-card__memo-item shipping">
@@ -442,7 +346,7 @@
                     <!-- total  -->
                     <div class="bill-card__memo-item total">
                       <p class="font-body--lg-400">Total:</p>
-                      <span class="font-body--xl-500">$84.00</span>
+                      <span class="font-body--xl-500">₹{{ number_format($subtotal, 2) }}</span>
                     </div>
                   </div>
                   <form action="#">
@@ -450,6 +354,7 @@
                       class="button button--lg w-100"
                       style="margin-top: 20px"
                       type="submit"
+                      @if ($lines->isEmpty()) disabled aria-disabled="true" @endif
                     >
                       Place Order
                     </button>
@@ -554,157 +459,12 @@
       </div>
     </section>
     <!-- cal-to-action Section end  -->
-    <!-- Shopping Cart sidebar  start  -->
-    <div class="shopping-cart">
-      <div class="shopping-cart-top">
-        <div class="shopping-cart-header">
-          <h5 class="font-body--xxl-500">
-            Shopping Cart (<span class="count">2</span>)
-          </h5>
-          <button class="close">
-            <svg
-              width="45"
-              height="45"
-              viewBox="0 0 45 45"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="22.5" cy="22.5" r="22.5" fill="white" />
-              <path
-                d="M28.75 16.25L16.25 28.75"
-                stroke="#1A1A1A"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16.25 16.25L28.75 28.75"
-                stroke="#1A1A1A"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <div class="shopping-cart__product-content">
-          <div class="shopping-cart__product-content-item">
-            <div class="img-wrapper">
-              <img src="src/images/products/img-01.png" alt="product" />
-            </div>
-            <div class="text-content">
-              <h5 class="font-body--md-400">Fresh Indian Orange</h5>
-              <p class="font-body--md-400">
-                1kg x <span class="font-body--md-500">12.00</span>
-              </p>
-            </div>
-          </div>
-          <button class="delete-item">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 23C18.0748 23 23 18.0748 23 12C23 5.92525 18.0748 1 12 1C5.92525 1 1 5.92525 1 12C1 18.0748 5.92525 23 12 23Z"
-                stroke="#CCCCCC"
-                stroke-miterlimit="10"
-              />
-              <path
-                d="M16 8L8 16"
-                stroke="#666666"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16 16L8 8"
-                stroke="#666666"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <div class="shopping-cart__product-content">
-          <div class="shopping-cart__product-content-item">
-            <div class="img-wrapper">
-              <img src="src/images/products/img-01.png" alt="product" />
-            </div>
-            <div class="text-content">
-              <h5 class="font-body--md-400">Fresh Indian Orange</h5>
-              <p class="font-body--md-400">
-                1kg x <span class="font-body--md-500">12.00</span>
-              </p>
-            </div>
-          </div>
-          <button class="delete-item">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 23C18.0748 23 23 18.0748 23 12C23 5.92525 18.0748 1 12 1C5.92525 1 1 5.92525 1 12C1 18.0748 5.92525 23 12 23Z"
-                stroke="#CCCCCC"
-                stroke-miterlimit="10"
-              />
-              <path
-                d="M16 8L8 16"
-                stroke="#666666"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M16 16L8 8"
-                stroke="#666666"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="shopping-cart-bottom">
-        <div class="shopping-cart-product-info">
-          <p class="product-count font-body--lg-400">2 Product</p>
-          <span class="product-price font-body--lg-500">$26.00</span>
-        </div>
-
-        <form action="#">
-          <button class="button button--lg w-100">Checkout</button>
-          <a href="shopping-cart.html" class="button button--lg button--disable w-100">
-            go to cart
-          </a>
-        </form>
-      </div>
-    </div>
-    <!-- Shopping Cart sidebar  end -->
     <script src="{{ asset('lib/js/jquery.min.js') }}"></script>
     <script src="{{ asset('lib/js/swiper-bundle.min.js') }}"></script>
     <script src="{{ asset('lib/js/bvselect.js') }}"></script>
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-        <!-- Purchase Button -->
-        <div class="templatecookie-btn">
-            <a href="https://1.envato.market/kjkaBN" target="_blank" class="purchase-btn">
-                Purchase Now
-                <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </span>
-            </a>
-        </div>
+    <script src="{{ asset('js/cart.js') }}"></script>
   </body>
 </html>
 </x-layouts.app>

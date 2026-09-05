@@ -187,6 +187,38 @@ class ProductVariant extends Model
     }
 
     /**
+     * The per-unit price that actually applies for a given cart quantity —
+     * the highest-quantity tier whose threshold the quantity meets or
+     * exceeds (a classic "buy N+, pay this rate" break), falling back to
+     * the lowest configured tier if the quantity is below every threshold
+     * (e.g. a variant whose cheapest tier starts at 10 is still purchasable
+     * one at a time, just at that tier's rate — never refused just because
+     * no tier happens to start at exactly 1).
+     *
+     * Built entirely on pricingTiers() — no thresholds are hardcoded here,
+     * and this is the one place cart code should ever ask "what does this
+     * quantity cost", so the tier rule is defined once.
+     */
+    public function unitPriceForQuantity(int $quantity): ?float
+    {
+        $tiers = $this->pricingTiers();
+
+        if (empty($tiers)) {
+            return null;
+        }
+
+        $applicable = null;
+
+        foreach ($tiers as $tier) {
+            if ($tier['quantity'] <= $quantity) {
+                $applicable = $tier;
+            }
+        }
+
+        return ($applicable ?? $tiers[0])['price'];
+    }
+
+    /**
      * A human label for the variant selector that never leaks the raw id.
      */
     public function displayLabel(): string

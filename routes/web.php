@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\FaqPageController;
 use App\Http\Controllers\PageController as PublicPageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CategoryController as StorefrontCategoryController;
 use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
 use App\Http\Controllers\Storefront\ShopController;
@@ -119,9 +120,20 @@ Route::get('/order-details', function () {
 // and it has no product slug of its own to redirect to a specific product.
 Route::get('/product-details', fn () => redirect()->route('shop'))->name('product-details');
 
-Route::get('/shopping-cart', function () {
-    return view('shopping-cart');
-})->name('shopping-cart');
+// Real cart (Phase G). Open to guests and authenticated customers alike —
+// CartService resolves a session-based cart for guests and the
+// carts/cart_items tables for authenticated users, so no auth middleware
+// gates these. Ownership of an authenticated customer's cart_items is
+// re-verified inside the service on every mutation, never assumed from the
+// route parameter alone.
+Route::get('/shopping-cart', [CartController::class, 'index'])->name('shopping-cart');
+Route::prefix('cart')->name('cart.')->group(function () {
+    Route::get('/mini', [CartController::class, 'mini'])->name('mini');
+    Route::post('/items', [CartController::class, 'store'])->name('items.store');
+    Route::patch('/items/{item}', [CartController::class, 'update'])->name('items.update');
+    Route::delete('/items/{item}', [CartController::class, 'destroy'])->name('items.destroy');
+    Route::delete('/', [CartController::class, 'clear'])->name('clear');
+});
 
 Route::get('/sign-in', function () {
     return view('sign-in');

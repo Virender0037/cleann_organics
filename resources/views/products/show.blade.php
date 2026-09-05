@@ -154,17 +154,15 @@
                     </div>
                     <!-- Action button -->
                     <div class="products__content">
-                        <div class="products__content-action">
+                        <form action="{{ route('cart.items.store') }}" method="POST" class="products__content-action" id="add-to-cart-form" data-cart-form="add">
+                            @csrf
+                            <input type="hidden" name="product_variant_id" id="add-to-cart-variant-id" value="{{ $defaultVariant?->id }}" />
                             <div class="counter-btn-wrapper products__content-action-item">
-                                <button class="counter-btn-dec counter-btn" onclick="decrement()" aria-label="Decrease quantity">-</button>
-                                <input type="number" id="counter-btn-counter" class="counter-btn-counter" min="0" max="{{ $defaultVariant?->stock_quantity ?? 0 }}" placeholder="0" aria-label="Quantity" />
-                                <button class="counter-btn-inc counter-btn" onclick="increment()" aria-label="Increase quantity">+</button>
+                                <button type="button" class="counter-btn-dec counter-btn" onclick="decrement()" aria-label="Decrease quantity">-</button>
+                                <input type="number" name="quantity" id="counter-btn-counter" class="counter-btn-counter" min="1" max="{{ $defaultVariant?->stock_quantity ?? 1 }}" value="1" aria-label="Quantity" />
+                                <button type="button" class="counter-btn-inc counter-btn" onclick="increment()" aria-label="Increase quantity">+</button>
                             </div>
-                            {{-- Cart belongs to Phase G. This button intentionally does
-                                 nothing on click yet — no fake "added to cart" state, no
-                                 endpoint call — it only reflects real stock via its
-                                 disabled state so it's honest about not being wired up. --}}
-                            <button type="button" class="button button--md products__content-action-item" id="add-to-cart-btn" @unless ($defaultVariant?->isPurchasable()) disabled aria-disabled="true" @endunless>
+                            <button type="submit" class="button button--md products__content-action-item" id="add-to-cart-btn" @unless ($defaultVariant?->isPurchasable()) disabled aria-disabled="true" @endunless>
                                 Add to Cart
                                 <span>
                                     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -175,12 +173,12 @@
                                 </span>
                             </button>
 
-                            <button class="button-fav products__content-action-item" aria-label="Add to wishlist" disabled aria-disabled="true">
+                            <button type="button" class="button-fav products__content-action-item" aria-label="Add to wishlist" disabled aria-disabled="true">
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M9.9996 17.5451C-6.66672 8.33336 4.99993 -1.66664 9.9996 4.65674C14.9999 -1.66664 26.6666 8.33336 9.9996 17.5451Z" stroke="currentColor" stroke-width="1.5" />
                                 </svg>
                             </button>
-                        </div>
+                        </form>
                     </div>
                     <!-- Tags  -->
                     <div class="products__content">
@@ -347,6 +345,7 @@
     <script src="{{ asset('lib/js/bvselect.js') }}"></script>
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/cart.js') }}"></script>
     <script>
         // Variant switching: price, stock, SKU, gallery and Add-to-Cart
         // state all update in place from data already on the page — no
@@ -402,7 +401,21 @@
 
                 var counter = document.getElementById('counter-btn-counter');
                 if (counter) {
-                    counter.max = variant.stock_quantity;
+                    counter.max = variant.purchasable ? variant.stock_quantity : 0;
+                    // Re-clamp whatever quantity was already entered to the
+                    // new variant's stock, rather than leaving a value the
+                    // previous variant allowed but this one doesn't.
+                    if (variant.purchasable && parseInt(counter.value || '1', 10) > variant.stock_quantity) {
+                        counter.value = variant.stock_quantity;
+                    }
+                }
+
+                // The quantity submitted with the form is always for
+                // whichever variant is currently selected — this is what
+                // makes "submitted variant ID changes on switch" true.
+                var variantIdField = document.getElementById('add-to-cart-variant-id');
+                if (variantIdField) {
+                    variantIdField.value = variant.id;
                 }
 
                 var addToCart = document.getElementById('add-to-cart-btn');
@@ -585,4 +598,6 @@
             });
         })();
     </script>
+    </body>
+</html>
 </x-layouts.app>

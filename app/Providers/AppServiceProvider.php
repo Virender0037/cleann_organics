@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Listeners\MergeGuestCartOnLogin;
 use App\Models\Setting;
+use App\Services\Storefront\CartService;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -45,5 +49,26 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('seoSettings', Setting::cached('seo'));
             }
         );
+
+        // Mini-cart data for the header, shared on every page (the header
+        // renders everywhere). CartService is resolved fresh per composer
+        // call — cheap for an empty cart (session-only read for guests, a
+        // single query for authenticated users) — and never cached
+        // globally, since it's inherently per-visitor.
+        View::composer(
+            'components.layouts.header',
+            function ($view) {
+                $cart = app(CartService::class);
+                $view->with('cartLines', $cart->lines());
+                $view->with('cartSubtotal', $cart->subtotal());
+                $view->with('cartItemCount', $cart->itemCount());
+            }
+        );
+
+        // Guest -> authenticated cart merge. Fires for both login and
+        // registration (RegisteredUserController also calls Auth::login()),
+        // so this single listener covers Phase G section 5 without any
+        // change to Breeze's own controllers.
+        Event::listen(Login::class, MergeGuestCartOnLogin::class);
     }
 }
