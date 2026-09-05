@@ -2,11 +2,13 @@
     'metaTitle' => null,
     'metaDescription' => null,
     'canonicalUrl' => null,
+    'ogImage' => null,
 ])
 <x-layouts.header
     :meta-title="$metaTitle"
     :meta-description="$metaDescription"
-    :canonical-url="$canonicalUrl" />
+    :canonical-url="$canonicalUrl"
+    :og-image="$ogImage" />
     <main>
         {{ $slot }}
     </main>

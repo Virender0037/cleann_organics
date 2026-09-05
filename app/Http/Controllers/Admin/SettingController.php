@@ -68,6 +68,7 @@ class SettingController extends Controller
         }
 
         Setting::setMany('seo', $data);
+        Setting::forget('seo');
 
         return back()->with('success', 'SEO settings updated.');
     }

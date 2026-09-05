@@ -346,12 +346,21 @@ if (filterBtn) {
 var range = document.getElementById('priceRangeSlider');
 
 if (range) {
+  // data-min/data-max/data-start-min/data-start-max (set by shop.blade.php
+  // from real catalog prices) drive the slider when present; falls back to
+  // the original hardcoded demo values otherwise so nothing else using
+  // this element without those attributes changes behavior.
+  var sliderMin = range.dataset.min !== undefined ? parseFloat(range.dataset.min) : 0;
+  var sliderMax = range.dataset.max !== undefined ? parseFloat(range.dataset.max) : 1500;
+  var sliderStartMin = range.dataset.startMin !== undefined ? parseFloat(range.dataset.startMin) : 20;
+  var sliderStartMax = range.dataset.startMax !== undefined ? parseFloat(range.dataset.startMax) : 80;
+
   noUiSlider.create(range, {
-    start: [20, 80],
+    start: [sliderStartMin, sliderStartMax],
     connect: true,
     range: {
-      min: 0,
-      max: 1500,
+      min: sliderMin,
+      max: sliderMax,
     },
     tooltips: true,
   });

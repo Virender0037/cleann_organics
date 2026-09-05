@@ -74,6 +74,52 @@ class Product extends Model
     }
 
     /**
+     * Products safe to expose on the storefront: active status and an
+     * active parent category. Centralized here so no controller has to
+     * remember both halves of the rule independently.
+     */
+    public function scopePublic($query)
+    {
+        return $query->where('status', 'active')
+            ->whereHas('category', fn ($q) => $q->active());
+    }
+
+    /**
+     * Other products a shopper might also want, derived from the existing
+     * schema (same category and/or shared tags) rather than a dedicated
+     * pivot table. Excludes this product and anything not publicly visible.
+     *
+     * Callers should eager-load `tags` beforehand if they already have it,
+     * since this reads $this->tags directly; a single extra query here is
+     * fine since related products are only computed once per detail page.
+     */
+    public function relatedProducts(int $limit = 8)
+    {
+        $tagIds = $this->tags->pluck('id');
+
+        return static::query()
+            ->public()
+            ->where('id', '!=', $this->id)
+            ->where(function ($query) use ($tagIds) {
+                $query->where('category_id', $this->category_id);
+
+                if ($tagIds->isNotEmpty()) {
+                    $query->orWhereHas('tags', fn ($q) => $q->whereIn('tags.id', $tagIds));
+                }
+            })
+            ->with([
+                'variants' => fn ($q) => $q->where('status', 'active')->orderByDesc('is_default')->orderBy('sort_order'),
+                'variants.images',
+            ])
+            ->withCount(['reviews as approved_review_count' => fn ($q) => $q->where('status', 'approved')])
+            ->withAvg(['reviews as approved_average_rating' => fn ($q) => $q->where('status', 'approved')], 'rating')
+            ->orderByDesc('is_featured')
+            ->orderByDesc('sort_order')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
      * The image to show as this product's thumbnail (e.g. the admin product
      * list), or null if none exists anywhere. Never returns a video.
      *

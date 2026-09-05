@@ -11,6 +11,21 @@
     @if ($canonicalUrl)
         <link rel="canonical" href="{{ $canonicalUrl }}" />
     @endif
+    @php
+        // Guarded with ?? rather than assumed-defined: this component has
+        // no @props(), so a page that renders <x-layouts.app> without an
+        // og-image (i.e. almost every page) still leaves $ogImage/$seoSettings
+        // set here — either via app.blade.php's prop default or the
+        // components.layouts.header view composer in AppServiceProvider.
+        $ogImagePath = ($ogImage ?? null) ?: ($seoSettings['og_image'] ?? null);
+    @endphp
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{ $metaTitle ?: ($generalSettings['site_name'] ?? 'Cleann Organics') }}" />
+    <meta property="og:description" content="{{ $metaDescription ?: ($seoSettings['meta_description'] ?? '') }}" />
+    <meta property="og:url" content="{{ $canonicalUrl ?: url()->current() }}" />
+    @if ($ogImagePath)
+        <meta property="og:image" content="{{ \Illuminate\Support\Facades\Storage::url($ogImagePath) }}" />
+    @endif
     @if (! empty($generalSettings['favicon']))
         <link rel="icon" type="image/png" href="{{ \Illuminate\Support\Facades\Storage::url($generalSettings['favicon']) }}" />
     @else
@@ -189,10 +204,10 @@
      alt="{{ $generalSettings['site_name'] ?? 'brand-logo' }}"
      style="height: 39px; width: auto;">
     </div>
-    <form action="#">
+    <form action="{{ route('shop') }}" method="GET">
         <div class="header__input-form">
             <label for="header-search-desktop" class="visually-hidden">Search products</label>
-            <input type="text" id="header-search-desktop" name="search" placeholder="Search" />
+            <input type="text" id="header-search-desktop" name="search" value="{{ request('search') }}" placeholder="Search" />
             <span class="search-icon">
                 <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -258,7 +273,7 @@
             <a href="{{ route('home') }}">Home </a>
         </li>
         <!-- Shop -->
-        <li class="header__navigation-menu-link {{ request()->routeIs('shop') ? 'active' : '' }}">
+        <li class="header__navigation-menu-link {{ request()->routeIs('shop', 'category.show', 'products.show') ? 'active' : '' }}">
             <a href="{{ route('shop') }}">
                 Shop
             </a>
@@ -332,10 +347,10 @@
 </button>
 <div class="header__mobile-sidebar">
 <div class="header__mobile-top">
-    <form action="#">
+    <form action="{{ route('shop') }}" method="GET">
         <div class="header__mobile-input">
             <label for="header-search-mobile" class="visually-hidden">Search products</label>
-            <input type="text" id="header-search-mobile" name="search" placeholder="Search" />
+            <input type="text" id="header-search-mobile" name="search" value="{{ request('search') }}" placeholder="Search" />
             <button class="search-btn" aria-label="Search">
                 <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -354,8 +369,8 @@
         <li class="header__mobile-menu-item {{ request()->routeIs('home') ? 'active' : '' }}">
             <a href="{{ route('home') }}" class="header__mobile-menu-item-link {{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
         </li>
-        <li class="header__mobile-menu-item {{ request()->routeIs('shop') ? 'active' : '' }}">
-            <a href="{{ route('shop') }}" class="header__mobile-menu-item-link {{ request()->routeIs('shop') ? 'active' : '' }}">Shop</a>
+        <li class="header__mobile-menu-item {{ request()->routeIs('shop', 'category.show', 'products.show') ? 'active' : '' }}">
+            <a href="{{ route('shop') }}" class="header__mobile-menu-item-link {{ request()->routeIs('shop', 'category.show', 'products.show') ? 'active' : '' }}">Shop</a>
         </li>
         <li class="header__mobile-menu-item {{ $isPagesActive ? 'active' : '' }}">
             <a href="#" class="header__mobile-menu-item-link {{ $isPagesActive ? 'active' : '' }}">

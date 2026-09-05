@@ -17,6 +17,7 @@ class Header extends Component
         public ?string $metaTitle = null,
         public ?string $metaDescription = null,
         public ?string $canonicalUrl = null,
+        public ?string $ogImage = null,
     ) {
     }
 

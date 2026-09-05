@@ -33,6 +33,9 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\FaqPageController;
 use App\Http\Controllers\PageController as PublicPageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Storefront\CategoryController as StorefrontCategoryController;
+use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
+use App\Http\Controllers\Storefront\ShopController;
 use Illuminate\Support\Facades\Route;
 
 // Breeze's scaffold dashboard is not the storefront's customer dashboard: the
@@ -110,9 +113,11 @@ Route::get('/order-details', function () {
     return view('order-details');
 })->name('order-details');
 
-Route::get('/product-details', function () {
-    return view('product-details');
-})->name('product-details');
+// The old static product page is superseded by /products/{slug} (see
+// StorefrontProductController below). It's kept as a redirect rather than
+// removed outright since it may already be bookmarked/linked externally,
+// and it has no product slug of its own to redirect to a specific product.
+Route::get('/product-details', fn () => redirect()->route('shop'))->name('product-details');
 
 Route::get('/shopping-cart', function () {
     return view('shopping-cart');
@@ -177,9 +182,17 @@ Route::get('/404', function () {
     return view('404');
 })->name('404');
 
-Route::get('/shop', function () {
-    return view('shop');
-})->name('shop');
+Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+
+// Canonical category browsing URL. Category navigation/filters must link
+// here directly rather than to /shop?category=slug, so a category never has
+// two indexable URLs. Looked up manually inside the controller (not via
+// {category:slug} implicit binding) — see CategoryController::show().
+Route::get('/category/{slug}', [StorefrontCategoryController::class, 'show'])->name('category.show');
+
+// Looked up manually inside the controller (not via {product:slug} implicit
+// binding) — see StorefrontProductController::show().
+Route::get('/products/{slug}', [StorefrontProductController::class, 'show'])->name('products.show');
 
 // Admin login/logout are intentionally outside the protected group below —
 // the login form must be reachable by guests, and logout only needs `auth`.

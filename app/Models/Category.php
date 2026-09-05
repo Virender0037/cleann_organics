@@ -42,6 +42,11 @@ class Category extends Model
         return $query->orderBy('sort_order')->orderBy('name');
     }
 
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
     public function descendantIds(): array
     {
         $ids = [];

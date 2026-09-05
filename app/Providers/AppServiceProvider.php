@@ -34,5 +34,16 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('generalSettings', Setting::cached('general'));
             }
         );
+
+        // SEO settings fallback (og:image, meta description) used by every
+        // storefront page's <head> — same caching approach as above,
+        // invalidated on admin save via Setting::forget() in
+        // SettingController::updateSeo().
+        View::composer(
+            'components.layouts.header',
+            function ($view) {
+                $view->with('seoSettings', Setting::cached('seo'));
+            }
+        );
     }
 }
