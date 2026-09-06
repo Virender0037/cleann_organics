@@ -93,11 +93,24 @@
                 <div class="col-lg-6">
                     <!-- Products information -->
                     <div class="products__content">
+                        <div class="products__content-eyebrow">
+                            <span class="products__content-eyebrow__text">
+                                Pure &bull; Natural &bull; Sustainable
+                                <svg class="products__content-eyebrow__icon" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.5 1.5C12.5 1.5 12.8 6.3 9.8 9.3C7.4 11.7 3.5 12 1.5 12.5C2 10.5 2.3 6.6 4.7 4.2C7.7 1.2 12.5 1.5 12.5 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M2 12L6 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                                </svg>
+                            </span>
+                            <span class="products__content-stock {{ $defaultVariant?->isPurchasable() ? 'stock-in' : 'stock-out' }}" id="stock-badge">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M13.3333 4L6 11.3333L2.66667 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span id="stock-badge-label">{{ $defaultVariant?->stockLabel() ?? 'Unavailable' }}</span>
+                            </span>
+                        </div>
+
                         <div class="products__content-title">
                             <h2 class="font-title--md">{{ $product->name }}</h2>
-                            <span class="label {{ $defaultVariant?->isPurchasable() ? 'stock-in' : 'stock-out' }}" id="stock-badge">
-                                {{ $defaultVariant?->stockLabel() ?? 'Unavailable' }}
-                            </span>
                         </div>
                         <div class="products__content-info">
                             <x-frontend.rating-stars size="lg" :rating="$averageRating" />
@@ -105,6 +118,10 @@
                             <span class="dot">.</span>
                             <h5 class="font-body--md-500">Sku: <span class="counting font-body--md-400" id="variant-sku">{{ $defaultVariant?->sku ?? '—' }}</span></h5>
                         </div>
+
+                        @if ($product->short_description)
+                            <p class="products__content-short-desc font-body--md-400">{{ $product->short_description }}</p>
+                        @endif
 
                         @php
                             // At the default quantity of 1, the active tier is always
@@ -120,19 +137,23 @@
                         @endphp
                         <div class="products__content-price products__content-price--panel {{ $defaultVariant?->hasMultipleTiers() ? 'has-tiers' : '' }}" id="price-block">
                             @if ($headlineTier)
-                                <h2 class="font-body--xxxl-500">
-                                    <span id="price-current">₹{{ number_format($headlineTier['price'], 2) }}</span>
-                                    @if ($defaultVariant?->hasMultipleTiers())
-                                        <span class="font-body--md-400 price-each" id="price-each">each</span>
+                                <div class="products__content-price__main">
+                                    <h2 class="font-body--xxxl-500">
+                                        <span id="price-current">₹{{ number_format($headlineTier['price'], 2) }}</span>
+                                        @if ($defaultVariant?->hasMultipleTiers())
+                                            <span class="font-body--md-400 price-each" id="price-each">each</span>
+                                        @endif
+                                    </h2>
+                                    @if ($headlineTier['compare_price'])
+                                        <div class="price-discount-row" id="price-discount-row">
+                                            <del class="font-body--xxl-400 price-original" id="price-compare">₹{{ number_format($headlineTier['compare_price'], 2) }}</del>
+                                        </div>
                                     @endif
-                                </h2>
-                                @if ($headlineTier['compare_price'])
-                                    <div class="price-discount-row" id="price-discount-row">
-                                        <del class="font-body--xxl-400 price-original" id="price-compare">₹{{ number_format($headlineTier['compare_price'], 2) }}</del>
-                                    </div>
-                                @endif
+                                </div>
                             @else
-                                <h2 class="font-body--xxxl-500" id="price-current">Price unavailable</h2>
+                                <div class="products__content-price__main">
+                                    <h2 class="font-body--xxxl-500" id="price-current">Price unavailable</h2>
+                                </div>
                             @endif
                         </div>
 
@@ -146,7 +167,16 @@
                             scratch.
                         --}}
                         <div class="products__content-tier-panel" id="price-tiers-panel" @unless ($defaultVariant?->hasMultipleTiers()) hidden @endunless>
-                            <h3 class="products__content-tier-panel__heading">Quantity-based Pricing</h3>
+                            <div class="products__content-tier-panel__header">
+                                <span class="products__content-tier-panel__header-icon">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="1.5" y="9" width="3" height="5.5" rx="0.8" fill="currentColor" />
+                                        <rect x="6.5" y="5.5" width="3" height="9" rx="0.8" fill="currentColor" />
+                                        <rect x="11.5" y="2" width="3" height="12.5" rx="0.8" fill="currentColor" />
+                                    </svg>
+                                </span>
+                                <h3 class="products__content-tier-panel__heading">Quantity-based Pricing</h3>
+                            </div>
                             <ul class="products__content-tier-panel__list" id="price-tiers">
                                 @foreach ($tiersForPanel as $index => $tier)
                                     <li class="products__content-tier-panel__row {{ $index === 0 ? 'is-active' : '' }}">
@@ -187,20 +217,7 @@
                                 @endforeach
                             </div>
                         @endif
-                    </div>
-                    <!-- brand  -->
-                    <div class="products__content">
-                        <div class="products__content-brand">
-                            <div class="brand-name">
-                                <h2 class="font-body--md-400">Brand: <span class="font-body--md-500">{{ $product->brand ?: 'Unbranded' }}</span></h2>
-                            </div>
-                        </div>
-                        @if ($product->short_description)
-                            <p class="products__content-brand-info font-body--md-400">{{ $product->short_description }}</p>
-                        @endif
-                    </div>
-                    <!-- Action button -->
-                    <div class="products__content">
+
                         <div class="products__content-action">
                             <form action="{{ route('cart.items.store') }}" method="POST" id="add-to-cart-form" data-cart-form="add" style="display:contents;">
                                 @csrf
@@ -247,12 +264,64 @@
                                 </button>
                             </form>
                         </div>
-                    </div>
-                    <!-- Tags  -->
-                    <div class="products__content">
-                        @if ($product->category)
-                            <h5 class="products__content-category font-body--md-500">Category: <a href="{{ route('category.show', $product->category->slug) }}">{{ $product->category->name }}</a></h5>
-                        @endif
+
+                        {{--
+                            Trust row — only claims already genuinely made elsewhere
+                            on the site are reused here (verified before adding):
+                            "Free Shipping" and "100% Secure Payment" copy is reused
+                            verbatim from the homepage's cards-ship component
+                            (resources/views/home.blade.php), and its truck/shield
+                            icons are reused verbatim too. No numeric free-shipping
+                            threshold (e.g. "above ₹999") is shown — a database check
+                            (ShippingRate::free_shipping_above) found no shipping
+                            rate rows configured at all, so no such threshold is
+                            actually enforced anywhere in this app yet; showing one
+                            would be fabricating a number, not reflecting real
+                            configuration. "Eco-Friendly" reuses this product's own
+                            category name ("Eco-Friendly Bottles") and the site's
+                            existing organic/eco-friendly positioning (see
+                            aboutus.blade.php), not a new claim.
+                        --}}
+                        <div class="products__content-trust">
+                            <div class="products__content-trust__item">
+                                <span class="products__content-trust__icon">
+                                    <svg width="18" height="13" viewBox="0 0 40 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32.7021 20.3042C31.7247 20.3042 30.7962 20.687 30.0957 21.3793C29.3952 22.0798 29.0043 22.992 29.0043 23.9694C29.0043 24.9468 29.3871 25.8591 30.0957 26.5595C30.8043 27.2519 31.7247 27.6347 32.7021 27.6347C34.7058 27.6347 36.3348 25.9894 36.3348 23.9694C36.3348 21.9495 34.7058 20.3042 32.7021 20.3042ZM32.7021 26.0057C31.5781 26.0057 30.6333 25.0772 30.6333 23.9694C30.6333 22.8617 31.5781 21.9332 32.7021 21.9332C33.8098 21.9332 34.7058 22.8454 34.7058 23.9694C34.7058 25.0935 33.8098 26.0057 32.7021 26.0057ZM33.6469 8.09488C33.5003 7.95641 33.3048 7.88311 33.1012 7.88311H28.9228C28.4749 7.88311 28.1083 8.24964 28.1083 8.69761V15.3765C28.1083 15.8245 28.4749 16.191 28.9228 16.191H35.5528C36.0008 16.191 36.3673 15.8245 36.3673 15.3765V10.9049C36.3673 10.6768 36.2696 10.4569 36.0986 10.3022L33.6469 8.09488ZM34.7383 14.562H29.7373V9.50396H32.7835L34.7383 11.2633V14.562ZM12.8121 20.3042C11.8347 20.3042 10.9061 20.687 10.2057 21.3793C9.50519 22.0798 9.11423 22.992 9.11423 23.9694C9.11423 24.9468 9.49705 25.8591 10.2057 26.5595C10.9143 27.2519 11.8347 27.6347 12.8121 27.6347C14.8157 27.6347 16.4447 25.9894 16.4447 23.9694C16.4447 21.9495 14.8157 20.3042 12.8121 20.3042ZM12.8121 26.0057C11.688 26.0057 10.7432 25.0772 10.7432 23.9694C10.7432 22.8617 11.688 21.9332 12.8121 21.9332C13.9198 21.9332 14.8157 22.8454 14.8157 23.9694C14.8157 25.0935 13.9198 26.0057 12.8121 26.0057ZM7.37935 21.306H5.74221V19.1395C5.74221 18.6915 5.37569 18.325 4.92771 18.325C4.47974 18.325 4.11322 18.6915 4.11322 19.1395V22.1205C4.11322 22.5685 4.47974 22.935 4.92771 22.935H7.37935C7.82733 22.935 8.19385 22.5685 8.19385 22.1205C8.19385 21.6726 7.82733 21.306 7.37935 21.306ZM11.5089 16.867C11.5089 16.419 11.1423 16.0525 10.6944 16.0525H0.814498C0.366524 16.0525 0 16.419 0 16.867C0 17.315 0.366524 17.6815 0.814498 17.6815H10.6944C11.1423 17.6815 11.5089 17.3231 11.5089 16.867ZM2.46793 13.9267L12.3478 13.9837C12.7958 13.9837 13.1623 13.6253 13.1704 13.1773C13.1786 12.7212 12.8121 12.3547 12.3641 12.3547L2.48422 12.2977C2.47607 12.2977 2.47607 12.2977 2.47607 12.2977C2.0281 12.2977 1.66158 12.6561 1.66158 13.104C1.65343 13.5602 2.01996 13.9267 2.46793 13.9267ZM4.12951 10.2289H14.0094C14.4573 10.2289 14.8239 9.86234 14.8239 9.41437C14.8239 8.96639 14.4573 8.59987 14.0094 8.59987H4.12951C3.68153 8.59987 3.31501 8.96639 3.31501 9.41437C3.31501 9.86234 3.68153 10.2289 4.12951 10.2289ZM39.6986 9.12929L33.8668 4.29932C33.7202 4.17715 33.541 4.11199 33.3456 4.11199H26.4875V1.17979C26.4875 0.73182 26.121 0.365295 25.673 0.365295H4.92771C4.47974 0.365295 4.11322 0.73182 4.11322 1.17979V7.14192C4.11322 7.58989 4.47974 7.95642 4.92771 7.95642C5.37569 7.95642 5.74221 7.58989 5.74221 7.14192V1.99429H24.8666V21.306H18.1877C17.7398 21.306 17.3732 21.6726 17.3732 22.1205C17.3732 22.5685 17.7398 22.935 18.1877 22.935H28.1328C28.5807 22.935 28.9473 22.5685 28.9473 22.1205C28.9473 21.6726 28.5807 21.306 28.1328 21.306H26.4956V5.74098H33.0605L38.371 10.1393L38.314 21.2897H37.4669C37.0189 21.2897 36.6524 21.6563 36.6524 22.1042C36.6524 22.5522 37.0189 22.9187 37.4669 22.9187H39.1203C39.5683 22.9187 39.9348 22.5604 39.9348 22.1124L40 9.7646C39.9919 9.52025 39.886 9.28405 39.6986 9.12929Z" fill="currentColor"/></svg>
+                                </span>
+                                <span class="products__content-trust__text">
+                                    <strong>Free Shipping</strong>
+                                    <small>Free shipping on all your order</small>
+                                </span>
+                            </div>
+                            <div class="products__content-trust__item">
+                                <span class="products__content-trust__icon">
+                                    <svg width="15" height="18" viewBox="0 0 33 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32.6468 34.6678L30.345 8.72697C30.3036 8.21362 29.873 7.82447 29.3514 7.82447H24.4994C24.4911 3.51066 20.9805 0 16.6667 0C12.3528 0 8.84219 3.51066 8.83391 7.82447H3.98191C3.46856 7.82447 3.038 8.21362 2.98832 8.72697L0.686523 34.6678C0.686523 34.7009 0.686523 34.7257 0.686523 34.7589C0.686523 37.6485 3.34436 40 6.60662 40H26.7267C29.9889 40 32.6468 37.6485 32.6468 34.7589C32.6468 34.7257 32.6468 34.7009 32.6468 34.6678ZM16.6667 1.98717C19.8875 1.98717 22.504 4.6036 22.5122 7.82447H10.8211C10.8294 4.6036 13.4458 1.98717 16.6667 1.98717ZM26.7267 38.0046H6.60662C4.45386 38.0046 2.69853 36.5721 2.67369 34.792L4.89269 9.81163H8.83391V13.2975C8.83391 13.8439 9.28102 14.291 9.82749 14.291C10.374 14.291 10.8211 13.8439 10.8211 13.2975V9.81163H22.5122V13.2975C22.5122 13.8439 22.9593 14.291 23.5058 14.291C24.0523 14.291 24.4994 13.8439 24.4994 13.2975V9.81163H28.4406L30.6596 34.8002C30.6348 36.5721 28.8794 38.0046 26.7267 38.0046Z" fill="currentColor"/></svg>
+                                </span>
+                                <span class="products__content-trust__text">
+                                    <strong>Secure Payment</strong>
+                                    <small>100% secure checkout</small>
+                                </span>
+                            </div>
+                            <div class="products__content-trust__item">
+                                <span class="products__content-trust__icon">
+                                    <svg width="16" height="16" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12.5 1.5C12.5 1.5 12.8 6.3 9.8 9.3C7.4 11.7 3.5 12 1.5 12.5C2 10.5 2.3 6.6 4.7 4.2C7.7 1.2 12.5 1.5 12.5 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M2 12L6 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                                    </svg>
+                                </span>
+                                <span class="products__content-trust__text">
+                                    <strong>Eco-Friendly</strong>
+                                    <small>Good for you, better for Earth</small>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="products__content-meta-row">
+                            <h2 class="font-body--md-400 products__content-meta-row__item">Brand: <span class="font-body--md-500">{{ $product->brand ?: 'Unbranded' }}</span></h2>
+                            @if ($product->category)
+                                <h5 class="font-body--md-500 products__content-meta-row__item">Category: <a href="{{ route('category.show', $product->category->slug) }}">{{ $product->category->name }}</a></h5>
+                            @endif
+                        </div>
+
                         @if ($product->tags->isNotEmpty())
                             <div class="products__content-tags">
                                 <h5 class="font-body--md-500">Tag :</h5>
@@ -519,18 +588,27 @@
                 return (qty && qty > 0) ? qty : 1;
             }
 
-            // Same two icons already used elsewhere on this exact page/site
-            // (the "Read More"/"View All" chevron) plus one new checkmark
-            // drawn in the identical stroke style (stroke="currentColor",
-            // round caps/joins) every other icon in this file already uses
-            // — not a new icon library, just one more hand-drawn SVG in the
-            // established house style.
-            var TIER_ARROW_ICON = '<svg width="14" height="12" viewBox="0 0 17 15" fill="none" xmlns="http://www.w3.org/2000/svg">'
-                + '<path d="M16 7.50049H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'
-                + '<path d="M9.95001 1.47559L16 7.49959L9.95001 13.5246" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'
+            // Hand-drawn in the same stroke style already used by every
+            // other icon on this page (stroke="currentColor", round
+            // caps/joins) — not a new icon library. No gift/tag icon
+            // already existed anywhere in the codebase to reuse (checked
+            // before drawing these), unlike the trust-row icons below,
+            // which do reuse existing site SVGs.
+            var TIER_GIFT_ICON = '<svg width="15" height="15" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">'
+                + '<path d="M2.5 7.5H15.5V15C15.5 15.8284 14.8284 16.5 14 16.5H4C3.17157 16.5 2.5 15.8284 2.5 15V7.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />'
+                + '<path d="M1.5 4.5H16.5V7.5H1.5V4.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />'
+                + '<path d="M9 4.5V16.5" stroke="currentColor" stroke-width="1.4" />'
+                + '<path d="M9 4.5C9 4.5 6.5 4.5 5.5 3.2C4.7 2.15 5.5 1 6.5 1C8 1 9 2.5 9 4.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />'
+                + '<path d="M9 4.5C9 4.5 11.5 4.5 12.5 3.2C13.3 2.15 12.5 1 11.5 1C10 1 9 2.5 9 4.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />'
                 + '</svg>';
             var TIER_CHECK_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">'
                 + '<path d="M13.3333 4L6 11.3333L2.66667 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'
+                + '</svg>';
+            // Section 2's "Volume Price Applied!" status box icon — a larger
+            // tag shape, matching the reference's more prominent icon there.
+            var TIER_TAG_ICON = '<svg width="18" height="18" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">'
+                + '<path d="M20 12.6L11.4 21.2C11.0343 21.5656 10.5375 21.7709 10.02 21.7709C9.50247 21.7709 9.00571 21.5656 8.64 21.2L1 13.56V4C1 2.34315 2.34315 1 4 1H13.56L20 7.44C20.7714 8.21143 20.7714 9.82857 20 10.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'
+                + '<circle cx="6.5" cy="6.5" r="1.5" fill="currentColor" />'
                 + '</svg>';
 
             // Renders the prominent unit price, the quantity-based pricing
@@ -553,7 +631,7 @@
 
                 if (! variant || ! variant.tiers.length) {
                     priceBlock.classList.remove('has-tiers');
-                    priceBlock.innerHTML = '<h2 class="font-body--xxxl-500" id="price-current">Price unavailable</h2>';
+                    priceBlock.innerHTML = '<div class="products__content-price__main"><h2 class="font-body--xxxl-500" id="price-current">Price unavailable</h2></div>';
                     tiersPanel.hidden = true;
                     tiersList.innerHTML = '';
                     feedback.innerHTML = '';
@@ -573,7 +651,8 @@
                 priceBlock.classList.toggle('has-tiers', variant.has_multiple_tiers);
 
                 // --- Section 1: prominent unit price + discount badges ---
-                var priceHtml = '<h2 class="font-body--xxxl-500">';
+                var priceHtml = '<div class="products__content-price__main">';
+                priceHtml += '<h2 class="font-body--xxxl-500">';
                 priceHtml += '<span id="price-current">' + formatMoney(activeTier.price) + '</span>';
                 if (variant.has_multiple_tiers) {
                     priceHtml += '<span class="font-body--md-400 price-each" id="price-each">each</span>';
@@ -595,9 +674,16 @@
                         + '<span class="price-savings-pill">You save ' + formatMoney(savingsPerItem) + '</span>'
                         + '</div>';
                 }
+                priceHtml += '</div>';
 
+                // Right-side "Volume Price Applied!" status box — only
+                // rendered while a real discount is active, exactly like
+                // the savings pill above; nothing fake shown otherwise.
                 if (isDiscounted) {
-                    priceHtml += '<span class="price-applied-badge">Volume Price Applied</span>';
+                    priceHtml += '<div class="products__content-price__status">'
+                        + '<span class="products__content-price__status-icon">' + TIER_TAG_ICON + '</span>'
+                        + '<span class="products__content-price__status-text">Volume Price<br>Applied!</span>'
+                        + '</div>';
                 }
 
                 priceBlock.innerHTML = priceHtml;
@@ -628,20 +714,14 @@
                         + '</li>';
                 }).join('');
 
-                // --- Sections 3 & 4: total + next-tier/best-price banner --
-                var lineTotal = activeTier.price * quantity;
+                // --- Section 4: next-tier/best-price banner -----------
                 var nextTier = activeIndex < tiers.length - 1 ? tiers[activeIndex + 1] : null;
-
-                var totalHtml = '<div class="products__content-tier-total">'
-                    + '<span class="products__content-tier-total__label">Order total</span>'
-                    + '<span class="products__content-tier-total__value">' + formatMoney(lineTotal) + '</span>'
-                    + '</div>';
 
                 var bannerHtml;
                 if (nextTier) {
                     var qtyToUnlock = nextTier.quantity - quantity;
                     bannerHtml = '<div class="products__content-tier-banner">'
-                        + '<span class="products__content-tier-banner__icon">' + TIER_ARROW_ICON + '</span>'
+                        + '<span class="products__content-tier-banner__icon">' + TIER_GIFT_ICON + '</span>'
                         + '<div class="products__content-tier-banner__text">'
                         + '<p class="products__content-tier-banner__primary">Buy ' + qtyToUnlock + ' more to unlock ' + formatMoney(nextTier.price) + ' each</p>'
                         + '<p class="products__content-tier-banner__secondary">Unlock the best volume price</p>'
@@ -655,12 +735,19 @@
                         + '</div></div>';
                 }
 
-                feedback.innerHTML = totalHtml + bannerHtml;
+                feedback.innerHTML = bannerHtml;
             }
 
             function renderStock(variant) {
                 var badge = document.getElementById('stock-badge');
-                badge.textContent = variant.stock_label;
+                // Only the label text updates — the checkmark icon markup
+                // beside it stays put, so a variant switch never wipes it
+                // out the way overwriting the whole badge's textContent
+                // would.
+                var badgeLabel = document.getElementById('stock-badge-label');
+                if (badgeLabel) {
+                    badgeLabel.textContent = variant.stock_label;
+                }
                 badge.classList.toggle('stock-in', variant.purchasable);
                 badge.classList.toggle('stock-out', ! variant.purchasable);
 

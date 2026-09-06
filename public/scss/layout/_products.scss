@@ -72,42 +72,70 @@
 // Products details
 
 .products__content {
-  padding: 20px 0px;
-  border-bottom: 1px solid #e5e5e5;
+  // This wrapper used to be repeated as several bordered/padded sibling
+  // blocks (title+price, brand, action row, tags), each visually separated
+  // by a divider line. The reference design has no divider lines anywhere
+  // in this column — it reads as one continuous card flow with spacing
+  // (not borders) doing the separation — so this is now a single wrapper
+  // around the whole right column, and every section below manages its
+  // own margin-bottom instead of relying on a shared border-bottom rule.
+  // (`.products__content` isn't used on any other page — confirmed via a
+  // grep across resources/views before removing the old padding/border —
+  // so this doesn't affect anything else.)
 
-  &:nth-child(1) {
-    padding-top: 0px;
+  // Section 1 — eyebrow claim row + stock pill, above the title.
+  &-eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 10px;
+
+    &__text {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: color(gray-8);
+    }
+    &__icon {
+      color: color(primary);
+      flex-shrink: 0;
+    }
   }
-  &:nth-last-child(1) {
-    border: 0px;
+
+  // Solid filled stock pill — scoped to this page only. `.stock-in` /
+  // `.stock-out` aren't used anywhere else in the app (confirmed via grep
+  // before restyling), so this doesn't touch any other badge on the site.
+  &-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    &.stock-in {
+      background: color(primary);
+      color: #fff;
+    }
+    &.stock-out {
+      background: color(danger);
+      color: #fff;
+    }
   }
 
   &-title {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     h2 {
       @include max(575px) {
         font-size: 20px;
         line-height: 30px;
-      }
-    }
-    span {
-      font-size: 14px;
-      line-height: 21px;
-      font-weight: 400;
-      text-transform: capitalize;
-      padding: 4px 8px;
-      border-radius: 4px;
-      margin: 0px 8px;
-      flex-shrink: 0;
-      &.stock-in {
-        background: #20b52633;
-        color: color(hard-primary);
-      }
-      &.stock-out {
-        background: #ea4b481a;
-        color: color(danger);
       }
     }
   }
@@ -115,7 +143,8 @@
   &-info {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
     .ratings {
       display: flex;
       align-items: center;
@@ -140,6 +169,16 @@
     }
   }
 
+  &-short-desc {
+    color: color(gray-6);
+    margin-bottom: 20px;
+  }
+
+  // Section 2 — main price panel. Two-column split (price info left,
+  // "Volume Price Applied!" status box right) while a real discount is
+  // active; a single column otherwise, since the status box is simply
+  // never rendered for the non-discounted state (see applyTierPricing()
+  // in the Blade file) — no fake state to hide.
   &-price {
     display: flex;
     align-items: center;
@@ -176,18 +215,60 @@
     // A non-tiered product's price is intentionally left exactly as it
     // was: no panel, no size bump, no badges.
     &.has-tiers {
-      flex-direction: column;
-      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
       background: color(green-0);
       border: 1px solid color(green-1);
-      border-radius: 8px;
-      padding: 16px 20px;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 14px;
+      @include max(575px) {
+        flex-direction: column;
+        align-items: stretch;
+      }
       h2 {
         // Reuses the existing title(sm) scale (32px) rather than a new
         // size, just applied here so the active price visually leads.
         font-size: 32px;
       }
     }
+  }
+  &-price__main {
+    min-width: 0;
+  }
+  // Right-side status box. This app's palette has no dedicated "status
+  // card" token, so it reuses the same green-0/green-1 tint as the panel
+  // itself, just on a white card for contrast against it (matching the
+  // reference's two-tone treatment).
+  &-price__status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid color(green-1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    @include max(575px) {
+      width: 100%;
+    }
+  }
+  &-price__status-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: color(green-0);
+    color: color(hard-primary);
+    flex-shrink: 0;
+  }
+  &-price__status-text {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 700;
+    color: color(hard-primary);
   }
 
   // "each" label + struck-through reference price sit right under the
@@ -198,16 +279,17 @@
   .price-discount-row {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
     margin-top: 4px;
   }
   .price-original {
     color: color(gray-5);
   }
-  // Two distinct pill treatments, deliberately not sharing the page's
-  // existing .label class: that class is also used by the stock-in/out
-  // badge elsewhere on this page, and giving it new base rules here would
-  // change that badge's font-size/line-height/weight too.
+  // Deliberately not sharing the page's existing .label class: that class
+  // is also used by the stock badge elsewhere on this page, and giving it
+  // new base rules here would change that badge's font-size/line-height/
+  // weight too.
   .price-savings-pill {
     display: inline-block;
     padding: 3px 10px;
@@ -219,39 +301,50 @@
     color: color(hard-primary);
     white-space: nowrap;
   }
-  .price-applied-badge {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 4px 12px;
-    border-radius: 30px;
-    font-size: 12px;
-    line-height: 18px;
-    font-weight: 600;
-    background: color(primary);
-    color: #fff;
-  }
 
-  // Section 2 — quantity-based pricing tier panel. Always present in the
-  // DOM (see the Blade comment on #price-tiers-panel); hidden via the
-  // native `hidden` attribute for a non-tiered variant rather than never
-  // being rendered, so a later switch TO a tiered variant has something
-  // to reveal.
+  // Section 3 — quantity-based pricing card. Outer card is a warm cream
+  // tint — this app's palette (_variables.scss) has no cream/beige token,
+  // so, consistent with the hardcoded rgba() literals already used above
+  // for the savings pill, this is a one-off hex pair. The tier list itself
+  // sits in an inner near-white panel, matching the reference's two-tone
+  // card-within-a-card treatment.
+  //
+  // Always present in the DOM (see the Blade comment on
+  // #price-tiers-panel); hidden via the native `hidden` attribute for a
+  // non-tiered variant rather than never being rendered, so a later
+  // switch TO a tiered variant has something to reveal.
   &-tier-panel {
-    margin: 16px 0;
+    margin-bottom: 14px;
+    background: #fbf3e9;
+    border: 1px solid #f0e0c4;
+    border-radius: 12px;
+    padding: 16px;
 
+    &__header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    &__header-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: color(warning);
+      flex-shrink: 0;
+    }
     &__heading {
-      margin: 0 0 8px;
-      font-size: 13px;
+      margin: 0;
+      font-size: 14px;
       line-height: 18px;
-      font-weight: 600;
-      color: color(gray-6);
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+      font-weight: 700;
+      color: color(gray-8);
     }
     &__list {
       list-style: none;
       margin: 0;
       padding: 0;
+      background: #fff;
       border: 1px solid color(gray-1);
       border-radius: 8px;
       overflow: hidden;
@@ -262,7 +355,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 10px 14px;
+      padding: 12px 14px;
       border-bottom: 1px solid color(gray-1);
       &:last-child {
         border-bottom: none;
@@ -284,6 +377,12 @@
       font-weight: 600;
       color: color(gray-9);
     }
+    // Active row's price additionally gets the dark-green emphasis called
+    // for by the reference, on top of the row's light-green background.
+    &__row.is-active &__price {
+      color: color(hard-primary);
+      font-weight: 700;
+    }
     &__unit {
       font-size: 12px;
       font-weight: 400;
@@ -292,11 +391,12 @@
     &__badges {
       display: flex;
       flex-wrap: wrap;
+      justify-content: flex-end;
       gap: 6px;
     }
     &__badge {
       display: inline-block;
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: 30px;
       font-size: 11px;
       line-height: 16px;
@@ -306,58 +406,41 @@
         background: color(primary);
         color: #fff;
       }
+      // Warm cream/orange accent, using the existing `warning` token
+      // rather than a new color, tying it to the header icon above.
       &--best {
-        background: #fff;
-        border: 1px solid color(hard-primary);
-        color: color(hard-primary);
+        background: rgba(255, 138, 0, 0.14);
+        color: #a35a00;
       }
     }
   }
 
-  // Section 4 — order total, deliberately smaller than the active unit
-  // price (h2, 32px inside .has-tiers) so it stays visually secondary.
-  &-tier-total {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 8px 0;
-    margin-bottom: 8px;
-    border-top: 1px dashed color(gray-1);
-    &__label {
-      font-size: 13px;
-      color: color(gray-6);
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-    }
-    &__value {
-      font-size: 20px;
-      font-weight: 600;
-      color: color(gray-9);
-    }
-  }
-
-  // Section 3 — next-tier incentive / best-price-unlocked banner. Same
-  // light-green family as the price panel and the active tier row, not a
-  // new hue — this project's palette has no blue token to use instead.
+  // Section 4 — next-tier incentive / best-price-unlocked banner. The
+  // reference uses a light blue treatment here specifically (unlike the
+  // green used everywhere else on this page) — this app's palette has no
+  // blue token, so these are one-off hex values, same precedent as the
+  // cream tier card above. The best-price-unlocked state keeps the
+  // existing green success treatment.
   &-tier-banner {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    padding: 12px 14px;
-    border-radius: 8px;
-    background: color(green-0);
-    border: 1px solid color(green-1);
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #eaf3ff;
+    border: 1px solid #cfe4fb;
+    margin-bottom: 18px;
 
     &__icon {
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      width: 26px;
-      height: 26px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: #fff;
-      color: color(hard-primary);
+      color: #2f6fe4;
     }
     &__text {
       flex: 1;
@@ -367,7 +450,7 @@
       margin: 0 0 2px;
       font-size: 14px;
       line-height: 20px;
-      font-weight: 600;
+      font-weight: 700;
       color: color(gray-9);
     }
     &__secondary {
@@ -387,61 +470,89 @@
   }
 
   // Quantity-driven line total + volume-pricing feedback container —
-  // Section 3/4 markup (total + banner) is injected into this wrapper by
-  // the page's tier-pricing JS.
+  // the total + banner markup above is injected into this wrapper by the
+  // page's tier-pricing JS.
   &-tier-feedback {
-    margin: 8px 0 16px;
+    margin-bottom: 4px;
   }
 
-  &-brand {
+  // Section 6 — trust row (Free Shipping / Secure Payment / Eco-Friendly).
+  &-trust {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    @include max(767px) {
+      flex-wrap: wrap;
+    }
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+      @include max(767px) {
+        flex: 1 1 45%;
+      }
+    }
+    &__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: color(green-0);
+      color: color(primary);
+      flex-shrink: 0;
+    }
+    &__text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: color(gray-9);
+      }
+      small {
+        font-size: 12px;
+        color: color(gray-5);
+      }
+    }
+  }
+
+  // Section 7 — Brand + Category footer row.
+  &-meta-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    padding-top: 16px;
+    border-top: 1px solid color(gray-1);
     margin-bottom: 16px;
-    @include max(767px) {
+    @include max(575px) {
       flex-direction: column;
       align-items: flex-start;
+      gap: 8px;
     }
-    .brand-name {
-      display: flex;
-      align-items: center;
-      h2 {
-        margin-right: 8px;
+    &__item {
+      margin: 0;
+      color: color(gray-9);
+      span, a {
+        color: color(gray-6);
+        font-weight: 400;
       }
-    }
-
-    .social-site {
-      display: flex;
-      align-items: center;
-      h2 {
+      a:hover {
         color: color(gray-9);
-        text-transform: capitalize;
-        margin-right: 10px;
-        flex-shrink: 0;
       }
-      .social-icon {
-        &-link {
-          @include max(767px) {
-            margin-right: 6px;
-          }
-          a {
-            color: color(gray-7);
-            &:hover {
-              color: #fff;
-            }
-          }
-        }
-      }
-    }
-    &-info {
-      color: color(gray-5);
-      text-transform: capitalize;
     }
   }
 
   &-action {
     display: flex;
     align-items: center;
+    margin-bottom: 20px;
     @include max(991px) {
       justify-content: center;
     }
