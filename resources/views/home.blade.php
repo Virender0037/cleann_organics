@@ -653,7 +653,14 @@
                         Latest News
                     </h2>
                 </div>
-                <div class="news-slider--one swiper-container">
+                <div class="news-slider-wrap">
+                    <button type="button" class="arrows__btn news-slider-prev" aria-label="Previous news articles">
+                        <svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1.25 7.22607H16.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M7.30005 1.20117L1.25005 7.22517L7.30005 13.2502" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="news-slider--one swiper-container">
                     <div class="swiper-wrapper">
                         @if ($environmentalNews->isNotEmpty())
                             @foreach ($environmentalNews as $article)
@@ -960,6 +967,13 @@
                     </div>
                         @endif
                     <div class="swiper-pagination"></div>
+                    </div>
+                    <button type="button" class="arrows__btn news-slider-next" aria-label="Next news articles">
+                        <svg width="17" height="15" viewBox="0 0 17 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 7.50049H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M9.95001 1.47559L16 7.49959L9.95001 13.5246" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </section>

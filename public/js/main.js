@@ -1044,6 +1044,17 @@ var news = new Swiper(".news-slider--one", {
 		clickable: true,
 		dynamicBullets: true,
 	},
+	navigation: {
+		nextEl: ".news-slider-next",
+		prevEl: ".news-slider-prev",
+	},
+	// Swiper's a11y module overwrites a nav button's aria-label with its own
+	// default ("Previous slide"/"Next slide") on init, so the meaningful
+	// label has to be set here rather than left on the button markup.
+	a11y: {
+		prevSlideMessage: "Previous news articles",
+		nextSlideMessage: "Next news articles",
+	},
 	breakpoints: {
 		0: {
 			slidesPerView: 1,

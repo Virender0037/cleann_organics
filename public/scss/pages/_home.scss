@@ -989,6 +989,54 @@
   margin-bottom: 40px;
 }
 
+// Latest News prev/next controls — siblings of the swiper (not children):
+// Swiper's own .swiper-container has overflow:hidden, so anything meant to
+// sit even slightly outside its edges has to live in this wrapper instead,
+// positioned relative to it rather than to the clipped slider itself. Inset
+// (not negative-offset) placement is deliberate: the swiper sits directly
+// against the section .container with only Bootstrap's default gutter
+// around it, so a true outside offset risks overflowing the viewport at
+// exact breakpoint widths — an inset keeps this safe at every screen size.
+.news-slider-wrap {
+  position: relative;
+}
+.news-slider-prev,
+.news-slider-next {
+  position: absolute;
+  // Centered on .cards-blog__img-wrapper's own fixed 325px height (half =
+  // 162px) rather than 50% of the whole wrapper (cards + pagination dots) —
+  // centering on the full wrapper lands right on top of the image's date
+  // badge (bottom:24px), since the image is most of the card's height.
+  top: 162px;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: color(primary);
+
+  &:focus-visible {
+    outline: 2px solid color(primary);
+    outline-offset: 2px;
+  }
+}
+.news-slider-prev {
+  left: 8px;
+}
+.news-slider-next {
+  right: 8px;
+}
+@include max(575px) {
+  .news-slider-prev,
+  .news-slider-next {
+    width: 36px;
+    height: 36px;
+  }
+  .news-slider-prev {
+    left: 4px;
+  }
+  .news-slider-next {
+    right: 4px;
+  }
+}
+
 // Testimonials
 .testimonial {
   @include max(1200px) {
