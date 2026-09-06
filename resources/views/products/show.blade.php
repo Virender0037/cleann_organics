@@ -113,6 +113,9 @@
                                         <del class="font-body--xxl-400" id="price-compare">₹{{ number_format($headlineTier['compare_price'], 2) }}</del>
                                     @endif
                                     <span id="price-current">₹{{ number_format($headlineTier['price'], 2) }}</span>
+                                    @if ($defaultVariant?->hasMultipleTiers())
+                                        <span class="font-body--md-400" id="price-each"> each</span>
+                                    @endif
                                 </h2>
                             @else
                                 <h2 class="font-body--xxxl-500" id="price-current">Price unavailable</h2>
@@ -125,6 +128,14 @@
                                 @endforeach
                             @endif
                         </ul>
+                        {{--
+                            Populated entirely by the tier-pricing JS below (initial
+                            render, +/-, manual quantity input, variant switch all go
+                            through the same helper) — quantity-aware line total and
+                            volume-pricing messaging, kept separate from the static
+                            tier list above so that list is never rewritten.
+                        --}}
+                        <div class="products__content-tier-feedback" id="tier-pricing-feedback"></div>
 
                         @if ($variants->count() > 1)
                             <div class="products__content-category font-body--md-500" style="margin-bottom: 8px;">Options:</div>
@@ -436,34 +447,113 @@
         // ProductController::variantsPayload() for where this JSON comes from.
         (function () {
             var variants = @json($variantsPayload);
+            // Tracks whichever variant is currently selected so the
+            // tier-pricing helper (triggered by +/-, manual input, or a
+            // variant switch) always knows which tier list to read from.
+            var currentVariantId = {{ $defaultVariant?->id ?? 'null' }};
 
             function formatMoney(value) {
                 return '₹' + Number(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
 
-            function renderPrice(variant) {
+            // Mirrors ProductVariant::unitPriceForQuantity()'s exact selection
+            // rule (see app/Models/ProductVariant.php): the highest-threshold
+            // tier whose quantity is <= the given quantity, or the first
+            // (lowest) tier if none qualify. variant.tiers is already sorted
+            // ascending by quantity (ProductController::variantsPayload()).
+            // This is the ONE place tier selection happens client-side —
+            // every quantity change (+, -, manual input, variant switch)
+            // goes through it, both here and initially on page load.
+            function findActiveTier(tiers, quantity) {
+                if (! tiers.length) {
+                    return null;
+                }
+                var applicable = null;
+                for (var i = 0; i < tiers.length; i++) {
+                    if (tiers[i].quantity <= quantity) {
+                        applicable = tiers[i];
+                    }
+                }
+                return applicable || tiers[0];
+            }
+
+            function currentQuantity() {
+                var counter = document.getElementById('counter-btn-counter');
+                var qty = counter ? parseInt(counter.value, 10) : 1;
+                return (qty && qty > 0) ? qty : 1;
+            }
+
+            // Renders the prominent unit price, the full static tier list,
+            // and the quantity-aware total/volume messaging — this is the
+            // client-side UX layer only; the server always recomputes the
+            // real price from the same unitPriceForQuantity() rule when the
+            // cart is actually written to (see CartService), so nothing
+            // here is ever trusted as the real price.
+            function applyTierPricing(variant) {
                 var priceBlock = document.getElementById('price-block');
                 var tiersList = document.getElementById('price-tiers');
-
-                if (! variant.tiers.length) {
-                    priceBlock.innerHTML = '<h2 class="font-body--xxxl-500" id="price-current">Price unavailable</h2>';
-                    tiersList.innerHTML = '';
+                var feedback = document.getElementById('tier-pricing-feedback');
+                if (! priceBlock || ! tiersList || ! feedback) {
                     return;
                 }
 
-                var headline = variant.tiers[0];
-                var html = '<h2 class="font-body--xxxl-500">';
-                if (headline.compare_price) {
-                    html += '<del class="font-body--xxl-400" id="price-compare">' + formatMoney(headline.compare_price) + '</del>';
+                if (! variant || ! variant.tiers.length) {
+                    priceBlock.innerHTML = '<h2 class="font-body--xxxl-500" id="price-current">Price unavailable</h2>';
+                    tiersList.innerHTML = '';
+                    feedback.innerHTML = '';
+                    return;
                 }
-                html += '<span id="price-current">' + formatMoney(headline.price) + '</span></h2>';
-                priceBlock.innerHTML = html;
 
+                var tiers = variant.tiers;
+                var quantity = currentQuantity();
+                var activeTier = findActiveTier(tiers, quantity);
+                var activeIndex = tiers.indexOf(activeTier);
+                var baseTier = tiers[0];
+
+                var priceHtml = '<h2 class="font-body--xxxl-500">';
+                if (activeTier.compare_price) {
+                    priceHtml += '<del class="font-body--xxl-400" id="price-compare">' + formatMoney(activeTier.compare_price) + '</del>';
+                }
+                priceHtml += '<span id="price-current">' + formatMoney(activeTier.price) + '</span>';
+                if (variant.has_multiple_tiers) {
+                    priceHtml += '<span class="font-body--md-400" id="price-each"> each</span>';
+                }
+                priceHtml += '</h2>';
+                priceBlock.innerHTML = priceHtml;
+
+                // Static full tier list — quantity-independent, always shows
+                // every tier regardless of which one is currently active.
                 tiersList.innerHTML = variant.has_multiple_tiers
-                    ? variant.tiers.map(function (tier) {
+                    ? tiers.map(function (tier) {
                         return '<li>' + tier.quantity + '+ qty — ' + formatMoney(tier.price) + '</li>';
                     }).join('')
                     : '';
+
+                if (! variant.has_multiple_tiers) {
+                    feedback.innerHTML = '';
+                    return;
+                }
+
+                var lineTotal = activeTier.price * quantity;
+                var nextTier = activeIndex < tiers.length - 1 ? tiers[activeIndex + 1] : null;
+                var messages = [];
+
+                if (activeIndex > 0) {
+                    var savingsPerItem = baseTier.price - activeTier.price;
+                    if (nextTier) {
+                        messages.push('<p class="products__content-tier-feedback__savings">Volume price applied — you save ' + formatMoney(savingsPerItem) + ' per item</p>');
+                    } else {
+                        messages.push('<p class="products__content-tier-feedback__savings">Best volume price applied</p>');
+                        messages.push('<p class="products__content-tier-feedback__savings">You save ' + formatMoney(savingsPerItem) + ' per item compared with the ' + baseTier.quantity + '+ price</p>');
+                    }
+                }
+
+                if (nextTier) {
+                    var qtyToUnlock = nextTier.quantity - quantity;
+                    messages.push('<p class="products__content-tier-feedback__next">Buy ' + qtyToUnlock + ' more to unlock ' + formatMoney(nextTier.price) + ' each</p>');
+                }
+
+                feedback.innerHTML = '<p class="products__content-tier-feedback__total">Total: ' + formatMoney(lineTotal) + '</p>' + messages.join('');
             }
 
             function renderStock(variant) {
@@ -659,6 +749,7 @@
                 if (! variant) {
                     return;
                 }
+                currentVariantId = variantId;
 
                 document.querySelectorAll('.variant-option').forEach(function (button) {
                     var isSelected = String(button.dataset.variantId) === String(variantId);
@@ -666,8 +757,12 @@
                     button.setAttribute('aria-pressed', isSelected.toString());
                 });
 
-                renderPrice(variant);
+                // renderStock() first: it re-clamps the quantity input to
+                // the new variant's stock, so applyTierPricing() below
+                // reads the already-clamped quantity rather than one the
+                // previous variant allowed but this one doesn't.
                 renderStock(variant);
+                applyTierPricing(variant);
                 rebuildGallery(variant.media);
             }
 
@@ -679,6 +774,44 @@
                     selectVariant(button.dataset.variantId);
                 });
             });
+
+            // +/- buttons: increment()/decrement() (inline onclick, defined
+            // in main.js) already stepped the input's value by the time this
+            // fires, since inline onclick attributes are registered during
+            // HTML parsing — before this script runs and adds its own
+            // listener on the same click.
+            document.querySelectorAll('.counter-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    applyTierPricing(variants[currentVariantId]);
+                });
+            });
+
+            // Manual quantity input: stepUp()/stepDown() (used by +/-) don't
+            // fire native input/change events, but typing does — this is
+            // the one path applyTierPricing() needs a dedicated listener
+            // for. Stock is re-clamped here the same way renderStock()
+            // already clamps it after a variant switch.
+            var counterInput = document.getElementById('counter-btn-counter');
+            if (counterInput) {
+                counterInput.addEventListener('input', function () {
+                    var variant = variants[currentVariantId];
+                    if (variant && variant.purchasable) {
+                        var typed = parseInt(counterInput.value, 10);
+                        if (typed > variant.stock_quantity) {
+                            counterInput.value = variant.stock_quantity;
+                        }
+                    }
+                    applyTierPricing(variant);
+                });
+            }
+
+            // Initial render enhancement — reflects the starting quantity
+            // (1) through the exact same helper as every other code path,
+            // rather than trusting the server-rendered headline-tier
+            // markup to already match it (it does today, since the input
+            // starts at 1, but this keeps there being only one source of
+            // truth for the calculation).
+            applyTierPricing(variants[currentVariantId]);
         })();
     </script>
     </body>

@@ -148,6 +148,13 @@
       del {
         color: color(gray-3);
       }
+      // "each" qualifier next to the unit price — only rendered (in Blade
+      // and by the tier-pricing JS) when the variant actually has more
+      // than one quantity tier, so a non-tiered product's price is
+      // untouched.
+      #price-each {
+        color: color(gray-6);
+      }
     }
     .label {
       margin-left: 12px;
@@ -161,6 +168,29 @@
         background: #ea4b481a;
         color: color(danger);
       }
+    }
+  }
+
+  // Quantity-driven line total + volume-pricing feedback (Product Detail
+  // tier pricing UX) — populated entirely by the page's tier-pricing JS,
+  // reusing the same success/secondary colors already used elsewhere on
+  // this page (stock-in badge, review-count) rather than new ones.
+  &-tier-feedback {
+    margin: -8px 0 16px;
+    p {
+      margin: 0 0 4px;
+      font-size: 14px;
+      line-height: 21px;
+    }
+    &__total {
+      color: color(gray-9);
+      font-weight: 500;
+    }
+    &__savings {
+      color: color(hard-primary);
+    }
+    &__next {
+      color: color(gray-6);
     }
   }
 

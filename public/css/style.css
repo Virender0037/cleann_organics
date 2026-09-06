@@ -3219,6 +3219,9 @@ body.overlay::after {
 .products__content-price h2 del {
   color: #b2b2b2;
 }
+.products__content-price h2 #price-each {
+  color: #666666;
+}
 .products__content-price .label {
   margin-left: 12px;
   padding: 3px 10px;
@@ -3231,6 +3234,24 @@ body.overlay::after {
 .products__content-price .label.sale-off {
   background: rgba(234, 75, 72, 0.1019607843);
   color: #ea4b48;
+}
+.products__content-tier-feedback {
+  margin: -8px 0 16px;
+}
+.products__content-tier-feedback p {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 21px;
+}
+.products__content-tier-feedback__total {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+.products__content-tier-feedback__savings {
+  color: #2c742f;
+}
+.products__content-tier-feedback__next {
+  color: #666666;
 }
 .products__content-brand {
   display: flex;
