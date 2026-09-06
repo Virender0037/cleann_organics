@@ -169,29 +169,228 @@
         color: color(danger);
       }
     }
+
+    // Soft "pricing panel" treatment — only for a variant that actually
+    // has quantity tiers (JS toggles this class alongside its own
+    // has_multiple_tiers flag; Blade sets the same class on first paint).
+    // A non-tiered product's price is intentionally left exactly as it
+    // was: no panel, no size bump, no badges.
+    &.has-tiers {
+      flex-direction: column;
+      align-items: flex-start;
+      background: color(green-0);
+      border: 1px solid color(green-1);
+      border-radius: 8px;
+      padding: 16px 20px;
+      h2 {
+        // Reuses the existing title(sm) scale (32px) rather than a new
+        // size, just applied here so the active price visually leads.
+        font-size: 32px;
+      }
+    }
   }
 
-  // Quantity-driven line total + volume-pricing feedback (Product Detail
-  // tier pricing UX) — populated entirely by the page's tier-pricing JS,
-  // reusing the same success/secondary colors already used elsewhere on
-  // this page (stock-in badge, review-count) rather than new ones.
-  &-tier-feedback {
-    margin: -8px 0 16px;
-    p {
-      margin: 0 0 4px;
+  // "each" label + struck-through reference price sit right under the
+  // active price inside the panel above.
+  .price-each {
+    color: color(gray-6);
+  }
+  .price-discount-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .price-original {
+    color: color(gray-5);
+  }
+  // Two distinct pill treatments, deliberately not sharing the page's
+  // existing .label class: that class is also used by the stock-in/out
+  // badge elsewhere on this page, and giving it new base rules here would
+  // change that badge's font-size/line-height/weight too.
+  .price-savings-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 30px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 600;
+    background: rgba(0, 178, 7, 0.12);
+    color: color(hard-primary);
+    white-space: nowrap;
+  }
+  .price-applied-badge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    line-height: 18px;
+    font-weight: 600;
+    background: color(primary);
+    color: #fff;
+  }
+
+  // Section 2 — quantity-based pricing tier panel. Always present in the
+  // DOM (see the Blade comment on #price-tiers-panel); hidden via the
+  // native `hidden` attribute for a non-tiered variant rather than never
+  // being rendered, so a later switch TO a tiered variant has something
+  // to reveal.
+  &-tier-panel {
+    margin: 16px 0;
+
+    &__heading {
+      margin: 0 0 8px;
+      font-size: 13px;
+      line-height: 18px;
+      font-weight: 600;
+      color: color(gray-6);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    &__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border: 1px solid color(gray-1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    &__row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 14px;
+      border-bottom: 1px solid color(gray-1);
+      &:last-child {
+        border-bottom: none;
+      }
+      // Color is never the only signal — every active row also carries a
+      // "Your current price" text badge (see &__badge--active below).
+      &.is-active {
+        background: color(green-0);
+      }
+    }
+    &__qty {
+      min-width: 64px;
       font-size: 14px;
-      line-height: 21px;
-    }
-    &__total {
-      color: color(gray-9);
       font-weight: 500;
+      color: color(gray-7);
     }
-    &__savings {
+    &__price {
+      font-size: 14px;
+      font-weight: 600;
+      color: color(gray-9);
+    }
+    &__unit {
+      font-size: 12px;
+      font-weight: 400;
+      color: color(gray-5);
+    }
+    &__badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    &__badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 30px;
+      font-size: 11px;
+      line-height: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+      &--active {
+        background: color(primary);
+        color: #fff;
+      }
+      &--best {
+        background: #fff;
+        border: 1px solid color(hard-primary);
+        color: color(hard-primary);
+      }
+    }
+  }
+
+  // Section 4 — order total, deliberately smaller than the active unit
+  // price (h2, 32px inside .has-tiers) so it stays visually secondary.
+  &-tier-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    border-top: 1px dashed color(gray-1);
+    &__label {
+      font-size: 13px;
+      color: color(gray-6);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    &__value {
+      font-size: 20px;
+      font-weight: 600;
+      color: color(gray-9);
+    }
+  }
+
+  // Section 3 — next-tier incentive / best-price-unlocked banner. Same
+  // light-green family as the price panel and the active tier row, not a
+  // new hue — this project's palette has no blue token to use instead.
+  &-tier-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: color(green-0);
+    border: 1px solid color(green-1);
+
+    &__icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #fff;
       color: color(hard-primary);
     }
-    &__next {
+    &__text {
+      flex: 1;
+      min-width: 0;
+    }
+    &__primary {
+      margin: 0 0 2px;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 600;
+      color: color(gray-9);
+    }
+    &__secondary {
+      margin: 0;
+      font-size: 12px;
+      line-height: 16px;
       color: color(gray-6);
     }
+
+    &--success {
+      background: rgba(0, 178, 7, 0.08);
+      border-color: color(soft-primary);
+      .products__content-tier-banner__icon {
+        color: color(primary);
+      }
+    }
+  }
+
+  // Quantity-driven line total + volume-pricing feedback container —
+  // Section 3/4 markup (total + banner) is injected into this wrapper by
+  // the page's tier-pricing JS.
+  &-tier-feedback {
+    margin: 8px 0 16px;
   }
 
   &-brand {

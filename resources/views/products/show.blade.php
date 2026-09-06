@@ -106,34 +106,70 @@
                             <h5 class="font-body--md-500">Sku: <span class="counting font-body--md-400" id="variant-sku">{{ $defaultVariant?->sku ?? '—' }}</span></h5>
                         </div>
 
-                        <div class="products__content-price" id="price-block">
+                        @php
+                            // At the default quantity of 1, the active tier is always
+                            // tiers[0] (the base tier) — headlineTier() IS that tier —
+                            // so no discount is active yet on first paint. The tier
+                            // panel below still lists every tier (needed regardless of
+                            // starting quantity); only the "is-active" row and the
+                            // price panel's discount styling depend on quantity, so
+                            // they stay in their qty=1 state here and the tier-pricing
+                            // JS (already called once on load, further down) takes
+                            // over immediately after.
+                            $tiersForPanel = $defaultVariant?->hasMultipleTiers() ? $defaultVariant->pricingTiers() : [];
+                        @endphp
+                        <div class="products__content-price products__content-price--panel {{ $defaultVariant?->hasMultipleTiers() ? 'has-tiers' : '' }}" id="price-block">
                             @if ($headlineTier)
                                 <h2 class="font-body--xxxl-500">
-                                    @if ($headlineTier['compare_price'])
-                                        <del class="font-body--xxl-400" id="price-compare">₹{{ number_format($headlineTier['compare_price'], 2) }}</del>
-                                    @endif
                                     <span id="price-current">₹{{ number_format($headlineTier['price'], 2) }}</span>
                                     @if ($defaultVariant?->hasMultipleTiers())
-                                        <span class="font-body--md-400" id="price-each"> each</span>
+                                        <span class="font-body--md-400 price-each" id="price-each">each</span>
                                     @endif
                                 </h2>
+                                @if ($headlineTier['compare_price'])
+                                    <div class="price-discount-row" id="price-discount-row">
+                                        <del class="font-body--xxl-400 price-original" id="price-compare">₹{{ number_format($headlineTier['compare_price'], 2) }}</del>
+                                    </div>
+                                @endif
                             @else
                                 <h2 class="font-body--xxxl-500" id="price-current">Price unavailable</h2>
                             @endif
                         </div>
-                        <ul class="font-body--md-400" id="price-tiers" style="list-style:none; padding:0; margin: 4px 0 16px;">
-                            @if ($defaultVariant?->hasMultipleTiers())
-                                @foreach ($defaultVariant->pricingTiers() as $tier)
-                                    <li>{{ $tier['quantity'] }}+ qty — ₹{{ number_format($tier['price'], 2) }}</li>
+
+                        {{--
+                            Always present in the DOM (even for a non-tiered default
+                            variant) and just hidden via the same native `hidden`
+                            attribute this file already uses for the gallery's
+                            img/video toggle — switching TO a tiered variant later
+                            needs this element to already exist so the JS can reveal
+                            and populate it, rather than having to create it from
+                            scratch.
+                        --}}
+                        <div class="products__content-tier-panel" id="price-tiers-panel" @unless ($defaultVariant?->hasMultipleTiers()) hidden @endunless>
+                            <h3 class="products__content-tier-panel__heading">Quantity-based Pricing</h3>
+                            <ul class="products__content-tier-panel__list" id="price-tiers">
+                                @foreach ($tiersForPanel as $index => $tier)
+                                    <li class="products__content-tier-panel__row {{ $index === 0 ? 'is-active' : '' }}">
+                                        <span class="products__content-tier-panel__qty">{{ $tier['quantity'] }}+ qty</span>
+                                        <span class="products__content-tier-panel__price">₹{{ number_format($tier['price'], 2) }} <span class="products__content-tier-panel__unit">each</span></span>
+                                        <span class="products__content-tier-panel__badges">
+                                            @if ($index === 0)
+                                                <span class="products__content-tier-panel__badge products__content-tier-panel__badge--active">Your current price</span>
+                                            @endif
+                                            @if ($index === count($tiersForPanel) - 1)
+                                                <span class="products__content-tier-panel__badge products__content-tier-panel__badge--best">Best price</span>
+                                            @endif
+                                        </span>
+                                    </li>
                                 @endforeach
-                            @endif
-                        </ul>
+                            </ul>
+                        </div>
+
                         {{--
                             Populated entirely by the tier-pricing JS below (initial
                             render, +/-, manual quantity input, variant switch all go
                             through the same helper) — quantity-aware line total and
-                            volume-pricing messaging, kept separate from the static
-                            tier list above so that list is never rewritten.
+                            the next-tier/best-price incentive banner.
                         --}}
                         <div class="products__content-tier-feedback" id="tier-pricing-feedback"></div>
 
@@ -483,22 +519,42 @@
                 return (qty && qty > 0) ? qty : 1;
             }
 
-            // Renders the prominent unit price, the full static tier list,
-            // and the quantity-aware total/volume messaging — this is the
-            // client-side UX layer only; the server always recomputes the
-            // real price from the same unitPriceForQuantity() rule when the
-            // cart is actually written to (see CartService), so nothing
-            // here is ever trusted as the real price.
+            // Same two icons already used elsewhere on this exact page/site
+            // (the "Read More"/"View All" chevron) plus one new checkmark
+            // drawn in the identical stroke style (stroke="currentColor",
+            // round caps/joins) every other icon in this file already uses
+            // — not a new icon library, just one more hand-drawn SVG in the
+            // established house style.
+            var TIER_ARROW_ICON = '<svg width="14" height="12" viewBox="0 0 17 15" fill="none" xmlns="http://www.w3.org/2000/svg">'
+                + '<path d="M16 7.50049H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'
+                + '<path d="M9.95001 1.47559L16 7.49959L9.95001 13.5246" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'
+                + '</svg>';
+            var TIER_CHECK_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">'
+                + '<path d="M13.3333 4L6 11.3333L2.66667 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />'
+                + '</svg>';
+
+            // Renders the prominent unit price, the quantity-based pricing
+            // panel, and the total/incentive banner — all from the same
+            // computed state (findActiveTier() + currentQuantity() above);
+            // this function only decides how to DISPLAY that state, it
+            // never recomputes it differently. This is client-side UX only
+            // — the server always recomputes the real price from the same
+            // unitPriceForQuantity() rule when the cart is actually written
+            // to (see CartService), so nothing here is ever trusted as the
+            // real price.
             function applyTierPricing(variant) {
                 var priceBlock = document.getElementById('price-block');
+                var tiersPanel = document.getElementById('price-tiers-panel');
                 var tiersList = document.getElementById('price-tiers');
                 var feedback = document.getElementById('tier-pricing-feedback');
-                if (! priceBlock || ! tiersList || ! feedback) {
+                if (! priceBlock || ! tiersPanel || ! tiersList || ! feedback) {
                     return;
                 }
 
                 if (! variant || ! variant.tiers.length) {
+                    priceBlock.classList.remove('has-tiers');
                     priceBlock.innerHTML = '<h2 class="font-body--xxxl-500" id="price-current">Price unavailable</h2>';
+                    tiersPanel.hidden = true;
                     tiersList.innerHTML = '';
                     feedback.innerHTML = '';
                     return;
@@ -509,51 +565,97 @@
                 var activeTier = findActiveTier(tiers, quantity);
                 var activeIndex = tiers.indexOf(activeTier);
                 var baseTier = tiers[0];
+                // A real, currently-active volume discount — false at the
+                // base (1st) tier even for a tiered variant, so qty 1-9 in
+                // the example never shows a fabricated savings badge.
+                var isDiscounted = variant.has_multiple_tiers && activeIndex > 0;
 
+                priceBlock.classList.toggle('has-tiers', variant.has_multiple_tiers);
+
+                // --- Section 1: prominent unit price + discount badges ---
                 var priceHtml = '<h2 class="font-body--xxxl-500">';
-                if (activeTier.compare_price) {
-                    priceHtml += '<del class="font-body--xxl-400" id="price-compare">' + formatMoney(activeTier.compare_price) + '</del>';
-                }
                 priceHtml += '<span id="price-current">' + formatMoney(activeTier.price) + '</span>';
                 if (variant.has_multiple_tiers) {
-                    priceHtml += '<span class="font-body--md-400" id="price-each"> each</span>';
+                    priceHtml += '<span class="font-body--md-400 price-each" id="price-each">each</span>';
                 }
                 priceHtml += '</h2>';
+
+                if (activeTier.compare_price) {
+                    // Existing same-quantity compare_price mechanic (two
+                    // tiers sharing one quantity, see pricingTiers()) — a
+                    // different case from the base-vs-active comparison
+                    // below, and unconditionally preserved as-is.
+                    priceHtml += '<div class="price-discount-row" id="price-discount-row">'
+                        + '<del class="font-body--xxl-400 price-original" id="price-compare">' + formatMoney(activeTier.compare_price) + '</del>'
+                        + '</div>';
+                } else if (isDiscounted) {
+                    var savingsPerItem = baseTier.price - activeTier.price;
+                    priceHtml += '<div class="price-discount-row" id="price-discount-row">'
+                        + '<del class="font-body--xxl-400 price-original" id="price-compare">' + formatMoney(baseTier.price) + '</del>'
+                        + '<span class="price-savings-pill">You save ' + formatMoney(savingsPerItem) + '</span>'
+                        + '</div>';
+                }
+
+                if (isDiscounted) {
+                    priceHtml += '<span class="price-applied-badge">Volume Price Applied</span>';
+                }
+
                 priceBlock.innerHTML = priceHtml;
 
-                // Static full tier list — quantity-independent, always shows
-                // every tier regardless of which one is currently active.
-                tiersList.innerHTML = variant.has_multiple_tiers
-                    ? tiers.map(function (tier) {
-                        return '<li>' + tier.quantity + '+ qty — ' + formatMoney(tier.price) + '</li>';
-                    }).join('')
-                    : '';
-
+                // --- Section 2: quantity-based pricing tier panel ---------
                 if (! variant.has_multiple_tiers) {
+                    tiersPanel.hidden = true;
+                    tiersList.innerHTML = '';
                     feedback.innerHTML = '';
                     return;
                 }
 
+                tiersPanel.hidden = false;
+                tiersList.innerHTML = tiers.map(function (tier, index) {
+                    var isActive = index === activeIndex;
+                    var isBest = index === tiers.length - 1;
+                    var badges = '';
+                    if (isActive) {
+                        badges += '<span class="products__content-tier-panel__badge products__content-tier-panel__badge--active">Your current price</span>';
+                    }
+                    if (isBest) {
+                        badges += '<span class="products__content-tier-panel__badge products__content-tier-panel__badge--best">Best price</span>';
+                    }
+                    return '<li class="products__content-tier-panel__row' + (isActive ? ' is-active' : '') + '">'
+                        + '<span class="products__content-tier-panel__qty">' + tier.quantity + '+ qty</span>'
+                        + '<span class="products__content-tier-panel__price">' + formatMoney(tier.price) + ' <span class="products__content-tier-panel__unit">each</span></span>'
+                        + '<span class="products__content-tier-panel__badges">' + badges + '</span>'
+                        + '</li>';
+                }).join('');
+
+                // --- Sections 3 & 4: total + next-tier/best-price banner --
                 var lineTotal = activeTier.price * quantity;
                 var nextTier = activeIndex < tiers.length - 1 ? tiers[activeIndex + 1] : null;
-                var messages = [];
 
-                if (activeIndex > 0) {
-                    var savingsPerItem = baseTier.price - activeTier.price;
-                    if (nextTier) {
-                        messages.push('<p class="products__content-tier-feedback__savings">Volume price applied — you save ' + formatMoney(savingsPerItem) + ' per item</p>');
-                    } else {
-                        messages.push('<p class="products__content-tier-feedback__savings">Best volume price applied</p>');
-                        messages.push('<p class="products__content-tier-feedback__savings">You save ' + formatMoney(savingsPerItem) + ' per item compared with the ' + baseTier.quantity + '+ price</p>');
-                    }
-                }
+                var totalHtml = '<div class="products__content-tier-total">'
+                    + '<span class="products__content-tier-total__label">Order total</span>'
+                    + '<span class="products__content-tier-total__value">' + formatMoney(lineTotal) + '</span>'
+                    + '</div>';
 
+                var bannerHtml;
                 if (nextTier) {
                     var qtyToUnlock = nextTier.quantity - quantity;
-                    messages.push('<p class="products__content-tier-feedback__next">Buy ' + qtyToUnlock + ' more to unlock ' + formatMoney(nextTier.price) + ' each</p>');
+                    bannerHtml = '<div class="products__content-tier-banner">'
+                        + '<span class="products__content-tier-banner__icon">' + TIER_ARROW_ICON + '</span>'
+                        + '<div class="products__content-tier-banner__text">'
+                        + '<p class="products__content-tier-banner__primary">Buy ' + qtyToUnlock + ' more to unlock ' + formatMoney(nextTier.price) + ' each</p>'
+                        + '<p class="products__content-tier-banner__secondary">Unlock the best volume price</p>'
+                        + '</div></div>';
+                } else {
+                    bannerHtml = '<div class="products__content-tier-banner products__content-tier-banner--success">'
+                        + '<span class="products__content-tier-banner__icon">' + TIER_CHECK_ICON + '</span>'
+                        + '<div class="products__content-tier-banner__text">'
+                        + '<p class="products__content-tier-banner__primary">Best volume price unlocked</p>'
+                        + '<p class="products__content-tier-banner__secondary">You are getting our lowest unit price.</p>'
+                        + '</div></div>';
                 }
 
-                feedback.innerHTML = '<p class="products__content-tier-feedback__total">Total: ' + formatMoney(lineTotal) + '</p>' + messages.join('');
+                feedback.innerHTML = totalHtml + bannerHtml;
             }
 
             function renderStock(variant) {

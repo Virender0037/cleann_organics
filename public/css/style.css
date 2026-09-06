@@ -3235,23 +3235,190 @@ body.overlay::after {
   background: rgba(234, 75, 72, 0.1019607843);
   color: #ea4b48;
 }
-.products__content-tier-feedback {
-  margin: -8px 0 16px;
+.products__content-price.has-tiers {
+  flex-direction: column;
+  align-items: flex-start;
+  background: #edf2ee;
+  border: 1px solid #dae5da;
+  border-radius: 8px;
+  padding: 16px 20px;
 }
-.products__content-tier-feedback p {
-  margin: 0 0 4px;
+.products__content-price.has-tiers h2 {
+  font-size: 32px;
+}
+.products__content .price-each {
+  color: #666666;
+}
+.products__content .price-discount-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.products__content .price-original {
+  color: #808080;
+}
+.products__content .price-savings-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 30px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  background: rgba(0, 178, 7, 0.12);
+  color: #2c742f;
+  white-space: nowrap;
+}
+.products__content .price-applied-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: 30px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 600;
+  background: #00b207;
+  color: #fff;
+}
+.products__content-tier-panel {
+  margin: 16px 0;
+}
+.products__content-tier-panel__heading {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.products__content-tier-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.products__content-tier-panel__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e5e5e5;
+}
+.products__content-tier-panel__row:last-child {
+  border-bottom: none;
+}
+.products__content-tier-panel__row.is-active {
+  background: #edf2ee;
+}
+.products__content-tier-panel__qty {
+  min-width: 64px;
   font-size: 14px;
-  line-height: 21px;
-}
-.products__content-tier-feedback__total {
-  color: #1a1a1a;
   font-weight: 500;
+  color: #4d4d4d;
 }
-.products__content-tier-feedback__savings {
+.products__content-tier-panel__price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+.products__content-tier-panel__unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: #808080;
+}
+.products__content-tier-panel__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.products__content-tier-panel__badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 30px;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.products__content-tier-panel__badge--active {
+  background: #00b207;
+  color: #fff;
+}
+.products__content-tier-panel__badge--best {
+  background: #fff;
+  border: 1px solid #2c742f;
   color: #2c742f;
 }
-.products__content-tier-feedback__next {
+.products__content-tier-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 0;
+  margin-bottom: 8px;
+  border-top: 1px dashed #e5e5e5;
+}
+.products__content-tier-total__label {
+  font-size: 13px;
   color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.products__content-tier-total__value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+.products__content-tier-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #edf2ee;
+  border: 1px solid #dae5da;
+}
+.products__content-tier-banner__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  color: #2c742f;
+}
+.products__content-tier-banner__text {
+  flex: 1;
+  min-width: 0;
+}
+.products__content-tier-banner__primary {
+  margin: 0 0 2px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+.products__content-tier-banner__secondary {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: #666666;
+}
+.products__content-tier-banner--success {
+  background: rgba(0, 178, 7, 0.08);
+  border-color: #84d187;
+}
+.products__content-tier-banner--success .products__content-tier-banner__icon {
+  color: #00b207;
+}
+.products__content-tier-feedback {
+  margin: 8px 0 16px;
 }
 .products__content-brand {
   display: flex;
