@@ -556,6 +556,13 @@
       color: color(gray-9) !important;
       font-weight: 500;
       font-size: 18px;
+      // Real article titles vary wildly in length (unlike the old fixed
+      // demo sentence) — clamped so a long headline can't grow the card
+      // taller than its row neighbours in the swiper.
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
     }
   }
 

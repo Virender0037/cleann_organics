@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Services\News\EnvironmentalNewsService;
 use App\Services\Storefront\ProductCatalogService;
 use Illuminate\View\View;
 
@@ -24,13 +25,16 @@ class HomeController extends Controller
 
     private const HOT_DEALS_LIMIT = 12;
 
-    public function index(ProductCatalogService $catalog): View
+    private const NEWS_LIMIT = 9;
+
+    public function index(ProductCatalogService $catalog, EnvironmentalNewsService $news): View
     {
         return view('home', [
             'homeCategories' => Category::query()->active()->ordered()->limit(self::CATEGORY_LIMIT)->get(),
             'popularProducts' => $catalog->bestSellers(self::POPULAR_PRODUCTS_LIMIT),
             'featuredProducts' => $catalog->featured(self::FEATURED_PRODUCTS_LIMIT),
             'dealProducts' => $catalog->dealsProducts(self::HOT_DEALS_LIMIT),
+            'environmentalNews' => $news->latest(self::NEWS_LIMIT),
         ]);
     }
 }

@@ -5294,7 +5294,7 @@ body.overlay::after {
   overflow: hidden;
 }
 .footer__top {
-  padding: 66px 0px;
+  padding: 48px 0px;
 }
 @media (max-width: 991px) {
   .footer__brand-info {
@@ -5323,51 +5323,36 @@ body.overlay::after {
   color: #fff;
 }
 .footer__brand-info p {
-  color: #808080;
+  color: #999999;
   max-width: 350px;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
-.footer__brand-info-contact a {
-  margin: 0px 16px;
-  max-width: 250px;
+.footer__brand-info-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-@media (max-width: 420px) {
-  .footer__brand-info-contact a {
-    margin: 0px;
-    margin: 6px;
-  }
+.footer__brand-info-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: -moz-fit-content;
+  width: fit-content;
 }
-.footer__brand-info-contact a:nth-child(1) {
-  margin-left: 0px;
+.footer__brand-info-contact-icon {
+  display: inline-flex;
+  color: #b2b2b2;
 }
-@media (min-width: 992px) and (max-width: 1199px) {
-  .footer__brand-info-contact a:nth-child(1) {
-    margin-bottom: 16px;
-  }
-}
-@media (max-width: 420px) {
-  .footer__brand-info-contact a:nth-child(1) {
-    margin-top: 0px;
-  }
-}
-.footer__brand-info-contact a:nth-child(2) {
-  margin-right: 0px;
-}
-@media (min-width: 992px) and (max-width: 1199px) {
-  .footer__brand-info-contact a:nth-child(2) {
-    margin: 0px;
-  }
-}
-.footer__brand-info-contact span {
+.footer__brand-info-contact span:not(.footer__brand-info-contact-icon) {
   color: #fff;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #00b207;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
   font-weight: 500;
   transition: all 0.3s linear;
 }
-.footer__brand-info-contact span:hover {
+.footer__brand-info-contact-item:hover span:not(.footer__brand-info-contact-icon) {
   color: #00b207;
-  border-color: #2c742f;
+  border-color: #00b207;
   transition: all 0.3s linear;
 }
 .footer__navigation {
@@ -5378,12 +5363,18 @@ body.overlay::after {
     margin-bottom: 20px;
   }
 }
+@media (min-width: 992px) and (max-width: 1600px) {
+  .footer__navigation {
+    padding-left: 8px;
+  }
+}
 .footer__navigation-title {
   margin-bottom: 20px;
 }
 .footer__navigation-title h2 {
   color: #fff;
   text-transform: capitalize;
+  font-weight: 600;
 }
 .footer__navigation-link {
   margin-bottom: 12px;
@@ -5391,7 +5382,7 @@ body.overlay::after {
 .footer__navigation-link a {
   font-size: 14px;
   line-height: 21px;
-  color: #999999;
+  color: #b2b2b2;
   transition: all 0.3s linear;
   text-transform: capitalize;
 }
@@ -5399,7 +5390,7 @@ body.overlay::after {
   color: #fff;
 }
 .footer__bottom {
-  padding: 30px 0px;
+  padding: 24px 0px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -5409,13 +5400,17 @@ body.overlay::after {
   font-size: 14px;
   line-height: 21px;
   font-weight: 400;
-  color: #808080;
+  color: #999999;
 }
 .footer__partner-item {
   margin-right: 8px;
 }
 .footer__partner-item:nth-last-child(1) {
   margin-right: 0px;
+}
+.footer__partner-item img {
+  height: 36px;
+  width: auto;
 }
 .footer__mobile-app {
   display: flex;
@@ -5478,9 +5473,6 @@ body.overlay::after {
 .footer__instagram-item .cards-ig__img {
   width: 69px;
   height: 69px;
-}
-.footer--one .footer__brand-info-contact {
-  color: #808080;
 }
 .footer--two {
   background-color: #fff;
@@ -6571,6 +6563,10 @@ body.overlay::after {
   color: #1a1a1a !important;
   font-weight: 500;
   font-size: 18px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 .cards-blog--two {
   padding: 24px;

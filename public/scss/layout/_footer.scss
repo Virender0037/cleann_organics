@@ -5,7 +5,7 @@
   overflow: hidden;
 
   &__top {
-    padding: 66px 0px;
+    padding: 48px 0px;
   }
 
   // brands information
@@ -23,51 +23,43 @@
     }
 
     p {
-      color: color(gray-5);
+      color: color(gray-4);
       max-width: 350px;
-      margin-bottom: 22px;
+      margin-bottom: 16px;
     }
 
+    // Vertically stacked phone/email rows (real-data footer pass) —
+    // replaces the old inline "phone or email" layout, so the a:nth-child
+    // horizontal-margin rules that layout needed are gone too.
     &-contact {
-      a {
-        margin: 0px 16px;
-        max-width: 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
 
-        @include max(420px) {
-          margin: 0px;
-          margin: 6px;
-        }
-        &:nth-child(1) {
-          margin-left: 0px;
-
-          @include min-max(992px, 1199px) {
-            margin-bottom: 16px;
-          }
-
-          @include max(420px) {
-            margin-top: 0px;
-          }
-        }
-
-        &:nth-child(2) {
-          margin-right: 0px;
-          @include min-max(992px, 1199px) {
-            margin: 0px;
-          }
-        }
+      &-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
       }
 
-      span {
+      &-icon {
+        display: inline-flex;
+        color: color(gray-3);
+      }
+
+      span:not(.footer__brand-info-contact-icon) {
         color: #fff;
-        padding-bottom: 6px;
-        border-bottom: 1px solid color(primary);
+        padding-bottom: 2px;
+        border-bottom: 1px solid transparent;
         font-weight: 500;
         transition: all 0.3s linear;
-        &:hover {
-          color: color(primary);
-          border-color: color(hard-primary);
-          transition: all 0.3s linear;
-        }
+      }
+
+      &-item:hover span:not(.footer__brand-info-contact-icon) {
+        color: color(primary);
+        border-color: color(primary);
+        transition: all 0.3s linear;
       }
     }
   }
@@ -78,12 +70,16 @@
     @include max(767px) {
       margin-bottom: 20px;
     }
+    @include min-max(992px, 1600px) {
+      padding-left: 8px;
+    }
     &-title {
       margin-bottom: 20px;
 
       h2 {
         color: #fff;
         text-transform: capitalize;
+        font-weight: 600;
       }
     }
 
@@ -93,7 +89,7 @@
       a {
         font-size: 14px;
         line-height: 21px;
-        color: color(gray-4);
+        color: color(gray-3);
         transition: all 0.3s linear;
         text-transform: capitalize;
 
@@ -105,7 +101,7 @@
   }
 
   &__bottom {
-    padding: 30px 0px;
+    padding: 24px 0px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -116,7 +112,7 @@
     font-size: 14px;
     line-height: 21px;
     font-weight: 400;
-    color: color(gray-5);
+    color: color(gray-4);
   }
 
   &__partner {
@@ -125,6 +121,11 @@
 
       &:nth-last-child(1) {
         margin-right: 0px;
+      }
+
+      img {
+        height: 36px;
+        width: auto;
       }
     }
   }
@@ -198,12 +199,11 @@
   }
 
   // Footer one
-
-  &--one {
-    .footer__brand-info-contact {
-      color: color(gray-5);
-    }
-  }
+  //
+  // No color override needed here any more: the phone/email spans and the
+  // contact icon each carry their own explicit color now (see
+  // &__brand-info-contact above) — this used to color a bare "or" text
+  // node between them, which no longer exists.
 
   // Footer two
   &--two {

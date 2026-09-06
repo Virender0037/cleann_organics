@@ -8,16 +8,30 @@
                         <div class="footer__brand-info-logo">
                             <img src="{{ ! empty($generalSettings['logo']) ? \Illuminate\Support\Facades\Storage::url($generalSettings['logo']) : asset('images/vertical-logo.jpeg') }}"
                             alt="{{ $generalSettings['site_name'] ?? 'brand-logo' }}"
-                            style="height: 39px; width: auto;">
+                            style="height: 56px; width: auto;">
                         </div>
                         <p class="font-body--md-400">
                             Morbi cursus porttitor enim lobortis molestie. Duis gravida turpis dui, eget bibendum magna congue nec.
                         </p>
                         <div class="footer__brand-info-contact">
-                            <a href="tel:{{ $generalSettings['company_phone'] ?? '+91-9999667014' }}"><span>{{ $generalSettings['company_phone'] ?? '+91-9999667014' }}</span></a>
+                            <a href="tel:{{ $generalSettings['company_phone'] ?? '+91-9999667014' }}" class="footer__brand-info-contact-item">
+                                <span class="footer__brand-info-contact-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </span>
+                                <span>{{ $generalSettings['company_phone'] ?? '+91-9999667014' }}</span>
+                            </a>
                             @if (! empty($generalSettings['company_email']))
-                                or
-                                <a href="mailto:{{ $generalSettings['company_email'] }}"><span>{{ $generalSettings['company_email'] }}</span></a>
+                                <a href="mailto:{{ $generalSettings['company_email'] }}" class="footer__brand-info-contact-item">
+                                    <span class="footer__brand-info-contact-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M22 6l-10 7L2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </span>
+                                    <span>{{ $generalSettings['company_email'] }}</span>
+                                </a>
                             @endif
                         </div>
                     </div>
