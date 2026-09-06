@@ -6126,7 +6126,13 @@ body.overlay::after {
   overflow: hidden;
   position: relative;
 }
-.cards-sm__img-wrapper img, .cards-sm__icon-wrapper img {
+.cards-sm__img-wrapper img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.cards-sm__icon-wrapper img {
   width: inherit;
   height: inherit;
   -o-object-fit: contain;
@@ -6245,10 +6251,10 @@ body.overlay::after {
   overflow: hidden;
 }
 .cards-md__img-wrapper a img {
-  width: inherit;
-  height: inherit;
-  -o-object-fit: contain;
-     object-fit: contain;
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 .cards-md__img-wrapper .tag {
   position: absolute;
