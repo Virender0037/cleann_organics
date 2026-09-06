@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\MergeGuestCartOnLogin;
+use App\Models\Category;
 use App\Models\Setting;
 use App\Services\Storefront\CartService;
 use App\Services\Storefront\WishlistService;
@@ -85,6 +86,20 @@ class AppServiceProvider extends ServiceProvider
             'components.layouts.header',
             function ($view) {
                 $view->with('wishlistCount', app(WishlistService::class)->count());
+            }
+        );
+
+        // Footer "Categories" column (storefront real-data integration) —
+        // real active categories replacing the old hardcoded 4-item list,
+        // same active()/ordered() rule the Shop sidebar already uses. One
+        // bounded, indexed query per page load via this composer, same cost
+        // class as the wishlist count above; not cached like generalSettings
+        // since categories change far less often than they're read anyway
+        // and this keeps the same pattern simple.
+        View::composer(
+            'components.layouts.footer',
+            function ($view) {
+                $view->with('footerCategories', Category::query()->active()->ordered()->limit(4)->get());
             }
         );
     }

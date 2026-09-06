@@ -1,4 +1,11 @@
-@props(['product', 'wrapperClass' => 'col-xl-4 col-md-6'])
+{{--
+    wrap/cardClass exist only so this exact card markup can be dropped into
+    homepage sections that don't use the Shop page's Bootstrap column grid
+    (a plain CSS grid with no wrapper element, or a swiper slide with a
+    different inner card modifier) without changing what Shop/Product-Detail
+    already render — both default to their original values.
+--}}
+@props(['product', 'wrapperClass' => 'col-xl-4 col-md-6', 'wrap' => true, 'cardClass' => 'cards-md cards-md--four w-100'])
 @php
     // variants is expected pre-loaded, scoped to active and ordered
     // is_default desc, sort_order asc — first() is the variant a shopper
@@ -19,8 +26,10 @@
     // underlying query runs at most once no matter how many cards render.
     $isWishlisted = app(\App\Services\Storefront\WishlistService::class)->isWishlisted($product->id);
 @endphp
+@if ($wrap)
 <div class="{{ $wrapperClass }}">
-    <div class="cards-md cards-md--four w-100">
+@endif
+    <div class="{{ $cardClass }}">
         <div class="cards-md__img-wrapper">
             <a href="{{ $productUrl }}">
                 <img
@@ -132,4 +141,6 @@
             </div>
         </div>
     </div>
+@if ($wrap)
 </div>
+@endif

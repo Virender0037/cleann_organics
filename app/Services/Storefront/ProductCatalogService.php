@@ -123,12 +123,76 @@ class ProductCatalogService
     }
 
     /**
-     * The "Sale Products" sidebar widget: real best-sellers (falling back to
-     * featured, then newest) instead of the old hardcoded fake products.
-     * Kept separate from the main listing query — it is not affected by the
-     * shopper's current filters.
+     * The "Sale Products" sidebar widget and the homepage's "Popular
+     * Products" section: real best-sellers (falling back to featured, then
+     * newest) instead of the old hardcoded fake products. There is no
+     * is_popular flag and order-item sales volume isn't aggregated anywhere
+     * yet, so "popular" deliberately reuses this exact same best-seller ->
+     * featured -> newest waterfall rather than inventing a second notion of
+     * popularity — both call sites just ask for a different $limit.
      */
     public function bestSellers(int $limit = 3)
+    {
+        return $this->productCardQuery()
+            ->orderByDesc('is_best_seller')
+            ->orderByDesc('is_featured')
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Homepage "Featured Products": public products explicitly flagged
+     * is_featured by the admin, newest first.
+     */
+    public function featured(int $limit = 6)
+    {
+        return $this->productCardQuery()
+            ->where('is_featured', true)
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Homepage "Hot Deals": public products whose default active variant is
+     * genuinely discounted right now, per the exact same pricing semantics
+     * ProductVariant::pricingTiers()/headlineTier() already define for
+     * every other page — a "discount" only exists where two tiers share the
+     * same quantity (see the doc comment on pricingTiers()), so this reuses
+     * that method rather than re-deriving a discount rule from the raw
+     * price columns.
+     *
+     * That check can't be expressed as a portable single SQL WHERE clause
+     * (the same-quantity collapsing is PHP-side), so a bounded candidate
+     * pool (newest-first, capped well above any realistic $limit) is loaded
+     * with the normal eager loads and filtered/trimmed in PHP. Worst case
+     * (no discounted product in the pool) this returns an empty collection
+     * rather than scanning the whole catalog.
+     */
+    public function dealsProducts(int $limit = 12, int $candidatePoolSize = 100)
+    {
+        return $this->productCardQuery()
+            ->orderByDesc('created_at')
+            ->limit($candidatePoolSize)
+            ->get()
+            ->filter(function (Product $product) {
+                $variant = $product->variants->first();
+
+                return $variant && ($variant->headlineTier()['compare_price'] ?? null) !== null;
+            })
+            ->take($limit)
+            ->values();
+    }
+
+    /**
+     * Eager loads/aggregates shared by every "product-card ready" homepage
+     * list (bestSellers/featured/dealsProducts): active default-first
+     * variants + their images (for pricing/stock/thumbnail) and approved-only
+     * review aggregates (for <x-frontend.product-card>'s rating/review
+     * count) — the same shape baseQuery() already loads for the Shop grid.
+     */
+    private function productCardQuery(): Builder
     {
         return Product::query()
             ->public()
@@ -136,11 +200,8 @@ class ProductCatalogService
                 'variants' => fn ($q) => $q->where('status', 'active')->orderByDesc('is_default')->orderBy('sort_order'),
                 'variants.images',
             ])
-            ->orderByDesc('is_best_seller')
-            ->orderByDesc('is_featured')
-            ->orderByDesc('created_at')
-            ->limit($limit)
-            ->get();
+            ->withCount(['reviews as approved_review_count' => fn (Builder $q) => $q->where('status', 'approved')])
+            ->withAvg(['reviews as approved_average_rating' => fn (Builder $q) => $q->where('status', 'approved')], 'rating');
     }
 
     /**

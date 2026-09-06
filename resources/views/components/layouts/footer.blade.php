@@ -94,18 +94,11 @@
                         <li class="footer__navigation-title">
                             <h2 class="font-body--lg-500">Categories</h2>
                         </li>
-                        <li class="footer__navigation-link">
-                            <a href="#"> Fruit &amp; Vegetables </a>
-                        </li>
-                        <li class="footer__navigation-link">
-                            <a href="#"> Meat &amp; Fish </a>
-                        </li>
-                        <li class="footer__navigation-link">
-                            <a href="#"> Bread &amp; Bakery </a>
-                        </li>
-                        <li class="footer__navigation-link">
-                            <a href="#"> Beauty &amp; Health </a>
-                        </li>
+                        @foreach ($footerCategories as $footerCategory)
+                            <li class="footer__navigation-link">
+                                <a href="{{ route('category.show', $footerCategory->slug) }}"> {{ $footerCategory->name }} </a>
+                            </li>
+                        @endforeach
                     </ul>
                 </div>
             </div>
