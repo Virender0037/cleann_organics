@@ -22,4 +22,9 @@ class BlogTag extends Model
             'blog_tag'
         );
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 }

@@ -5,7 +5,7 @@
         <div class="container">
           <ul class="breedcrumb__content">
             <li>
-              <a href="index.html">
+              <a href="{{ route('home') }}">
                 <svg
                   width="18"
                   height="19"
@@ -24,7 +24,10 @@
                 <span> > </span>
               </a>
             </li>
-            <li class="active"><a href="single-blog.html">Single Blog </a></li>
+            <li>
+              <a href="{{ route('bloglist') }}">Blog<span> > </span></a>
+            </li>
+            <li class="active"><a href="{{ route('singleblog', $blog->slug) }}">{{ Str::limit($blog->title, 40) }}</a></li>
           </ul>
         </div>
       </div>
@@ -38,7 +41,10 @@
           <div class="col-lg-8">
             <div class="single-blog__product-content">
               <div class="single-blog__img-wrapper one">
-                <img src="{{ asset('images/blogs/img-01.png') }}" alt="products" />
+                <img
+                    src="{{ storage_image_url($blog->featured_image, asset('images/blogs/img-01.png')) }}"
+                    alt="{{ $blog->title }}"
+                />
               </div>
               <div class="single-blog--tag-info">
                 <div class="single-blog--tag-item">
@@ -66,7 +72,7 @@
                       />
                     </svg>
                   </span>
-                  <p>Food</p>
+                  <p>{{ $blog->category?->name ?? 'Uncategorized' }}</p>
                 </div>
                 <div class="single-blog--tag-item">
                   <span class="icon">
@@ -89,7 +95,7 @@
                       />
                     </svg>
                   </span>
-                  <p>by <span>Admin</span></p>
+                  <p>by <span>{{ $blog->author?->name ?? 'Admin' }}</span></p>
                 </div>
                 <div class="single-blog--tag-item">
                   <span class="icon">
@@ -109,25 +115,24 @@
                       />
                     </svg>
                   </span>
-                  <p>65 Comments</p>
+                  <p>{{ number_format($blog->view_count) }} {{ Str::plural('View', $blog->view_count) }}</p>
                 </div>
               </div>
               <h2 class="font-title--sm blog-head-title">
-                Maecenas tempor urna sed quam mollis, a placerat dui fringill
-                Suspendisse.
+                {{ $blog->title }}
               </h2>
 
               <div class="single-blog__author-details">
                 <div class="author">
                   <div class="author-img">
-                    <img src="{{ asset('images/user/img-01.png') }}" alt="user" />
+                    <img src="{{ asset('images/user/img-01.png') }}" alt="{{ $blog->author?->name ?? 'Cleann Organics Team' }}" />
                   </div>
                   <div class="author-info">
-                    <h5 class="font-body--lg">Cameron Williamson</h5>
+                    <h5 class="font-body--lg">{{ $blog->author?->name ?? 'Cleann Organics Team' }}</h5>
                     <div class="author-blog-details">
-                      <p>4 April, 2021</p>
+                      <p>{{ ($blog->published_at ?? $blog->created_at)->format('d F, Y') }}</p>
                       <span class="dot"></span>
-                      <p class="duration">6 min read</p>
+                      <p class="duration">{{ max(1, (int) ceil(str_word_count(strip_tags($blog->content)) / 200)) }} min read</p>
                     </div>
                   </div>
                 </div>
@@ -202,235 +207,30 @@
 
             <!-- Text Contents of Blogs  -->
             <div class="single-blog__inner-content">
-              <h5 class="blog-title font-body--xxl-500">
-                Maecenas lacinia felis nec placerat sollicitudin. Quisque
-                placerat dolor at scelerisque imperdiet. Phasellus tristique
-                felis dolor.
-              </h5>
-              <p>
-                Maecenas elementum in risus sed condimentum. Duis convallis ante
-                ac tempus maximus. Fusce malesuada sed velit ut dictum. Morbi
-                faucibus vitae orci at euismod. Integer auctor augue in erat
-                vehicula, quis fermentum ex finibus.
-              </p>
-              <p>
-                Mauris pretium elit a dui pulvinar, in ornare sapien euismod.
-                Nullam interdum nisl ante, id feugiat quam euismod commodo. Sed
-                ultrices lectus ut iaculis rhoncus. Aenean non dignissim justo,
-                at fermentum turpis. Sed molestie, ligula ut molestie ultrices,
-                tellus ligula viverra neque, malesuada consectetur diam sapien
-                volutpat risus. Quisque eget tortor lobortis, facilisis metus
-                eu, elementum est. Nunc sit amet erat quis ex convallis
-                suscipit. ur ridiculus mus.
-              </p>
-
-              <div class="single-blog--sm-img">
-                <div class="single-blog__img-wrapper two">
-                  <img src="{{ asset('images/blogs/img-02.png') }}" alt="sm-img " />
-                </div>
-                <div class="single-blog__img-wrapper three">
-                  <img src="{{ asset('images/blogs/img-03.png') }}" alt="sm-img " />
-                </div>
-              </div>
-              <p>
-                Mauris pretium elit a dui pulvinar, in ornare sapien euismod.
-                Nullam interdum nisl ante, id feugiat quam euismod commodo. Sed
-                ultrices lectus ut iaculis rhoncus. Aenean non dignissim justo,
-                at fermentum turpis. Sed molestie, ligula ut molestie ultrices,
-                tellus ligula viverra neque, malesuada consectetur diam sapien
-                volutpat risus. Quisque eget tortor lobortis, facilisis metus
-                eu, elementum est. Nunc sit amet erat quis ex convallis
-                suscipit. ur ridiculus mus.
-              </p>
+                {!! $blog->content !!}
             </div>
 
-            <!-- Sales Banner  -->
-            <div class="single-blog__banner">
-              <img src="{{ asset('images/banner/banner-lg-10.png') }}" alt="banner" />
-              <div class="text-content">
-                <span class="title">Summer Sales </span>
-                <h5 class="font-title--md">Fresh Fruit</h5>
-                <a href="#" class="button button--md">
-                  Shop now
-                  <span>
-                    <svg
-                      width="17"
-                      height="15"
-                      viewBox="0 0 17 15"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M16 7.50049H1"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      ></path>
-                      <path
-                        d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      ></path>
-                    </svg>
-                  </span>
-                </a>
+            @if ($blog->tags->isNotEmpty())
+              <div class="single-blog--tags" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px;">
+                <h5 class="font-body--lg-500" style="margin:0;">Tags:</h5>
+                @foreach ($blog->tags as $tag)
+                  <a href="{{ route('bloglist', ['tag' => $tag->slug]) }}" class="blog__popular-tags-item">{{ $tag->name }}</a>
+                @endforeach
               </div>
+            @endif
 
-              <div class="sales-off">
-                <p>Up To</p>
-                <h5>56%</h5>
-                <p>offf</p>
-              </div>
-            </div>
-
-            <!-- comment Box   -->
-            <div class="comment-box">
-              <h5 class="font-body--xxxl-500">Leave a Comment</h5>
-
-              <form action="#">
-                <div class="contact-form-group">
-                  <div class="contact-form--input">
-                    <label for="name">Full Name</label>
-                    <input type="text" placeholder="Zakir Hossen" id="name" />
-                  </div>
-                  <div class="contact-form--input">
-                    <label for="email">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      placeholder="zakirsoft@gmail.com"
-                    />
-                  </div>
-                </div>
-
-                <div
-                  class="contact-form--input contact-form--input-area mb-0"
-                  id="comments"
-                >
-                  <label for="message">Message</label>
-                  <textarea
-                    name="message"
-                    id="message"
-                    placeholder="Write your comment here…"
-                  ></textarea>
-                </div>
-                <div class="contact-form--check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    value=""
-                    id="remember"
-                  />
-                  <label class="form-check-label" for="remember">
-                    Save my name and email in this browser for the next time I
-                    comment.
-                  </label>
-                </div>
-                <div class="contact-form-button">
-                  <button class="button button--md" type="submit">
-                    Post Comments
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <!-- User Comments  -->
-            <div class="user-comments">
-              <h5 class="font-body--xxxl">Comments</h5>
-              <div class="user-comments__list">
-                <div class="user">
-                  <div class="user-img">
-                    <img src="{{ asset('images/user/img-02.png') }}" alt="user-photo" />
-                  </div>
-                  <div class="user-message-info">
-                    <div class="user-name">
-                      <h5 class="font-body--md-500">Annette Black</h5>
-                      <p class="date">26 Apr, 2021</p>
+            @if ($relatedBlogs->isNotEmpty())
+              <div class="single-blog--related" style="margin-top:40px;">
+                <h5 class="font-body--xxxl-500" style="margin-bottom:20px;">Related Posts</h5>
+                <div class="row">
+                  @foreach ($relatedBlogs as $related)
+                    <div class="col-md-6 col-lg-4" style="margin-bottom:24px;">
+                      <x-frontend.blog-card :blog="$related" />
                     </div>
-                    <p class="user-message">
-                      In a nisi commodo, porttitor ligula consequat, tincidunt
-                      dui. Nulla volutpat, metus eu aliquam malesuada, elit
-                      libero venenatis urna, consequat maximus arcu diam non
-                      diam.
-                    </p>
-                  </div>
-                </div>
-                <div class="user">
-                  <div class="user-img">
-                    <img src="{{ asset('images/user/img-03.png') }}" alt="user-photo" />
-                  </div>
-                  <div class="user-message-info">
-                    <div class="user-name">
-                      <h5 class="font-body--md-500">Annette Black</h5>
-                      <p class="date">26 Apr, 2021</p>
-                    </div>
-                    <p class="user-message">
-                      Quisque eget tortor lobortis, facilisis metus eu,
-                      elementum est. Nunc sit amet erat quis ex convallis
-                      suscipit. Nam hendrerit, velit ut aliquam euismod, nibh
-                      tortor rutrum nisi, ac sodales nunc eros porta nisi. Sed
-                      scelerisque, est eget aliquam venenatis, est sem tempor
-                      eros.
-                    </p>
-                  </div>
-                </div>
-                <div class="user">
-                  <div class="user-img">
-                    <img src="{{ asset('images/user/img-03.png') }}" alt="user-photo" />
-                  </div>
-                  <div class="user-message-info">
-                    <div class="user-name">
-                      <h5 class="font-body--md-500">Annette Black</h5>
-                      <p class="date">26 Apr, 2021</p>
-                    </div>
-                    <p class="user-message">
-                      Vestibulum ante ipsum primis in faucibus orci luctus et
-                      ultrices posuere cubilia curae.
-                    </p>
-                  </div>
-                </div>
-                <div class="user">
-                  <div class="user-img">
-                    <img src="{{ asset('images/user/img-01.png') }}" alt="user-photo" />
-                  </div>
-                  <div class="user-message-info">
-                    <div class="user-name">
-                      <h5 class="font-body--md-500">Annette Black</h5>
-                      <p class="date">26 Apr, 2021</p>
-                    </div>
-                    <p class="user-message">
-                      In a nisi commodo, porttitor ligula consequat, tincidunt
-                      dui. Nulla volutpat, metus eu aliquam malesuada, elit
-                      libero venenatis urna, consequat maximus arcu diam non
-                      diam.
-                    </p>
-                  </div>
-                </div>
-                <div class="user">
-                  <div class="user-img">
-                    <img src="{{ asset('images/user/img-01.png') }}" alt="user-photo" />
-                  </div>
-                  <div class="user-message-info">
-                    <div class="user-name">
-                      <h5 class="font-body--md-500">Annette Black</h5>
-                      <p class="date">26 Apr, 2021</p>
-                    </div>
-                    <p class="user-message">
-                      In a nisi commodo, porttitor ligula consequat, tincidunt
-                      dui. Nulla volutpat, metus eu aliquam malesuada, elit
-                      libero venenatis urna, consequat maximus arcu diam non
-                      diam.
-                    </p>
-                  </div>
+                  @endforeach
                 </div>
               </div>
-              <form action="#">
-                <button class="button button--outline">Load more</button>
-              </form>
-            </div>
+            @endif
           </div>
           <div class="col-lg-4">
             <div class="sidebar">
@@ -470,9 +270,9 @@
               <div class="blog__sidebar">
                 <!-- Search Field  -->
                 <div class="blog__sidebar--item">
-                  <div class="blog__search-field">
+                  <form action="{{ route('bloglist') }}" method="GET" class="blog__search-field">
                     <input type="text" id="blog-sidebar-search" name="search" placeholder="Search..." />
-                    <div class="icon">
+                    <button type="submit" class="icon" aria-label="Search">
                       <svg
                         width="20"
                         height="20"
@@ -495,86 +295,36 @@
                           stroke-linejoin="round"
                         />
                       </svg>
-                    </div>
-                  </div>
+                    </button>
+                  </form>
                 </div>
                 <!-- Top Categories  -->
-                <div class="blog__sidebar--item">
-                  <h5 class="font-body--xxl-500">Top Categories</h5>
-                  <div class="blog__top-categories">
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Fresh Fruit</p>
-                      <p class="font-body--md-400 number">(134)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Vegetables</p>
-                      <p class="font-body--md-400 number">(150)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Cooking</p>
-                      <p class="font-body--md-400 number">(54)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Snacks</p>
-                      <p class="font-body--md-400 number">(47)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Beverages</p>
-                      <p class="font-body--md-400 number">(43)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Beauty & Health</p>
-                      <p class="font-body--md-400 number">(38)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Bread & bakery</p>
-                      <p class="font-body--md-400 number">(15)</p>
-                    </a>
+                @if ($categories->isNotEmpty())
+                  <div class="blog__sidebar--item">
+                    <h5 class="font-body--xxl-500">Top Categories</h5>
+                    <div class="blog__top-categories">
+                      @foreach ($categories as $category)
+                        <a href="{{ route('bloglist', ['category' => $category->slug]) }}" class="blog__top-categories-item">
+                          <p class="font-body--md-400">{{ $category->name }}</p>
+                          <p class="font-body--md-400 number">({{ $category->blogs_count }})</p>
+                        </a>
+                      @endforeach
+                    </div>
                   </div>
-                </div>
+                @endif
                 <!-- Popular Tags  -->
-                <div class="blog__sidebar--item">
-                  <h5 class="font-body--xxl-500">Popular Tag</h5>
-                  <div class="blog__popular-tags">
-                    <a href="#"
-                      ><span class="blog__popular-tags-item active"
-                        >Healthy</span
-                      ></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Low Fat</span></a
-                    >
-                    <a href="#"
-                      ><span class="blog__popular-tags-item"
-                        >Vegetarian
-                      </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Bread</span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Kid Foods </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Vitamins </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Snacks </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Tiffin</span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Meat </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Launch</span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Dinner </span></a
-                    >
+                @if ($tags->isNotEmpty())
+                  <div class="blog__sidebar--item">
+                    <h5 class="font-body--xxl-500">Popular Tag</h5>
+                    <div class="blog__popular-tags">
+                      @foreach ($tags as $tag)
+                        <a href="{{ route('bloglist', ['tag' => $tag->slug]) }}">
+                          <span class="blog__popular-tags-item">{{ $tag->name }}</span>
+                        </a>
+                      @endforeach
+                    </div>
                   </div>
-                </div>
+                @endif
                 <!-- Gallery  -->
                 <div class="blog__sidebar--item">
                   <h5 class="font-body--xxl-500">Our Gallery</h5>
@@ -790,161 +540,65 @@
                   </div>
                 </div>
                 <!-- Recent Added Products  -->
-                <div class="blog__sidebar--item">
-                  <h5 class="font-body--xxl-500">Recently Added</h5>
-                  <div class="blog__recent-product">
-                    <a href="#" class="blog__recent-product__item">
-                      <div class="blog__recent-product__img-wrapper">
-                        <img
-                          src="{{ asset('images/products/img-01.png') }}"
-                          alt="products "
-                        />
-                      </div>
-                      <div class="blog__recent-product__item-info">
-                        <h5 class="font-body--lg-500">
-                          Curabitur porttitor orci eget nequ accumsan.
-                        </h5>
-                        <div class="date">
-                          <span class="icon">
-                            <svg
-                              width="18"
-                              height="19"
-                              viewBox="0 0 18 19"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M14.25 3.5H3.75C2.92157 3.5 2.25 4.17157 2.25 5V15.5C2.25 16.3284 2.92157 17 3.75 17H14.25C15.0784 17 15.75 16.3284 15.75 15.5V5C15.75 4.17157 15.0784 3.5 14.25 3.5Z"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M12 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M6 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M2.25 8H15.75"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          <p>Apr 25, 2021</p>
-                        </div>
-                      </div>
-                    </a>
-                    <a href="#" class="blog__recent-product__item">
-                      <div class="blog__recent-product__img-wrapper">
-                        <img
-                          src="{{ asset('images/products/img-02.png') }}"
-                          alt="products "
-                        />
-                      </div>
-                      <div class="blog__recent-product__item-info">
-                        <h5 class="font-body--lg-500">
-                          Donec mattis arcu faucibus suscipit viverra.
-                        </h5>
-                        <div class="date">
-                          <span class="icon">
-                            <svg
-                              width="18"
-                              height="19"
-                              viewBox="0 0 18 19"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M14.25 3.5H3.75C2.92157 3.5 2.25 4.17157 2.25 5V15.5C2.25 16.3284 2.92157 17 3.75 17H14.25C15.0784 17 15.75 16.3284 15.75 15.5V5C15.75 4.17157 15.0784 3.5 14.25 3.5Z"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M12 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M6 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M2.25 8H15.75"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          <p>Apr 25, 2021</p>
-                        </div>
-                      </div>
-                    </a>
-                    <a href="#" class="blog__recent-product__item">
-                      <div class="blog__recent-product__img-wrapper">
-                        <img
-                          src="{{ asset('images/products/img-03.png') }}"
-                          alt="products "
-                        />
-                      </div>
-                      <div class="blog__recent-product__item-info">
-                        <h5 class="font-body--lg-500">
-                          Quisque posuere tempus rutrum. Integer velit ex.
-                        </h5>
-                        <div class="date">
-                          <span class="icon">
-                            <svg
-                              width="18"
-                              height="19"
-                              viewBox="0 0 18 19"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M14.25 3.5H3.75C2.92157 3.5 2.25 4.17157 2.25 5V15.5C2.25 16.3284 2.92157 17 3.75 17H14.25C15.0784 17 15.75 16.3284 15.75 15.5V5C15.75 4.17157 15.0784 3.5 14.25 3.5Z"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M12 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M6 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M2.25 8H15.75"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          <p>Apr 25, 2021</p>
-                        </div>
-                      </div>
-                    </a>
+                @if ($recentBlogs->isNotEmpty())
+                  <div class="blog__sidebar--item">
+                    <h5 class="font-body--xxl-500">Recently Added</h5>
+                    <div class="blog__recent-product">
+                      @foreach ($recentBlogs as $recent)
+                        <a href="{{ route('singleblog', $recent->slug) }}" class="blog__recent-product__item">
+                          <div class="blog__recent-product__img-wrapper">
+                            <img
+                              src="{{ storage_image_url($recent->featured_image, asset('images/blogs/blog-recent-1.png')) }}"
+                              alt="{{ $recent->title }}"
+                            />
+                          </div>
+                          <div class="blog__recent-product__item-info">
+                            <h5 class="font-body--lg-500">
+                              {{ Str::limit($recent->title, 55) }}
+                            </h5>
+                            <div class="date">
+                              <span class="icon">
+                                <svg
+                                  width="18"
+                                  height="19"
+                                  viewBox="0 0 18 19"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M14.25 3.5H3.75C2.92157 3.5 2.25 4.17157 2.25 5V15.5C2.25 16.3284 2.92157 17 3.75 17H14.25C15.0784 17 15.75 16.3284 15.75 15.5V5C15.75 4.17157 15.0784 3.5 14.25 3.5Z"
+                                    stroke="#00B307"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                  <path
+                                    d="M12 2V5"
+                                    stroke="#00B307"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                  <path
+                                    d="M6 2V5"
+                                    stroke="#00B307"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                  <path
+                                    d="M2.25 8H15.75"
+                                    stroke="#00B307"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                              </span>
+                              <p>{{ $recent->published_at?->format('M d, Y') ?? $recent->created_at->format('M d, Y') }}</p>
+                            </div>
+                          </div>
+                        </a>
+                      @endforeach
+                    </div>
                   </div>
-                </div>
+                @endif
               </div>
             </div>
           </div>

@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\AddCartItemRequest;
 use App\Http\Requests\Storefront\UpdateCartItemRequest;
 use App\Services\Storefront\CartService;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
+use App\Services\Storefront\CheckoutService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Thin by design — every read/mutation is delegated to CartService, which
@@ -17,10 +18,17 @@ use Illuminate\Http\JsonResponse;
  */
 class CartController extends Controller
 {
-    public function __construct(private readonly CartService $cart)
-    {
-    }
+    public function __construct(
+        private readonly CartService $cart,
+        private readonly CheckoutService $checkout,
+    ) {}
 
+    /**
+     * Coupons live in CheckoutService (session-backed, address-independent),
+     * shared with the checkout page rather than re-implemented here — a
+     * coupon applied from the cart page is still applied at checkout, and
+     * vice versa, since both read/write the same session key.
+     */
     public function index(): View
     {
         $lines = $this->cart->lines();
@@ -29,6 +37,8 @@ class CartController extends Controller
             'lines' => $lines,
             'subtotal' => $this->cart->subtotal(),
             'itemCount' => $this->cart->itemCount(),
+            'appliedCoupon' => $this->checkout->appliedCoupon(),
+            'discountAmount' => $this->checkout->discountAmount(),
         ]);
     }
 

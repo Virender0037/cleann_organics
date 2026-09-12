@@ -11,10 +11,12 @@ use App\Models\ProductVariant;
 use App\Models\ShippingRate;
 use App\Models\ShippingZone;
 use App\Models\TaxRate;
+use App\Services\Payment\RazorpayPaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -34,8 +36,8 @@ class CheckoutService
     public function __construct(
         private readonly CartService $cart,
         private readonly Request $request,
-    ) {
-    }
+        private readonly RazorpayPaymentService $razorpayPayment,
+    ) {}
 
     /** @return Collection<int, array<string, mixed>> */
     public function lines(): Collection
@@ -275,7 +277,7 @@ class CheckoutService
      */
     public function placeOrder(Address $address, string $paymentMethod): array
     {
-        if (! in_array($paymentMethod, ['cod', 'upi', 'bank_transfer'], true)) {
+        if (! in_array($paymentMethod, ['cod', 'upi', 'bank_transfer', 'razorpay', 'manual_upi'], true)) {
             return ['success' => false, 'message' => 'Please choose a valid payment method.'];
         }
 
@@ -325,6 +327,23 @@ class CheckoutService
 
         $this->cart->clear();
         $this->removeCoupon();
+
+        if ($paymentMethod === 'razorpay') {
+            // Deliberately outside the DB transaction above — this is an
+            // external HTTP call and must never hold a DB lock open while
+            // it's in flight. A failure here doesn't fail checkout: the
+            // order already exists as 'pending', and the pay page
+            // (RazorpayPaymentService::ensureGatewayOrder) retries creating
+            // the gateway order lazily on the next page load.
+            try {
+                $this->razorpayPayment->ensureGatewayOrder($order);
+            } catch (\Throwable $e) {
+                Log::error('razorpay.order_creation_failed_at_checkout', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
 
         return ['success' => true, 'message' => 'Order placed successfully.', 'order' => $order];
     }

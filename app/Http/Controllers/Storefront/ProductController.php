@@ -11,9 +11,7 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function __construct(private readonly WishlistService $wishlist)
-    {
-    }
+    public function __construct(private readonly WishlistService $wishlist) {}
 
     /**
      * Looked up manually rather than via {product:slug} implicit binding —
@@ -101,7 +99,11 @@ class ProductController extends Controller
                 'has_multiple_tiers' => $variant->hasMultipleTiers(),
                 'media' => $variant->images->map(fn ($image) => [
                     'id' => $image->id,
-                    'url' => Storage::url($image->image),
+                    // Videos have no sensible image fallback — only the
+                    // image case is protected against a missing file.
+                    'url' => $image->media_type === 'video'
+                        ? Storage::url($image->image)
+                        : storage_image_url($image->image, asset('images/products/img-01.png')),
                     'type' => $image->media_type,
                     'is_primary' => (bool) $image->is_primary,
                 ])->values(),

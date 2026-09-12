@@ -20,9 +20,9 @@ class PaymentsReportController extends Controller
 {
     use HandlesReportFilters;
 
-    private const STATUSES = ['pending', 'paid', 'failed', 'refunded'];
+    private const STATUSES = ['pending', 'paid', 'failed', 'rejected', 'refunded'];
 
-    private const PAYMENT_METHODS = ['cod', 'upi', 'bank_transfer'];
+    private const PAYMENT_METHODS = ['cod', 'upi', 'manual_upi', 'bank_transfer', 'razorpay'];
 
     public function index(Request $request): View
     {

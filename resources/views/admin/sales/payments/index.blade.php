@@ -31,7 +31,9 @@
                         <select name="payment_method" class="form-select">
                             <option value="">All Payment Methods</option>
                             <option value="upi" @selected(request('payment_method') === 'upi')>UPI</option>
+                            <option value="manual_upi" @selected(request('payment_method') === 'manual_upi')>Manual UPI</option>
                             <option value="cod" @selected(request('payment_method') === 'cod')>COD</option>
+                            <option value="razorpay" @selected(request('payment_method') === 'razorpay')>Razorpay</option>
                             <option value="bank_transfer" @selected(request('payment_method') === 'bank_transfer')>Bank Transfer</option>
                         </select>
                     </div>
@@ -42,6 +44,7 @@
                             <option value="paid" @selected(request('status') === 'paid')>Paid</option>
                             <option value="pending" @selected(request('status') === 'pending')>Pending</option>
                             <option value="failed" @selected(request('status') === 'failed')>Failed</option>
+                            <option value="rejected" @selected(request('status') === 'rejected')>Rejected</option>
                             <option value="refunded" @selected(request('status') === 'refunded')>Refunded</option>
                         </select>
                     </div>

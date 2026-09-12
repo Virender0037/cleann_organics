@@ -516,7 +516,7 @@
                                         <a href="{{ route('products.show', $saleProduct->slug) }}" class="shop-sale-product-item">
                                             <div class="product-img">
                                                 <img
-                                                    src="{{ $saleThumbnail ? \Illuminate\Support\Facades\Storage::url($saleThumbnail->image) : asset('images/products/img-01.png') }}"
+                                                    src="{{ storage_image_url($saleThumbnail?->image, asset('images/products/img-01.png')) }}"
                                                     alt="{{ $saleProduct->name }}"
                                                     loading="lazy"
                                                 />
@@ -635,6 +635,7 @@
         <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('js/main.js') }}"></script>
         <script src="{{ asset('js/cart.js') }}"></script>
+        <script src="{{ asset('js/wishlist.js') }}"></script>
         <script>
             // Wires the noUiSlider price-range control (initialized in
             // main.js from this element's data-min/data-max/data-start-*

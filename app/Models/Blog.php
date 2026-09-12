@@ -55,4 +55,17 @@ class Blog extends Model
             'blog_tag'
         );
     }
+
+    /**
+     * The public-visibility rule for the storefront — mirrors
+     * Product::scopePublic()/Category::scopeActive(): status must be
+     * 'published' AND, for a post scheduled for the future via published_at,
+     * that date must have arrived. A published post with no published_at
+     * set is treated as immediately visible.
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'published')
+            ->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '<=', now()));
+    }
 }

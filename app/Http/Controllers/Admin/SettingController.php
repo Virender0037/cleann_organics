@@ -107,6 +107,7 @@ class SettingController extends Controller
         $data = $this->encryptSecrets(array_merge($data, $request->safe()->only(self::PAYMENT_SECRET_KEYS)), self::PAYMENT_SECRET_KEYS);
 
         Setting::setMany('payment', $data);
+        Setting::forget('payment');
 
         return back()->with('success', 'Payment settings updated.');
     }

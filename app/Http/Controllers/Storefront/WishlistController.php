@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\AddWishlistItemRequest;
 use App\Models\Product;
 use App\Services\Storefront\WishlistService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
@@ -17,9 +19,7 @@ use Illuminate\View\View;
  */
 class WishlistController extends Controller
 {
-    public function __construct(private readonly WishlistService $wishlist)
-    {
-    }
+    public function __construct(private readonly WishlistService $wishlist) {}
 
     public function index(): View
     {
@@ -28,11 +28,11 @@ class WishlistController extends Controller
         ]);
     }
 
-    public function store(AddWishlistItemRequest $request): RedirectResponse
+    public function store(AddWishlistItemRequest $request): RedirectResponse|JsonResponse
     {
         $result = $this->wishlist->add((int) $request->validated('product_id'));
 
-        return back()->with($result['success'] ? 'success' : 'error', $result['message']);
+        return $this->respond($request, $result);
     }
 
     /**
@@ -43,10 +43,26 @@ class WishlistController extends Controller
      * not an error, since the end state the customer wants ("not in my
      * wishlist") is already true.
      */
-    public function destroy(Product $product): RedirectResponse
+    public function destroy(Request $request, Product $product): RedirectResponse|JsonResponse
     {
         $result = $this->wishlist->remove($product->id);
 
-        return back()->with('success', $result['message']);
+        return $this->respond($request, $result);
+    }
+
+    /**
+     * @param  array{success: bool, message: string}  $result
+     */
+    private function respond(Request $request, array $result): RedirectResponse|JsonResponse
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => $result['success'],
+                'message' => $result['message'],
+                'wishlistCount' => $this->wishlist->count(),
+            ], $result['success'] ? 200 : 422);
+        }
+
+        return back()->with($result['success'] ? 'success' : 'error', $result['message']);
     }
 }

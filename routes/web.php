@@ -41,13 +41,16 @@ use App\Http\Controllers\PageController as PublicPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Storefront\AccountController;
 use App\Http\Controllers\Storefront\AddressController;
+use App\Http\Controllers\Storefront\BlogController as StorefrontBlogController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CategoryController as StorefrontCategoryController;
 use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\HomeController;
+use App\Http\Controllers\Storefront\ManualUpiPaymentController;
 use App\Http\Controllers\Storefront\OrderController as StorefrontOrderController;
 use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
 use App\Http\Controllers\Storefront\ProductReviewController as StorefrontProductReviewController;
+use App\Http\Controllers\Storefront\RazorpayPaymentController;
 use App\Http\Controllers\Storefront\ShopController;
 use App\Http\Controllers\Storefront\WishlistController;
 use Illuminate\Support\Facades\Route;
@@ -95,13 +98,13 @@ Route::get('/contact', fn () => redirect()->route('contact', [], 301));
 Route::get('/about-us', [PublicPageController::class, 'aboutUs'])->name('aboutus');
 Route::get('/aboutus', fn () => redirect()->route('aboutus', [], 301));
 
-Route::get('/bloglist', function () {
-    return view('bloglist');
-})->name('bloglist');
-
-Route::get('/singleblog', function () {
-    return view('singleblog');
-})->name('singleblog');
+// Real, database-driven blog (Blog/BlogCategory/BlogTag — admin CRUD lives
+// under admin.cms.blogs.*). {slug} is looked up manually inside
+// BlogController::show() rather than via {blog:slug} implicit binding, same
+// convention as CategoryController::show()/ProductController::show() — the
+// admin catalog routes already bind a numeric {blog} for edit/update/destroy.
+Route::get('/bloglist', [StorefrontBlogController::class, 'index'])->name('bloglist');
+Route::get('/singleblog/{slug}', [StorefrontBlogController::class, 'show'])->name('singleblog');
 
 // Customer-only storefront pages. Grouped under auth so a guest is redirected
 // to /sign-in instead of seeing another customer's account UI. Real per-order
@@ -130,10 +133,29 @@ Route::middleware('auth')->group(function () {
     // customer, so there is no meaningful guest checkout without inventing
     // account-less order ownership. CheckoutService reuses CartService for
     // lines/subtotal/stock, exactly as the mini-cart and cart page do.
+    // (Coupon apply/remove are NOT here — see the guest-accessible cart
+    // routes below; a coupon only touches the session + cart subtotal, so
+    // it never needed the auth gate the rest of checkout does.)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::post('/checkout/coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.coupon.apply');
-    Route::delete('/checkout/coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.coupon.remove');
+
+    // Razorpay payment page for orders placed with payment_method=razorpay —
+    // {order} ownership is re-verified inside the controller, same pattern
+    // as /orders/{order} above. verify/cancel are called from the browser
+    // (Razorpay Checkout's success handler / modal.ondismiss), not the
+    // gateway itself — the gateway's own notification arrives via the
+    // signed webhook in routes/api.php instead.
+    Route::get('/orders/{order}/pay', [RazorpayPaymentController::class, 'show'])->name('orders.pay');
+    Route::post('/orders/{order}/pay/verify', [RazorpayPaymentController::class, 'verify'])->name('orders.pay.verify');
+    Route::post('/orders/{order}/pay/cancel', [RazorpayPaymentController::class, 'cancel'])->name('orders.pay.cancel');
+
+    // Manual UPI payment page for orders placed with payment_method=manual_upi
+    // — {order} ownership is re-verified inside the controller, same pattern
+    // as /orders/{order}/pay above. The proof route streams the customer's
+    // own uploaded screenshot from the private disk; it is never a public URL.
+    Route::get('/orders/{order}/pay-upi', [ManualUpiPaymentController::class, 'show'])->name('orders.manual-upi.pay');
+    Route::post('/orders/{order}/pay-upi', [ManualUpiPaymentController::class, 'store'])->name('orders.manual-upi.pay.store');
+    Route::get('/orders/{order}/pay-upi/proof', [ManualUpiPaymentController::class, 'proof'])->name('orders.manual-upi.proof');
 
     // Real wishlist (Phase H). Deliberately inside this auth group, not a
     // standalone route with its own middleware call — a guest hitting any
@@ -178,6 +200,15 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/items/{item}', [CartController::class, 'destroy'])->name('items.destroy');
     Route::delete('/', [CartController::class, 'clear'])->name('clear');
 });
+
+// Coupon apply/remove — shared by both the cart page and checkout (see
+// CheckoutService, which is the single place the session-stored coupon code
+// is read/written). Deliberately guest-accessible, same as the cart routes
+// above: a coupon only needs a subtotal, which a guest's session cart
+// already provides — gating it behind auth would silently strand a guest
+// who fills in a code on the cart page.
+Route::post('/checkout/coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.coupon.apply');
+Route::delete('/checkout/coupon', [CheckoutController::class, 'removeCoupon'])->name('checkout.coupon.remove');
 
 Route::get('/sign-in', function () {
     return view('sign-in');
@@ -362,6 +393,9 @@ Route::prefix('admin')
             Route::get('/payments', [SalesPaymentController::class, 'index'])->name('payments.index');
             Route::get('/payments/export', [SalesPaymentController::class, 'export'])->name('payments.export');
             Route::get('/payments/{payment}', [SalesPaymentController::class, 'show'])->name('payments.show');
+            Route::patch('/payments/{payment}/verify', [SalesPaymentController::class, 'verify'])->name('payments.verify');
+            Route::patch('/payments/{payment}/reject', [SalesPaymentController::class, 'reject'])->name('payments.reject');
+            Route::get('/payments/{payment}/proof', [SalesPaymentController::class, 'proof'])->name('payments.proof');
             Route::prefix('coupons')->name('coupons.')->controller(CouponController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/export', 'export')->name('export');

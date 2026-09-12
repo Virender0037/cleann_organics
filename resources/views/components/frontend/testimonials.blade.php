@@ -9,8 +9,9 @@
         ->orderBy('id')
         ->get();
 
-    // Same fallback the admin testimonial list already uses.
-    $placeholderImage = 'https://placehold.co/60x60';
+    // A bundled local asset — not an external service — so this never
+    // depends on a third party being reachable to render a fallback.
+    $placeholderImage = asset('images/user/img-01.png');
 @endphp
 
 <div class="swiper-container testimonial-slider--one">

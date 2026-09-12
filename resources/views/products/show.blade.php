@@ -54,11 +54,19 @@
                             <div class="swiper-container gallery-items-slider">
                                 <div class="swiper-wrapper">
                                     @forelse ($galleryMedia as $index => $media)
-                                        <div class="gallery-item swiper-slide {{ $index === 0 ? 'active' : '' }}" data-type="{{ $media->media_type }}" data-url="{{ \Illuminate\Support\Facades\Storage::url($media->image) }}">
+                                        @php
+                                            // Videos have no sensible image fallback, so only the
+                                            // image case is protected against a missing file here —
+                                            // see storage_image_url()'s docblock.
+                                            $mediaUrl = $media->media_type === 'video'
+                                                ? \Illuminate\Support\Facades\Storage::url($media->image)
+                                                : storage_image_url($media->image, asset('images/products/img-01.png'));
+                                        @endphp
+                                        <div class="gallery-item swiper-slide {{ $index === 0 ? 'active' : '' }}" data-type="{{ $media->media_type }}" data-url="{{ $mediaUrl }}">
                                             @if ($media->media_type === 'video')
-                                                <video src="{{ \Illuminate\Support\Facades\Storage::url($media->image) }}" muted playsinline></video>
+                                                <video src="{{ $mediaUrl }}" muted playsinline></video>
                                             @else
-                                                <img src="{{ \Illuminate\Support\Facades\Storage::url($media->image) }}" alt="{{ $product->name }}" />
+                                                <img src="{{ $mediaUrl }}" alt="{{ $product->name }}" />
                                             @endif
                                         </div>
                                     @empty
@@ -85,7 +93,7 @@
                         </div>
 
                         <div class="gallery-main-image products__gallery-img--lg" id="gallery-main-viewer">
-                            <img class="product-main-image" id="main-viewer-image" src="{{ $galleryMedia->first() && $galleryMedia->first()->media_type !== 'video' ? \Illuminate\Support\Facades\Storage::url($galleryMedia->first()->image) : asset('images/products/img-01.png') }}" alt="{{ $product->name }}" @if ($galleryMedia->first()?->media_type === 'video') hidden @endif />
+                            <img class="product-main-image" id="main-viewer-image" src="{{ $galleryMedia->first() && $galleryMedia->first()->media_type !== 'video' ? storage_image_url($galleryMedia->first()->image, asset('images/products/img-01.png')) : asset('images/products/img-01.png') }}" alt="{{ $product->name }}" @if ($galleryMedia->first()?->media_type === 'video') hidden @endif />
                             <video class="product-main-image" id="main-viewer-video" controls @unless ($galleryMedia->first()?->media_type === 'video') hidden @endunless src="{{ $galleryMedia->first()?->media_type === 'video' ? \Illuminate\Support\Facades\Storage::url($galleryMedia->first()->image) : '' }}"></video>
                         </div>
                     </div>
@@ -244,6 +252,11 @@
                                 method="POST"
                                 class="products__content-action-item"
                                 data-wishlist-form
+                                data-wishlist-toggle
+                                data-product-id="{{ $product->id }}"
+                                data-store-url="{{ route('wishlist.store') }}"
+                                data-destroy-url="{{ route('wishlist.destroy', $product) }}"
+                                data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
                                 style="display:contents;"
                             >
                                 @csrf
@@ -545,6 +558,7 @@
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
     <script src="{{ asset('js/cart.js') }}"></script>
+    <script src="{{ asset('js/wishlist.js') }}"></script>
     <script>
         // Variant switching: price, stock, SKU, gallery and Add-to-Cart
         // state all update in place from data already on the page — no

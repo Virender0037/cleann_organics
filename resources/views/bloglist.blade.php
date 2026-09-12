@@ -6,7 +6,7 @@
         <div class="container">
           <ul class="breedcrumb__content">
             <li>
-              <a href="index.html">
+              <a href="{{ route('home') }}">
                 <svg
                   width="18"
                   height="19"
@@ -25,7 +25,7 @@
                 <span> > </span>
               </a>
             </li>
-            <li class="active"><a href="blog-list.html">Blog</a></li>
+            <li class="active"><a href="{{ route('bloglist') }}">Blog</a></li>
           </ul>
         </div>
       </div>
@@ -131,9 +131,9 @@
               <div class="blog__sidebar">
                 <!-- Search Field  -->
                 <div class="blog__sidebar--item">
-                  <div class="blog__search-field">
-                    <input type="text" id="blog-sidebar-search" name="search" placeholder="Search..." />
-                    <div class="icon">
+                  <form action="{{ route('bloglist') }}" method="GET" class="blog__search-field">
+                    <input type="text" id="blog-sidebar-search" name="search" value="{{ $search }}" placeholder="Search..." />
+                    <button type="submit" class="icon" aria-label="Search">
                       <svg
                         width="20"
                         height="20"
@@ -156,86 +156,36 @@
                           stroke-linejoin="round"
                         />
                       </svg>
-                    </div>
-                  </div>
+                    </button>
+                  </form>
                 </div>
                 <!-- Top Categories  -->
-                <div class="blog__sidebar--item">
-                  <h5 class="font-body--xxl-500">Top Categories</h5>
-                  <div class="blog__top-categories">
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Fresh Fruit</p>
-                      <p class="font-body--md-400 number">(134)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Vegetables</p>
-                      <p class="font-body--md-400 number">(150)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Cooking</p>
-                      <p class="font-body--md-400 number">(54)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Snacks</p>
-                      <p class="font-body--md-400 number">(47)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Beverages</p>
-                      <p class="font-body--md-400 number">(43)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Beauty & Health</p>
-                      <p class="font-body--md-400 number">(38)</p>
-                    </a>
-                    <a href="#" class="blog__top-categories-item">
-                      <p class="font-body--md-400">Bread & bakery</p>
-                      <p class="font-body--md-400 number">(15)</p>
-                    </a>
+                @if ($categories->isNotEmpty())
+                  <div class="blog__sidebar--item">
+                    <h5 class="font-body--xxl-500">Top Categories</h5>
+                    <div class="blog__top-categories">
+                      @foreach ($categories as $category)
+                        <a href="{{ route('bloglist', ['category' => $category->slug]) }}" class="blog__top-categories-item">
+                          <p class="font-body--md-400">{{ $category->name }}</p>
+                          <p class="font-body--md-400 number">({{ $category->blogs_count }})</p>
+                        </a>
+                      @endforeach
+                    </div>
                   </div>
-                </div>
+                @endif
                 <!-- Popular Tags  -->
-                <div class="blog__sidebar--item">
-                  <h5 class="font-body--xxl-500">Popular Tag</h5>
-                  <div class="blog__popular-tags">
-                    <a href="#"
-                      ><span class="blog__popular-tags-item active"
-                        >Healthy</span
-                      ></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Low Fat</span></a
-                    >
-                    <a href="#"
-                      ><span class="blog__popular-tags-item"
-                        >Vegetarian
-                      </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Bread</span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Kid Foods </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Vitamins </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Snacks </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Tiffin</span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Meat </span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Launch</span></a
-                    >
-                    <a href="#">
-                      <span class="blog__popular-tags-item">Dinner </span></a
-                    >
+                @if ($tags->isNotEmpty())
+                  <div class="blog__sidebar--item">
+                    <h5 class="font-body--xxl-500">Popular Tag</h5>
+                    <div class="blog__popular-tags">
+                      @foreach ($tags as $tag)
+                        <a href="{{ route('bloglist', ['tag' => $tag->slug]) }}">
+                          <span class="blog__popular-tags-item {{ request('tag') === $tag->slug ? 'active' : '' }}">{{ $tag->name }}</span>
+                        </a>
+                      @endforeach
+                    </div>
                   </div>
-                </div>
+                @endif
                 <!-- Gallery  -->
                 <div class="blog__sidebar--item">
                   <h5 class="font-body--xxl-500">Our Gallery</h5>
@@ -451,1314 +401,107 @@
                   </div>
                 </div>
                 <!-- Recent Added Products  -->
-                <div class="blog__sidebar--item">
-                  <h5 class="font-body--xxl-500">Recently Added</h5>
-                  <div class="blog__recent-product">
-                    <a
-                      href="single-blog.html"
-                      class="blog__recent-product__item"
-                    >
-                      <div class="blog__recent-product__img-wrapper">
-                        <img
-                          src="{{ asset('images/blogs/blog-recent-1.png') }}"
-                          alt="products "
-                        />
-                      </div>
-                      <div class="blog__recent-product__item-info">
-                        <h5 class="font-body--lg-500">
-                          Curabitur porttitor orci eget nequ accumsan.
-                        </h5>
-                        <div class="date">
-                          <span class="icon">
-                            <svg
-                              width="18"
-                              height="19"
-                              viewBox="0 0 18 19"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M14.25 3.5H3.75C2.92157 3.5 2.25 4.17157 2.25 5V15.5C2.25 16.3284 2.92157 17 3.75 17H14.25C15.0784 17 15.75 16.3284 15.75 15.5V5C15.75 4.17157 15.0784 3.5 14.25 3.5Z"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M12 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M6 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M2.25 8H15.75"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          <p>Apr 25, 2021</p>
-                        </div>
-                      </div>
-                    </a>
-                    <a
-                      href="single-blog.html"
-                      class="blog__recent-product__item"
-                    >
-                      <div class="blog__recent-product__img-wrapper">
-                        <img
-                          src="{{ asset('images/blogs/blog-recent-2.png') }}"
-                          alt="products "
-                        />
-                      </div>
-                      <div class="blog__recent-product__item-info">
-                        <h5 class="font-body--lg-500">
-                          Donec mattis arcu faucibus suscipit viverra.
-                        </h5>
-                        <div class="date">
-                          <span class="icon">
-                            <svg
-                              width="18"
-                              height="19"
-                              viewBox="0 0 18 19"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M14.25 3.5H3.75C2.92157 3.5 2.25 4.17157 2.25 5V15.5C2.25 16.3284 2.92157 17 3.75 17H14.25C15.0784 17 15.75 16.3284 15.75 15.5V5C15.75 4.17157 15.0784 3.5 14.25 3.5Z"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M12 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M6 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M2.25 8H15.75"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          <p>Apr 25, 2021</p>
-                        </div>
-                      </div>
-                    </a>
-                    <a
-                      href="single-blog.html"
-                      class="blog__recent-product__item"
-                    >
-                      <div class="blog__recent-product__img-wrapper">
-                        <img
-                          src="{{ asset('images/blogs/blog-recent-3.png') }}"
-                          alt="products "
-                        />
-                      </div>
-                      <div class="blog__recent-product__item-info">
-                        <h5 class="font-body--lg-500">
-                          Quisque posuere tempus rutrum. Integer velit ex.
-                        </h5>
-                        <div class="date">
-                          <span class="icon">
-                            <svg
-                              width="18"
-                              height="19"
-                              viewBox="0 0 18 19"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M14.25 3.5H3.75C2.92157 3.5 2.25 4.17157 2.25 5V15.5C2.25 16.3284 2.92157 17 3.75 17H14.25C15.0784 17 15.75 16.3284 15.75 15.5V5C15.75 4.17157 15.0784 3.5 14.25 3.5Z"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M12 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M6 2V5"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M2.25 8H15.75"
-                                stroke="#00B307"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          <p>Apr 25, 2021</p>
-                        </div>
-                      </div>
-                    </a>
+                @if ($recentBlogs->isNotEmpty())
+                  <div class="blog__sidebar--item">
+                    <h5 class="font-body--xxl-500">Recently Added</h5>
+                    <div class="blog__recent-product">
+                      @foreach ($recentBlogs as $recent)
+                        <a
+                          href="{{ route('singleblog', $recent->slug) }}"
+                          class="blog__recent-product__item"
+                        >
+                          <div class="blog__recent-product__img-wrapper">
+                            <img
+                              src="{{ storage_image_url($recent->featured_image, asset('images/blogs/blog-recent-1.png')) }}"
+                              alt="{{ $recent->title }}"
+                            />
+                          </div>
+                          <div class="blog__recent-product__item-info">
+                            <h5 class="font-body--lg-500">
+                              {{ Str::limit($recent->title, 55) }}
+                            </h5>
+                            <div class="date">
+                              <span class="icon">
+                                <svg
+                                  width="18"
+                                  height="19"
+                                  viewBox="0 0 18 19"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M14.25 3.5H3.75C2.92157 3.5 2.25 4.17157 2.25 5V15.5C2.25 16.3284 2.92157 17 3.75 17H14.25C15.0784 17 15.75 16.3284 15.75 15.5V5C15.75 4.17157 15.0784 3.5 14.25 3.5Z"
+                                    stroke="#00B307"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                  <path
+                                    d="M12 2V5"
+                                    stroke="#00B307"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                  <path
+                                    d="M6 2V5"
+                                    stroke="#00B307"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                  <path
+                                    d="M2.25 8H15.75"
+                                    stroke="#00B307"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                              </span>
+                              <p>{{ $recent->published_at?->format('M d, Y') ?? $recent->created_at->format('M d, Y') }}</p>
+                            </div>
+                          </div>
+                        </a>
+                      @endforeach
+                    </div>
                   </div>
-                </div>
+                @endif
               </div>
             </div>
           </div>
           <div class="col-lg-9">
             <!-- Desktop Version  -->
             <div class="row blog-list__content--desktop">
-              <div class="col-xl-6 custom-col">
-                <div class="cards-blog">
-                  <div class="cards-blog__img-wrapper">
-                    <img src="{{ asset('images/blogs/blog-01.png') }}" alt="img-01" />
-                    <div class="date">
-                      <h3 class="font-body--xxl-500">18</h3>
-                      <span class="font-body--sm-500">Nov</span>
-                    </div>
-                  </div>
-                  <div class="cards-blog__info">
-                    <div class="cards-blog__info-tags d-flex">
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="20"
-                            height="21"
-                            viewBox="0 0 20 21"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.1583 11.6748L11.1833 17.6498C11.0285 17.8048 10.8447 17.9277 10.6424 18.0116C10.4401 18.0955 10.2232 18.1386 10.0042 18.1386C9.78513 18.1386 9.56825 18.0955 9.36592 18.0116C9.16359 17.9277 8.97978 17.8048 8.82499 17.6498L1.66666 10.4998V2.1665H9.99999L17.1583 9.32484C17.4687 9.63711 17.643 10.0595 17.643 10.4998C17.643 10.9401 17.4687 11.3626 17.1583 11.6748V11.6748Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M5.83331 6.33301H5.84165"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        Food
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="14"
-                            height="17"
-                            viewBox="0 0 14 17"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M6.99993 7.66667C8.84088 7.66667 10.3333 6.17428 10.3333 4.33333C10.3333 2.49238 8.84088 1 6.99993 1C5.15898 1 3.6666 2.49238 3.6666 4.33333C3.6666 6.17428 5.15898 7.66667 6.99993 7.66667Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                            <path
-                              d="M9.49995 10.1665H4.49995C2.19828 10.1665 0.137447 12.2915 1.65161 14.024C2.68161 15.2023 4.38495 15.9998 6.99995 15.9998C9.61495 15.9998 11.3174 15.2023 12.3474 14.024C13.8624 12.2907 11.8008 10.1665 9.49995 10.1665Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                          </svg>
-                        </span>
-                        By Admin
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="16"
-                            height="14"
-                            viewBox="0 0 16 14"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M9.52381 11.2728L8.48206 13.0087C8.43209 13.092 8.36139 13.1609 8.27687 13.2088C8.19234 13.2566 8.09686 13.2818 7.99972 13.2818C7.90258 13.2818 7.8071 13.2566 7.72257 13.2088C7.63804 13.1609 7.56735 13.092 7.51738 13.0087L6.47675 11.2728C6.42671 11.1895 6.35596 11.1206 6.27138 11.0728C6.1868 11.025 6.09128 10.9999 5.99413 11H1.8125C1.66332 11 1.52024 10.9407 1.41475 10.8352C1.30926 10.7298 1.25 10.5867 1.25 10.4375V1.4375C1.25 1.28832 1.30926 1.14524 1.41475 1.03975C1.52024 0.934263 1.66332 0.875 1.8125 0.875H14.1875C14.3367 0.875 14.4798 0.934263 14.5852 1.03975C14.6907 1.14524 14.75 1.28832 14.75 1.4375V10.4375C14.75 10.5867 14.6907 10.7298 14.5852 10.8352C14.4798 10.9407 14.3367 11 14.1875 11H10.0059C9.90881 11 9.81341 11.0252 9.72894 11.073C9.64446 11.1208 9.5738 11.1896 9.52381 11.2728V11.2728Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        65 Comments
-                      </div>
-                    </div>
-                    <a
-                      href="single-blog.html"
-                      class="blog-title font-body--xl-500"
-                      >Curabitur porttitor orci eget neque accumsan venenatis.
-                      Nunc fermentum.</a
-                    >
-                    <a href="single-blog.html">
-                      Read More
-                      <span>
-                        <svg
-                          width="17"
-                          height="15"
-                          viewBox="0 0 17 15"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16 7.50049H1"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </a>
+              @forelse ($blogs as $blog)
+                <div class="col-xl-6 custom-col">
+                  <x-frontend.blog-card :blog="$blog" />
+                </div>
+              @empty
+                <div class="col-12">
+                  <div class="cart-table" style="padding:60px 24px;text-align:center;">
+                    <p class="font-body--lg-400" style="margin-bottom:16px;">
+                      @if ($search)
+                        No blog posts match "{{ $search }}".
+                      @else
+                        No blog posts have been published yet. Check back soon!
+                      @endif
+                    </p>
                   </div>
                 </div>
-              </div>
-              <div class="col-xl-6 custom-col">
-                <div class="cards-blog">
-                  <div class="cards-blog__img-wrapper">
-                    <img src="{{ asset('images/blogs/blog-02.png') }}" alt="img-01" />
-                    <div class="date">
-                      <h3 class="font-body--xxl-500">18</h3>
-                      <span class="font-body--sm-500">Nov</span>
-                    </div>
-                  </div>
-                  <div class="cards-blog__info">
-                    <div class="cards-blog__info-tags d-flex">
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="20"
-                            height="21"
-                            viewBox="0 0 20 21"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.1583 11.6748L11.1833 17.6498C11.0285 17.8048 10.8447 17.9277 10.6424 18.0116C10.4401 18.0955 10.2232 18.1386 10.0042 18.1386C9.78513 18.1386 9.56825 18.0955 9.36592 18.0116C9.16359 17.9277 8.97978 17.8048 8.82499 17.6498L1.66666 10.4998V2.1665H9.99999L17.1583 9.32484C17.4687 9.63711 17.643 10.0595 17.643 10.4998C17.643 10.9401 17.4687 11.3626 17.1583 11.6748V11.6748Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M5.83331 6.33301H5.84165"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        Food
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="14"
-                            height="17"
-                            viewBox="0 0 14 17"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M6.99993 7.66667C8.84088 7.66667 10.3333 6.17428 10.3333 4.33333C10.3333 2.49238 8.84088 1 6.99993 1C5.15898 1 3.6666 2.49238 3.6666 4.33333C3.6666 6.17428 5.15898 7.66667 6.99993 7.66667Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                            <path
-                              d="M9.49995 10.1665H4.49995C2.19828 10.1665 0.137447 12.2915 1.65161 14.024C2.68161 15.2023 4.38495 15.9998 6.99995 15.9998C9.61495 15.9998 11.3174 15.2023 12.3474 14.024C13.8624 12.2907 11.8008 10.1665 9.49995 10.1665Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                          </svg>
-                        </span>
-                        By Admin
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="16"
-                            height="14"
-                            viewBox="0 0 16 14"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M9.52381 11.2728L8.48206 13.0087C8.43209 13.092 8.36139 13.1609 8.27687 13.2088C8.19234 13.2566 8.09686 13.2818 7.99972 13.2818C7.90258 13.2818 7.8071 13.2566 7.72257 13.2088C7.63804 13.1609 7.56735 13.092 7.51738 13.0087L6.47675 11.2728C6.42671 11.1895 6.35596 11.1206 6.27138 11.0728C6.1868 11.025 6.09128 10.9999 5.99413 11H1.8125C1.66332 11 1.52024 10.9407 1.41475 10.8352C1.30926 10.7298 1.25 10.5867 1.25 10.4375V1.4375C1.25 1.28832 1.30926 1.14524 1.41475 1.03975C1.52024 0.934263 1.66332 0.875 1.8125 0.875H14.1875C14.3367 0.875 14.4798 0.934263 14.5852 1.03975C14.6907 1.14524 14.75 1.28832 14.75 1.4375V10.4375C14.75 10.5867 14.6907 10.7298 14.5852 10.8352C14.4798 10.9407 14.3367 11 14.1875 11H10.0059C9.90881 11 9.81341 11.0252 9.72894 11.073C9.64446 11.1208 9.5738 11.1896 9.52381 11.2728V11.2728Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        65 Comments
-                      </div>
-                    </div>
-                    <a
-                      href="single-blog.html"
-                      class="blog-title font-body--xl-500"
-                      >Curabitur porttitor orci eget neque accumsan venenatis.
-                      Nunc fermentum.</a
-                    >
-                    <a href="single-blog.html">
-                      Read More
-                      <span>
-                        <svg
-                          width="17"
-                          height="15"
-                          viewBox="0 0 17 15"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16 7.50049H1"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-6 custom-col">
-                <div class="cards-blog">
-                  <div class="cards-blog__img-wrapper">
-                    <img src="{{ asset('images/blogs/blog-03.png') }}" alt="img-01" />
-                    <div class="date">
-                      <h3 class="font-body--xxl-500">18</h3>
-                      <span class="font-body--sm-500">Nov</span>
-                    </div>
-                  </div>
-                  <div class="cards-blog__info">
-                    <div class="cards-blog__info-tags d-flex">
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="20"
-                            height="21"
-                            viewBox="0 0 20 21"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.1583 11.6748L11.1833 17.6498C11.0285 17.8048 10.8447 17.9277 10.6424 18.0116C10.4401 18.0955 10.2232 18.1386 10.0042 18.1386C9.78513 18.1386 9.56825 18.0955 9.36592 18.0116C9.16359 17.9277 8.97978 17.8048 8.82499 17.6498L1.66666 10.4998V2.1665H9.99999L17.1583 9.32484C17.4687 9.63711 17.643 10.0595 17.643 10.4998C17.643 10.9401 17.4687 11.3626 17.1583 11.6748V11.6748Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M5.83331 6.33301H5.84165"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        Food
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="14"
-                            height="17"
-                            viewBox="0 0 14 17"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M6.99993 7.66667C8.84088 7.66667 10.3333 6.17428 10.3333 4.33333C10.3333 2.49238 8.84088 1 6.99993 1C5.15898 1 3.6666 2.49238 3.6666 4.33333C3.6666 6.17428 5.15898 7.66667 6.99993 7.66667Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                            <path
-                              d="M9.49995 10.1665H4.49995C2.19828 10.1665 0.137447 12.2915 1.65161 14.024C2.68161 15.2023 4.38495 15.9998 6.99995 15.9998C9.61495 15.9998 11.3174 15.2023 12.3474 14.024C13.8624 12.2907 11.8008 10.1665 9.49995 10.1665Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                          </svg>
-                        </span>
-                        By Admin
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="16"
-                            height="14"
-                            viewBox="0 0 16 14"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M9.52381 11.2728L8.48206 13.0087C8.43209 13.092 8.36139 13.1609 8.27687 13.2088C8.19234 13.2566 8.09686 13.2818 7.99972 13.2818C7.90258 13.2818 7.8071 13.2566 7.72257 13.2088C7.63804 13.1609 7.56735 13.092 7.51738 13.0087L6.47675 11.2728C6.42671 11.1895 6.35596 11.1206 6.27138 11.0728C6.1868 11.025 6.09128 10.9999 5.99413 11H1.8125C1.66332 11 1.52024 10.9407 1.41475 10.8352C1.30926 10.7298 1.25 10.5867 1.25 10.4375V1.4375C1.25 1.28832 1.30926 1.14524 1.41475 1.03975C1.52024 0.934263 1.66332 0.875 1.8125 0.875H14.1875C14.3367 0.875 14.4798 0.934263 14.5852 1.03975C14.6907 1.14524 14.75 1.28832 14.75 1.4375V10.4375C14.75 10.5867 14.6907 10.7298 14.5852 10.8352C14.4798 10.9407 14.3367 11 14.1875 11H10.0059C9.90881 11 9.81341 11.0252 9.72894 11.073C9.64446 11.1208 9.5738 11.1896 9.52381 11.2728V11.2728Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        65 Comments
-                      </div>
-                    </div>
-                    <a
-                      href="single-blog.html"
-                      class="blog-title font-body--xl-500"
-                      >Curabitur porttitor orci eget neque accumsan venenatis.
-                      Nunc fermentum.</a
-                    >
-                    <a href="single-blog.html">
-                      Read More
-                      <span>
-                        <svg
-                          width="17"
-                          height="15"
-                          viewBox="0 0 17 15"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16 7.50049H1"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-6 custom-col">
-                <div class="cards-blog">
-                  <div class="cards-blog__img-wrapper">
-                    <img src="{{ asset('images/blogs/blog-01.png') }}" alt="img-01" />
-                    <div class="date">
-                      <h3 class="font-body--xxl-500">18</h3>
-                      <span class="font-body--sm-500">Nov</span>
-                    </div>
-                  </div>
-                  <div class="cards-blog__info">
-                    <div class="cards-blog__info-tags d-flex">
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="20"
-                            height="21"
-                            viewBox="0 0 20 21"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.1583 11.6748L11.1833 17.6498C11.0285 17.8048 10.8447 17.9277 10.6424 18.0116C10.4401 18.0955 10.2232 18.1386 10.0042 18.1386C9.78513 18.1386 9.56825 18.0955 9.36592 18.0116C9.16359 17.9277 8.97978 17.8048 8.82499 17.6498L1.66666 10.4998V2.1665H9.99999L17.1583 9.32484C17.4687 9.63711 17.643 10.0595 17.643 10.4998C17.643 10.9401 17.4687 11.3626 17.1583 11.6748V11.6748Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M5.83331 6.33301H5.84165"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        Food
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="14"
-                            height="17"
-                            viewBox="0 0 14 17"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M6.99993 7.66667C8.84088 7.66667 10.3333 6.17428 10.3333 4.33333C10.3333 2.49238 8.84088 1 6.99993 1C5.15898 1 3.6666 2.49238 3.6666 4.33333C3.6666 6.17428 5.15898 7.66667 6.99993 7.66667Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                            <path
-                              d="M9.49995 10.1665H4.49995C2.19828 10.1665 0.137447 12.2915 1.65161 14.024C2.68161 15.2023 4.38495 15.9998 6.99995 15.9998C9.61495 15.9998 11.3174 15.2023 12.3474 14.024C13.8624 12.2907 11.8008 10.1665 9.49995 10.1665Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                          </svg>
-                        </span>
-                        By Admin
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="16"
-                            height="14"
-                            viewBox="0 0 16 14"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M9.52381 11.2728L8.48206 13.0087C8.43209 13.092 8.36139 13.1609 8.27687 13.2088C8.19234 13.2566 8.09686 13.2818 7.99972 13.2818C7.90258 13.2818 7.8071 13.2566 7.72257 13.2088C7.63804 13.1609 7.56735 13.092 7.51738 13.0087L6.47675 11.2728C6.42671 11.1895 6.35596 11.1206 6.27138 11.0728C6.1868 11.025 6.09128 10.9999 5.99413 11H1.8125C1.66332 11 1.52024 10.9407 1.41475 10.8352C1.30926 10.7298 1.25 10.5867 1.25 10.4375V1.4375C1.25 1.28832 1.30926 1.14524 1.41475 1.03975C1.52024 0.934263 1.66332 0.875 1.8125 0.875H14.1875C14.3367 0.875 14.4798 0.934263 14.5852 1.03975C14.6907 1.14524 14.75 1.28832 14.75 1.4375V10.4375C14.75 10.5867 14.6907 10.7298 14.5852 10.8352C14.4798 10.9407 14.3367 11 14.1875 11H10.0059C9.90881 11 9.81341 11.0252 9.72894 11.073C9.64446 11.1208 9.5738 11.1896 9.52381 11.2728V11.2728Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        65 Comments
-                      </div>
-                    </div>
-                    <a
-                      href="single-blog.html"
-                      class="blog-title font-body--xl-500"
-                      >Curabitur porttitor orci eget neque accumsan venenatis.
-                      Nunc fermentum.</a
-                    >
-                    <a href="single-blog.html">
-                      Read More
-                      <span>
-                        <svg
-                          width="17"
-                          height="15"
-                          viewBox="0 0 17 15"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16 7.50049H1"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-6 custom-col">
-                <div class="cards-blog">
-                  <div class="cards-blog__img-wrapper">
-                    <img src="{{ asset('images/blogs/blog-02.png') }}" alt="img-01" />
-                    <div class="date">
-                      <h3 class="font-body--xxl-500">18</h3>
-                      <span class="font-body--sm-500">Nov</span>
-                    </div>
-                  </div>
-                  <div class="cards-blog__info">
-                    <div class="cards-blog__info-tags d-flex">
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="20"
-                            height="21"
-                            viewBox="0 0 20 21"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.1583 11.6748L11.1833 17.6498C11.0285 17.8048 10.8447 17.9277 10.6424 18.0116C10.4401 18.0955 10.2232 18.1386 10.0042 18.1386C9.78513 18.1386 9.56825 18.0955 9.36592 18.0116C9.16359 17.9277 8.97978 17.8048 8.82499 17.6498L1.66666 10.4998V2.1665H9.99999L17.1583 9.32484C17.4687 9.63711 17.643 10.0595 17.643 10.4998C17.643 10.9401 17.4687 11.3626 17.1583 11.6748V11.6748Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M5.83331 6.33301H5.84165"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        Food
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="14"
-                            height="17"
-                            viewBox="0 0 14 17"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M6.99993 7.66667C8.84088 7.66667 10.3333 6.17428 10.3333 4.33333C10.3333 2.49238 8.84088 1 6.99993 1C5.15898 1 3.6666 2.49238 3.6666 4.33333C3.6666 6.17428 5.15898 7.66667 6.99993 7.66667Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                            <path
-                              d="M9.49995 10.1665H4.49995C2.19828 10.1665 0.137447 12.2915 1.65161 14.024C2.68161 15.2023 4.38495 15.9998 6.99995 15.9998C9.61495 15.9998 11.3174 15.2023 12.3474 14.024C13.8624 12.2907 11.8008 10.1665 9.49995 10.1665Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                          </svg>
-                        </span>
-                        By Admin
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="16"
-                            height="14"
-                            viewBox="0 0 16 14"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M9.52381 11.2728L8.48206 13.0087C8.43209 13.092 8.36139 13.1609 8.27687 13.2088C8.19234 13.2566 8.09686 13.2818 7.99972 13.2818C7.90258 13.2818 7.8071 13.2566 7.72257 13.2088C7.63804 13.1609 7.56735 13.092 7.51738 13.0087L6.47675 11.2728C6.42671 11.1895 6.35596 11.1206 6.27138 11.0728C6.1868 11.025 6.09128 10.9999 5.99413 11H1.8125C1.66332 11 1.52024 10.9407 1.41475 10.8352C1.30926 10.7298 1.25 10.5867 1.25 10.4375V1.4375C1.25 1.28832 1.30926 1.14524 1.41475 1.03975C1.52024 0.934263 1.66332 0.875 1.8125 0.875H14.1875C14.3367 0.875 14.4798 0.934263 14.5852 1.03975C14.6907 1.14524 14.75 1.28832 14.75 1.4375V10.4375C14.75 10.5867 14.6907 10.7298 14.5852 10.8352C14.4798 10.9407 14.3367 11 14.1875 11H10.0059C9.90881 11 9.81341 11.0252 9.72894 11.073C9.64446 11.1208 9.5738 11.1896 9.52381 11.2728V11.2728Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        65 Comments
-                      </div>
-                    </div>
-                    <a
-                      href="single-blog.html"
-                      class="blog-title font-body--xl-500"
-                      >Curabitur porttitor orci eget neque accumsan venenatis.
-                      Nunc fermentum.</a
-                    >
-                    <a href="single-blog.html">
-                      Read More
-                      <span>
-                        <svg
-                          width="17"
-                          height="15"
-                          viewBox="0 0 17 15"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16 7.50049H1"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <div class="col-xl-6 custom-col">
-                <div class="cards-blog">
-                  <div class="cards-blog__img-wrapper">
-                    <img src="{{ asset('images/blogs/blog-03.png') }}" alt="img-01" />
-                    <div class="date">
-                      <h3 class="font-body--xxl-500">18</h3>
-                      <span class="font-body--sm-500">Nov</span>
-                    </div>
-                  </div>
-                  <div class="cards-blog__info">
-                    <div class="cards-blog__info-tags d-flex">
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="20"
-                            height="21"
-                            viewBox="0 0 20 21"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M17.1583 11.6748L11.1833 17.6498C11.0285 17.8048 10.8447 17.9277 10.6424 18.0116C10.4401 18.0955 10.2232 18.1386 10.0042 18.1386C9.78513 18.1386 9.56825 18.0955 9.36592 18.0116C9.16359 17.9277 8.97978 17.8048 8.82499 17.6498L1.66666 10.4998V2.1665H9.99999L17.1583 9.32484C17.4687 9.63711 17.643 10.0595 17.643 10.4998C17.643 10.9401 17.4687 11.3626 17.1583 11.6748V11.6748Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M5.83331 6.33301H5.84165"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        Food
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="14"
-                            height="17"
-                            viewBox="0 0 14 17"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M6.99993 7.66667C8.84088 7.66667 10.3333 6.17428 10.3333 4.33333C10.3333 2.49238 8.84088 1 6.99993 1C5.15898 1 3.6666 2.49238 3.6666 4.33333C3.6666 6.17428 5.15898 7.66667 6.99993 7.66667Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                            <path
-                              d="M9.49995 10.1665H4.49995C2.19828 10.1665 0.137447 12.2915 1.65161 14.024C2.68161 15.2023 4.38495 15.9998 6.99995 15.9998C9.61495 15.9998 11.3174 15.2023 12.3474 14.024C13.8624 12.2907 11.8008 10.1665 9.49995 10.1665Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                            />
-                          </svg>
-                        </span>
-                        By Admin
-                      </div>
-                      <div class="cards-blog__info-tags-item">
-                        <span>
-                          <svg
-                            width="16"
-                            height="14"
-                            viewBox="0 0 16 14"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M9.52381 11.2728L8.48206 13.0087C8.43209 13.092 8.36139 13.1609 8.27687 13.2088C8.19234 13.2566 8.09686 13.2818 7.99972 13.2818C7.90258 13.2818 7.8071 13.2566 7.72257 13.2088C7.63804 13.1609 7.56735 13.092 7.51738 13.0087L6.47675 11.2728C6.42671 11.1895 6.35596 11.1206 6.27138 11.0728C6.1868 11.025 6.09128 10.9999 5.99413 11H1.8125C1.66332 11 1.52024 10.9407 1.41475 10.8352C1.30926 10.7298 1.25 10.5867 1.25 10.4375V1.4375C1.25 1.28832 1.30926 1.14524 1.41475 1.03975C1.52024 0.934263 1.66332 0.875 1.8125 0.875H14.1875C14.3367 0.875 14.4798 0.934263 14.5852 1.03975C14.6907 1.14524 14.75 1.28832 14.75 1.4375V10.4375C14.75 10.5867 14.6907 10.7298 14.5852 10.8352C14.4798 10.9407 14.3367 11 14.1875 11H10.0059C9.90881 11 9.81341 11.0252 9.72894 11.073C9.64446 11.1208 9.5738 11.1896 9.52381 11.2728V11.2728Z"
-                              stroke="currentColor"
-                              stroke-width="1.2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                        65 Comments
-                      </div>
-                    </div>
-                    <a
-                      href="single-blog.html"
-                      class="blog-title font-body--xl-500"
-                      >Curabitur porttitor orci eget neque accumsan venenatis.
-                      Nunc fermentum.</a
-                    >
-                    <a href="single-blog.html">
-                      Read More
-                      <span>
-                        <svg
-                          width="17"
-                          height="15"
-                          viewBox="0 0 17 15"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16 7.50049H1"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </a>
-                  </div>
-                </div>
-              </div>
+              @endforelse
             </div>
 
             <!-- Mobile Version  -->
             <div class="blog-list--slider swiper-container">
               <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                  <div class="cards-blog">
-                    <div class="cards-blog__img-wrapper">
-                      <img src="{{ asset('images/blogs/blog-01.png') }}" alt="img-01" />
-                      <div class="date">
-                        <h3 class="font-body--xxl-500">18</h3>
-                        <span class="font-body--sm-500">Nov</span>
-                      </div>
-                    </div>
-                    <div class="cards-blog__info">
-                      <div class="cards-blog__info-tags d-flex">
-                        <div class="cards-blog__info-tags-item">
-                          <span>
-                            <svg
-                              width="20"
-                              height="21"
-                              viewBox="0 0 20 21"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M17.1583 11.6748L11.1833 17.6498C11.0285 17.8048 10.8447 17.9277 10.6424 18.0116C10.4401 18.0955 10.2232 18.1386 10.0042 18.1386C9.78513 18.1386 9.56825 18.0955 9.36592 18.0116C9.16359 17.9277 8.97978 17.8048 8.82499 17.6498L1.66666 10.4998V2.1665H9.99999L17.1583 9.32484C17.4687 9.63711 17.643 10.0595 17.643 10.4998C17.643 10.9401 17.4687 11.3626 17.1583 11.6748V11.6748Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M5.83331 6.33301H5.84165"
-                                stroke="currentColor"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          Food
-                        </div>
-                        <div class="cards-blog__info-tags-item">
-                          <span>
-                            <svg
-                              width="14"
-                              height="17"
-                              viewBox="0 0 14 17"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M6.99993 7.66667C8.84088 7.66667 10.3333 6.17428 10.3333 4.33333C10.3333 2.49238 8.84088 1 6.99993 1C5.15898 1 3.6666 2.49238 3.6666 4.33333C3.6666 6.17428 5.15898 7.66667 6.99993 7.66667Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                              />
-                              <path
-                                d="M9.49995 10.1665H4.49995C2.19828 10.1665 0.137447 12.2915 1.65161 14.024C2.68161 15.2023 4.38495 15.9998 6.99995 15.9998C9.61495 15.9998 11.3174 15.2023 12.3474 14.024C13.8624 12.2907 11.8008 10.1665 9.49995 10.1665Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                              />
-                            </svg>
-                          </span>
-                          By Admin
-                        </div>
-                        <div class="cards-blog__info-tags-item">
-                          <span>
-                            <svg
-                              width="16"
-                              height="14"
-                              viewBox="0 0 16 14"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M9.52381 11.2728L8.48206 13.0087C8.43209 13.092 8.36139 13.1609 8.27687 13.2088C8.19234 13.2566 8.09686 13.2818 7.99972 13.2818C7.90258 13.2818 7.8071 13.2566 7.72257 13.2088C7.63804 13.1609 7.56735 13.092 7.51738 13.0087L6.47675 11.2728C6.42671 11.1895 6.35596 11.1206 6.27138 11.0728C6.1868 11.025 6.09128 10.9999 5.99413 11H1.8125C1.66332 11 1.52024 10.9407 1.41475 10.8352C1.30926 10.7298 1.25 10.5867 1.25 10.4375V1.4375C1.25 1.28832 1.30926 1.14524 1.41475 1.03975C1.52024 0.934263 1.66332 0.875 1.8125 0.875H14.1875C14.3367 0.875 14.4798 0.934263 14.5852 1.03975C14.6907 1.14524 14.75 1.28832 14.75 1.4375V10.4375C14.75 10.5867 14.6907 10.7298 14.5852 10.8352C14.4798 10.9407 14.3367 11 14.1875 11H10.0059C9.90881 11 9.81341 11.0252 9.72894 11.073C9.64446 11.1208 9.5738 11.1896 9.52381 11.2728V11.2728Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          65 Comments
-                        </div>
-                      </div>
-                      <a
-                        href="single-blog.html"
-                        class="blog-title font-body--xl-500"
-                        >Curabitur porttitor orci eget neque accumsan venenatis.
-                        Nunc fermentum.</a
-                      >
-                      <a href="single-blog.html">
-                        Read More
-                        <span>
-                          <svg
-                            width="17"
-                            height="15"
-                            viewBox="0 0 17 15"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M16 7.50049H1"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                      </a>
-                    </div>
+                @foreach ($blogs as $blog)
+                  <div class="swiper-slide">
+                    <x-frontend.blog-card :blog="$blog" />
                   </div>
-                </div>
-                <div class="swiper-slide">
-                  <div class="cards-blog">
-                    <div class="cards-blog__img-wrapper">
-                      <img src="{{ asset('images/blogs/blog-02.png') }}" alt="img-01" />
-                      <div class="date">
-                        <h3 class="font-body--xxl-500">18</h3>
-                        <span class="font-body--sm-500">Nov</span>
-                      </div>
-                    </div>
-                    <div class="cards-blog__info">
-                      <div class="cards-blog__info-tags d-flex">
-                        <div class="cards-blog__info-tags-item">
-                          <span>
-                            <svg
-                              width="20"
-                              height="21"
-                              viewBox="0 0 20 21"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M17.1583 11.6748L11.1833 17.6498C11.0285 17.8048 10.8447 17.9277 10.6424 18.0116C10.4401 18.0955 10.2232 18.1386 10.0042 18.1386C9.78513 18.1386 9.56825 18.0955 9.36592 18.0116C9.16359 17.9277 8.97978 17.8048 8.82499 17.6498L1.66666 10.4998V2.1665H9.99999L17.1583 9.32484C17.4687 9.63711 17.643 10.0595 17.643 10.4998C17.643 10.9401 17.4687 11.3626 17.1583 11.6748V11.6748Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M5.83331 6.33301H5.84165"
-                                stroke="currentColor"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          Food
-                        </div>
-                        <div class="cards-blog__info-tags-item">
-                          <span>
-                            <svg
-                              width="14"
-                              height="17"
-                              viewBox="0 0 14 17"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M6.99993 7.66667C8.84088 7.66667 10.3333 6.17428 10.3333 4.33333C10.3333 2.49238 8.84088 1 6.99993 1C5.15898 1 3.6666 2.49238 3.6666 4.33333C3.6666 6.17428 5.15898 7.66667 6.99993 7.66667Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                              />
-                              <path
-                                d="M9.49995 10.1665H4.49995C2.19828 10.1665 0.137447 12.2915 1.65161 14.024C2.68161 15.2023 4.38495 15.9998 6.99995 15.9998C9.61495 15.9998 11.3174 15.2023 12.3474 14.024C13.8624 12.2907 11.8008 10.1665 9.49995 10.1665Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                              />
-                            </svg>
-                          </span>
-                          By Admin
-                        </div>
-                        <div class="cards-blog__info-tags-item">
-                          <span>
-                            <svg
-                              width="16"
-                              height="14"
-                              viewBox="0 0 16 14"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M9.52381 11.2728L8.48206 13.0087C8.43209 13.092 8.36139 13.1609 8.27687 13.2088C8.19234 13.2566 8.09686 13.2818 7.99972 13.2818C7.90258 13.2818 7.8071 13.2566 7.72257 13.2088C7.63804 13.1609 7.56735 13.092 7.51738 13.0087L6.47675 11.2728C6.42671 11.1895 6.35596 11.1206 6.27138 11.0728C6.1868 11.025 6.09128 10.9999 5.99413 11H1.8125C1.66332 11 1.52024 10.9407 1.41475 10.8352C1.30926 10.7298 1.25 10.5867 1.25 10.4375V1.4375C1.25 1.28832 1.30926 1.14524 1.41475 1.03975C1.52024 0.934263 1.66332 0.875 1.8125 0.875H14.1875C14.3367 0.875 14.4798 0.934263 14.5852 1.03975C14.6907 1.14524 14.75 1.28832 14.75 1.4375V10.4375C14.75 10.5867 14.6907 10.7298 14.5852 10.8352C14.4798 10.9407 14.3367 11 14.1875 11H10.0059C9.90881 11 9.81341 11.0252 9.72894 11.073C9.64446 11.1208 9.5738 11.1896 9.52381 11.2728V11.2728Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          65 Comments
-                        </div>
-                      </div>
-                      <a
-                        href="single-blog.html"
-                        class="blog-title font-body--xl-500"
-                        >Curabitur porttitor orci eget neque accumsan venenatis.
-                        Nunc fermentum.</a
-                      >
-                      <a href="single-blog.html">
-                        Read More
-                        <span>
-                          <svg
-                            width="17"
-                            height="15"
-                            viewBox="0 0 17 15"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M16 7.50049H1"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-                <div class="swiper-slide">
-                  <div class="cards-blog">
-                    <div class="cards-blog__img-wrapper">
-                      <img src="{{ asset('images/blogs/blog-03.png') }}" alt="img-01" />
-                      <div class="date">
-                        <h3 class="font-body--xxl-500">18</h3>
-                        <span class="font-body--sm-500">Nov</span>
-                      </div>
-                    </div>
-                    <div class="cards-blog__info">
-                      <div class="cards-blog__info-tags d-flex">
-                        <div class="cards-blog__info-tags-item">
-                          <span>
-                            <svg
-                              width="20"
-                              height="21"
-                              viewBox="0 0 20 21"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M17.1583 11.6748L11.1833 17.6498C11.0285 17.8048 10.8447 17.9277 10.6424 18.0116C10.4401 18.0955 10.2232 18.1386 10.0042 18.1386C9.78513 18.1386 9.56825 18.0955 9.36592 18.0116C9.16359 17.9277 8.97978 17.8048 8.82499 17.6498L1.66666 10.4998V2.1665H9.99999L17.1583 9.32484C17.4687 9.63711 17.643 10.0595 17.643 10.4998C17.643 10.9401 17.4687 11.3626 17.1583 11.6748V11.6748Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                              <path
-                                d="M5.83331 6.33301H5.84165"
-                                stroke="currentColor"
-                                stroke-width="1.5"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          Food
-                        </div>
-                        <div class="cards-blog__info-tags-item">
-                          <span>
-                            <svg
-                              width="14"
-                              height="17"
-                              viewBox="0 0 14 17"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M6.99993 7.66667C8.84088 7.66667 10.3333 6.17428 10.3333 4.33333C10.3333 2.49238 8.84088 1 6.99993 1C5.15898 1 3.6666 2.49238 3.6666 4.33333C3.6666 6.17428 5.15898 7.66667 6.99993 7.66667Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                              />
-                              <path
-                                d="M9.49995 10.1665H4.49995C2.19828 10.1665 0.137447 12.2915 1.65161 14.024C2.68161 15.2023 4.38495 15.9998 6.99995 15.9998C9.61495 15.9998 11.3174 15.2023 12.3474 14.024C13.8624 12.2907 11.8008 10.1665 9.49995 10.1665Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                              />
-                            </svg>
-                          </span>
-                          By Admin
-                        </div>
-                        <div class="cards-blog__info-tags-item">
-                          <span>
-                            <svg
-                              width="16"
-                              height="14"
-                              viewBox="0 0 16 14"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M9.52381 11.2728L8.48206 13.0087C8.43209 13.092 8.36139 13.1609 8.27687 13.2088C8.19234 13.2566 8.09686 13.2818 7.99972 13.2818C7.90258 13.2818 7.8071 13.2566 7.72257 13.2088C7.63804 13.1609 7.56735 13.092 7.51738 13.0087L6.47675 11.2728C6.42671 11.1895 6.35596 11.1206 6.27138 11.0728C6.1868 11.025 6.09128 10.9999 5.99413 11H1.8125C1.66332 11 1.52024 10.9407 1.41475 10.8352C1.30926 10.7298 1.25 10.5867 1.25 10.4375V1.4375C1.25 1.28832 1.30926 1.14524 1.41475 1.03975C1.52024 0.934263 1.66332 0.875 1.8125 0.875H14.1875C14.3367 0.875 14.4798 0.934263 14.5852 1.03975C14.6907 1.14524 14.75 1.28832 14.75 1.4375V10.4375C14.75 10.5867 14.6907 10.7298 14.5852 10.8352C14.4798 10.9407 14.3367 11 14.1875 11H10.0059C9.90881 11 9.81341 11.0252 9.72894 11.073C9.64446 11.1208 9.5738 11.1896 9.52381 11.2728V11.2728Z"
-                                stroke="currentColor"
-                                stroke-width="1.2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                              />
-                            </svg>
-                          </span>
-                          65 Comments
-                        </div>
-                      </div>
-                      <a
-                        href="single-blog.html"
-                        class="blog-title font-body--xl-500"
-                        >Curabitur porttitor orci eget neque accumsan venenatis.
-                        Nunc fermentum.</a
-                      >
-                      <a href="single-blog.html">
-                        Read More
-                        <span>
-                          <svg
-                            width="17"
-                            height="15"
-                            viewBox="0 0 17 15"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M16 7.50049H1"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                            <path
-                              d="M9.95001 1.47559L16 7.49959L9.95001 13.5246"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            />
-                          </svg>
-                        </span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
+                @endforeach
               </div>
               <div class="swiper-pagination"></div>
             </div>
 
             <!-- Pagination   -->
-            <nav
-              aria-label="Page navigation pagination--one"
-              class="pagination-wrapper"
-            >
-              <ul class="pagination justify-content-center">
-                <li class="page-item pagination-item disabled">
-                  <a class="page-link pagination-link" href="#" tabindex="-1">
-                    <svg
-                      width="8"
-                      height="14"
-                      viewBox="0 0 8 14"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M6.91663 1.16634L1.08329 6.99967L6.91663 12.833"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </a>
-                </li>
-                <li class="page-item pagination-item">
-                  <a class="page-link pagination-link active" href="#">1</a>
-                </li>
-                <li class="page-item pagination-item">
-                  <a class="page-link pagination-link" href="#">2</a>
-                </li>
-                <li class="page-item pagination-item">
-                  <a class="page-link pagination-link" href="#">3</a>
-                </li>
-                <li class="page-item pagination-item">
-                  <a class="page-link pagination-link" href="#">4</a>
-                </li>
-                <li class="page-item pagination-item">
-                  <a class="page-link pagination-link" href="#">5</a>
-                </li>
-                <li class="page-item pagination-item">
-                  <p class="page-link pagination-link">...</p>
-                </li>
-                <li class="page-item pagination-item">
-                  <a class="page-link pagination-link" href="#">21</a>
-                </li>
-                <li class="page-item pagination-item">
-                  <a class="page-link pagination-link" href="#">
-                    <svg
-                      width="8"
-                      height="14"
-                      viewBox="0 0 8 14"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M1.08337 1.16634L6.91671 6.99967L1.08337 12.833"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </a>
-                </li>
-              </ul>
-            </nav>
+            {{ $blogs->onEachSide(2)->links('vendor.pagination.shop') }}
           </div>
         </div>
       </div>

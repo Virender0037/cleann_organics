@@ -41,7 +41,17 @@
             <a href="{{ route('shopping-cart') }}" class="button button--md">Review Cart</a>
           </div>
         @else
-          <div class="row shoping-cart__content">
+          {{--
+            Deliberately NOT the "shoping-cart__content" class used on the
+            cart page: public/css/style.css hides ".shoping-cart__content
+            .cart-table" below 991px in favour of a ".shoping-cart__mobile"
+            fallback that only the cart page provides. Reusing that class
+            name here silently hid the address/payment/review cards on every
+            tablet and phone with no replacement content — this page has no
+            table to hide in the first place (it's cards + a small order
+            -review table), so it never needed that rule.
+          --}}
+          <div class="row checkout__content">
             <div class="col-lg-8">
               <!-- Delivery Address -->
               <div class="cart-table" style="padding:24px;margin-bottom:24px;">
@@ -129,14 +139,25 @@
                   @csrf
                   <input type="hidden" name="address_id" value="{{ $selectedAddress?->id }}" />
 
-                  <label style="display:block;margin-bottom:12px;cursor:pointer;">
-                    <input type="radio" name="payment_method" value="cod" checked /> Cash on Delivery
+                  <label class="payment-method-option" style="display:block;border:1px solid #e5e5e5;border-radius:8px;padding:14px 16px;margin-bottom:12px;cursor:pointer;">
+                    <input type="radio" name="payment_method" value="cod" checked />
+                    <span class="font-body--md-500">Cash on Delivery</span>
+                    <span class="font-body--sm-400" style="display:block;color:#666666;margin-top:4px;margin-left:24px;">Pay in cash when your order arrives.</span>
                   </label>
-                  <label style="display:block;margin-bottom:12px;cursor:pointer;">
-                    <input type="radio" name="payment_method" value="upi" /> UPI
+                  <label class="payment-method-option" style="display:block;border:1px solid #e5e5e5;border-radius:8px;padding:14px 16px;margin-bottom:12px;cursor:pointer;">
+                    <input type="radio" name="payment_method" value="razorpay" />
+                    <span class="font-body--md-500">Pay Online (Razorpay)</span>
+                    <span class="font-body--sm-400" style="display:block;color:#666666;margin-top:4px;margin-left:24px;">Instant payment — UPI, credit/debit cards, netbanking and wallets via Razorpay's secure checkout.</span>
                   </label>
-                  <label style="display:block;cursor:pointer;">
-                    <input type="radio" name="payment_method" value="bank_transfer" /> Bank Transfer
+                  <label class="payment-method-option" style="display:block;border:1px solid #e5e5e5;border-radius:8px;padding:14px 16px;margin-bottom:12px;cursor:pointer;">
+                    <input type="radio" name="payment_method" value="manual_upi" />
+                    <span class="font-body--md-500">UPI (Manual)</span>
+                    <span class="font-body--sm-400" style="display:block;color:#666666;margin-top:4px;margin-left:24px;">Pay via your UPI app using our UPI ID or QR code, then submit your reference number — verified manually, usually within a few hours.</span>
+                  </label>
+                  <label class="payment-method-option" style="display:block;border:1px solid #e5e5e5;border-radius:8px;padding:14px 16px;cursor:pointer;">
+                    <input type="radio" name="payment_method" value="bank_transfer" />
+                    <span class="font-body--md-500">Bank Transfer</span>
+                    <span class="font-body--sm-400" style="display:block;color:#666666;margin-top:4px;margin-left:24px;">We'll share our bank details after you place the order.</span>
                   </label>
                 </form>
               </div>

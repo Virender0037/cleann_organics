@@ -33,7 +33,7 @@
         <div class="cards-md__img-wrapper">
             <a href="{{ $productUrl }}">
                 <img
-                    src="{{ $thumbnail ? \Illuminate\Support\Facades\Storage::url($thumbnail->image) : asset('images/products/img-01.png') }}"
+                    src="{{ storage_image_url($thumbnail?->image, asset('images/products/img-01.png')) }}"
                     alt="{{ $product->name }}"
                     loading="lazy"
                 />
@@ -46,6 +46,11 @@
                     action="{{ $isWishlisted ? route('wishlist.destroy', $product) : route('wishlist.store') }}"
                     method="POST"
                     data-wishlist-form
+                    data-wishlist-toggle
+                    data-product-id="{{ $product->id }}"
+                    data-store-url="{{ route('wishlist.store') }}"
+                    data-destroy-url="{{ route('wishlist.destroy', $product) }}"
+                    data-wishlisted="{{ $isWishlisted ? 'true' : 'false' }}"
                 >
                     @csrf
                     @if ($isWishlisted)

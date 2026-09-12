@@ -21,9 +21,7 @@ use Illuminate\View\View;
  */
 class CheckoutController extends Controller
 {
-    public function __construct(private readonly CheckoutService $checkout)
-    {
-    }
+    public function __construct(private readonly CheckoutService $checkout) {}
 
     /**
      * Address selection is a plain GET (?address_id=) that re-renders this
@@ -81,8 +79,18 @@ class CheckoutController extends Controller
             return back()->with('error', $result['message']);
         }
 
+        $order = $result['order'];
+
+        if ($order->payment_method === 'razorpay') {
+            return redirect()->route('orders.pay', $order);
+        }
+
+        if ($order->payment_method === 'manual_upi') {
+            return redirect()->route('orders.manual-upi.pay', $order);
+        }
+
         return redirect()
-            ->route('orders.show', $result['order'])
-            ->with('success', 'Your order has been placed! Order #'.$result['order']->order_number);
+            ->route('orders.show', $order)
+            ->with('success', 'Your order has been placed! Order #'.$order->order_number);
     }
 }

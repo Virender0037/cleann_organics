@@ -27,7 +27,7 @@ class PlaceOrderRequest extends FormRequest
                 'integer',
                 Rule::exists('addresses', 'id')->where('user_id', Auth::id()),
             ],
-            'payment_method' => ['required', 'in:cod,upi,bank_transfer'],
+            'payment_method' => ['required', 'in:cod,upi,bank_transfer,razorpay,manual_upi'],
         ];
     }
 }

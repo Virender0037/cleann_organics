@@ -83,11 +83,33 @@ class ShopTest extends TestCase
     public function test_real_thumbnail_image_is_used_on_the_card(): void
     {
         Storage::fake('public');
+        Storage::disk('public')->put('variants/potato-primary.jpg', 'fake-image-content');
         $product = $this->product($this->category(), 'Thumbnail Potato');
         $variant = $this->variant($product);
         $variant->images()->create(['image' => 'variants/potato-primary.jpg', 'media_type' => 'image', 'is_primary' => true, 'sort_order' => 1]);
 
         $this->get('/shop')->assertOk()->assertSee(Storage::url('variants/potato-primary.jpg'), false);
+    }
+
+    /**
+     * A database row can reference an image path whose file was never
+     * actually uploaded (or was deleted afterwards) — a DB restored/copied
+     * without its media is exactly this shape. The card must fall back to
+     * the bundled placeholder image rather than pointing the browser at a
+     * URL that 404s and renders as a broken-image icon.
+     */
+    public function test_thumbnail_falls_back_when_the_referenced_file_does_not_exist_on_disk(): void
+    {
+        Storage::fake('public');
+        // Deliberately never written to the fake disk.
+        $product = $this->product($this->category(), 'Ghost File Turnip');
+        $variant = $this->variant($product);
+        $variant->images()->create(['image' => 'variants/missing-file.jpg', 'media_type' => 'image', 'is_primary' => true, 'sort_order' => 1]);
+
+        $this->get('/shop')
+            ->assertOk()
+            ->assertDontSee(Storage::url('variants/missing-file.jpg'), false)
+            ->assertSee(asset('images/products/img-01.png'), false);
     }
 
     public function test_search_filters_by_product_name(): void

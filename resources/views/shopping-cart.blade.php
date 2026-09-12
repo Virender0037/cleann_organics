@@ -311,14 +311,29 @@
               <h5 class="newsletter-card-title font-body--xxl-500">
                 Coupon Code
               </h5>
-              <form action="#">
-                <div class="newsletter-card__input">
-                  <input type="text" id="coupon-code" name="coupon_code" placeholder="Enter Code" />
-                  <button class="button button--lg" type="submit">
-                    Apply Coupon
-                  </button>
+              @if ($appliedCoupon)
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+                  <p class="font-body--md-400">
+                    Applied: <strong>{{ $appliedCoupon->code }}</strong>
+                    &mdash; you save ₹{{ number_format($discountAmount, 2) }}
+                  </p>
+                  <form action="{{ route('checkout.coupon.remove') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="button button--md button--disable">Remove</button>
+                  </form>
                 </div>
-              </form>
+              @else
+                <form action="{{ route('checkout.coupon.apply') }}" method="POST">
+                  @csrf
+                  <div class="newsletter-card__input">
+                    <input type="text" id="coupon-code" name="code" placeholder="Enter Code" />
+                    <button class="button button--lg" type="submit">
+                      Apply Coupon
+                    </button>
+                  </div>
+                </form>
+              @endif
             </div>
           </div>
 
@@ -338,15 +353,21 @@
                       <p class="font-body--md-400">Subtotal:</p>
                       <span class="font-body--md-500">₹{{ number_format($subtotal, 2) }}</span>
                     </div>
+                    @if ($discountAmount > 0)
+                      <div class="bill-card__memo-item subtotal">
+                        <p class="font-body--md-400">Discount:</p>
+                        <span class="font-body--md-500">&minus; ₹{{ number_format($discountAmount, 2) }}</span>
+                      </div>
+                    @endif
                     <!-- Shipping  -->
                     <div class="bill-card__memo-item shipping">
                       <p class="font-body--md-400">Shipping:</p>
-                      <span class="font-body--md-500">Free</span>
+                      <span class="font-body--md-500">Calculated at checkout</span>
                     </div>
                     <!-- total  -->
                     <div class="bill-card__memo-item total">
                       <p class="font-body--lg-400">Total:</p>
-                      <span class="font-body--xl-500">₹{{ number_format($subtotal, 2) }}</span>
+                      <span class="font-body--xl-500">₹{{ number_format($subtotal - $discountAmount, 2) }}</span>
                     </div>
                   </div>
                   @if ($lines->isEmpty())

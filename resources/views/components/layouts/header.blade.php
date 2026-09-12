@@ -22,15 +22,22 @@
         // set here — either via app.blade.php's prop default or the
         // components.layouts.header view composer in AppServiceProvider.
         $ogImagePath = ($ogImage ?? null) ?: ($seoSettings['og_image'] ?? null);
+        // A row can reference a path whose file was never uploaded (or was
+        // deleted) — checked here rather than via storage_image_url() since
+        // there's no sensible <meta> fallback to render; the tag is simply
+        // omitted when the file is missing rather than pointing crawlers at
+        // a 404.
+        $ogImageExists = $ogImagePath && \Illuminate\Support\Facades\Storage::disk('public')->exists($ogImagePath);
+        $faviconExists = ! empty($generalSettings['favicon']) && \Illuminate\Support\Facades\Storage::disk('public')->exists($generalSettings['favicon']);
     @endphp
     <meta property="og:type" content="website" />
     <meta property="og:title" content="{{ $metaTitle ?: ($generalSettings['site_name'] ?? 'Cleann Organics') }}" />
     <meta property="og:description" content="{{ $metaDescription ?: ($seoSettings['meta_description'] ?? '') }}" />
     <meta property="og:url" content="{{ $canonicalUrl ?: url()->current() }}" />
-    @if ($ogImagePath)
+    @if ($ogImageExists)
         <meta property="og:image" content="{{ \Illuminate\Support\Facades\Storage::url($ogImagePath) }}" />
     @endif
-    @if (! empty($generalSettings['favicon']))
+    @if ($faviconExists)
         <link rel="icon" type="image/png" href="{{ \Illuminate\Support\Facades\Storage::url($generalSettings['favicon']) }}" />
     @else
         <link rel="icon" type="image/png" href="{{ asset('images/favicon/favicon-16x16.png') }}" />
@@ -143,7 +150,7 @@
                 <path d="M3 18H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </button>
-        <img src="{{ ! empty($generalSettings['logo']) ? \Illuminate\Support\Facades\Storage::url($generalSettings['logo']) : asset('images/vertical-logo.jpeg') }}"
+        <img src="{{ storage_image_url($generalSettings['logo'] ?? null, asset('images/vertical-logo.jpeg')) }}"
      alt="{{ $generalSettings['site_name'] ?? 'brand-logo' }}"
      style="height: 39px; width: auto;">
     </div>
@@ -373,19 +380,22 @@
     </ul>
 </div>
 <div class="header__mobile-bottom">
-    <div class="header__mobile-user">
-        <div class="header__mobile-user--img">
-            <img src="{{ asset('images/user/img-03.png') }}" alt="user">
+    @auth
+        <div class="header__mobile-user">
+            <div class="header__mobile-user--img">
+                <img src="{{ asset('images/user/img-03.png') }}" alt="{{ auth()->user()->name }}">
+            </div>
+            <div class="header__mobile-user--info">
+                <h2 class="font-body--lg-500">{{ auth()->user()->name }}</h2>
+                <p class="font-body--md-400">{{ auth()->user()->email }}</p>
+            </div>
         </div>
-        <div class="header__mobile-user--info">
-            <h2 class="font-body--lg-500">Dianne Russell</h2>
-            <p class="font-body--md-400">dianne.russell@gmail.com</p>
+    @else
+        <div class="header__mobile-action">
+            <a href="{{ route('sign-in') }}" class="button button--md">Sign in</a>
+            <a href="{{ route('create-account') }}" class="button button--md button--disable">Sign up</a>
         </div>
-    </div>
-    <div class="header__mobile-action d-none">
-        <a href="#" class="button button--md">Sign in</a>
-        <a href="#" class="button button--md button--disable">Sign up</a>
-    </div>
+    @endauth
 </div>
 </div>
 </div>

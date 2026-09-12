@@ -76,15 +76,80 @@
                     </div>
                 </div>
 
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>Gateway Response</h5>
-                    </div>
+                @if ($payment->payment_method === 'manual_upi')
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Manual UPI Verification</h5>
+                        </div>
 
-                    <div class="card-body">
-                        <p class="text-muted mb-0">Not available — this system doesn't record raw gateway response payloads.</p>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="text-muted">UPI Reference (UTR)</label>
+                                    <p class="fw-bold mb-0">{{ $payment->upi_reference ?? '—' }}</p>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="text-muted">Submitted At</label>
+                                    <p class="mb-0">{{ $payment->submitted_at ? $payment->submitted_at->format('d M Y, h:i A') : '—' }}</p>
+                                </div>
+
+                                <div class="col-md-12 mb-3">
+                                    <label class="text-muted">Payment Screenshot</label>
+                                    <p class="mb-0">
+                                        @if ($payment->proof_path)
+                                            <a href="{{ route('admin.sales.payments.proof', $payment) }}" target="_blank" rel="noopener">View Screenshot</a>
+                                        @else
+                                            Not submitted
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+
+                            @if ($payment->status === 'pending' && $payment->upi_reference)
+                                <hr>
+
+                                <form action="{{ route('admin.sales.payments.verify', $payment) }}" method="POST" class="mb-3">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="mb-2">
+                                        <label class="form-label">Note (optional)</label>
+                                        <input type="text" name="admin_note" class="form-control" maxlength="500" placeholder="e.g. Verified against bank statement">
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="ph ph-check-circle me-1"></i>
+                                        Verify &amp; Mark Paid
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('admin.sales.payments.reject', $payment) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="mb-2">
+                                        <label class="form-label">Reason for rejection</label>
+                                        <input type="text" name="admin_note" class="form-control" maxlength="500" required placeholder="e.g. Reference number doesn't match any received payment">
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="ph ph-x-circle me-1"></i>
+                                        Reject
+                                    </button>
+                                </form>
+                            @elseif ($payment->status === 'pending')
+                                <p class="text-muted mb-0">Waiting for the customer to submit a payment reference.</p>
+                            @endif
+                        </div>
                     </div>
-                </div>
+                @else
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Gateway Response</h5>
+                        </div>
+
+                        <div class="card-body">
+                            <p class="text-muted mb-0">Not available — this system doesn't record raw gateway response payloads.</p>
+                        </div>
+                    </div>
+                @endif
 
             </div>
 

@@ -78,7 +78,7 @@
                   </div>
 
                   <div style="margin-top:24px;">
-                    {{ $orders->links() }}
+                    {{ $orders->onEachSide(2)->links('vendor.pagination.shop') }}
                   </div>
                 @endif
               </div>

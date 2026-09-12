@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Single source of truth for cart reads and mutations, for both guest
@@ -32,9 +31,7 @@ class CartService
 {
     private const SESSION_KEY = 'cart';
 
-    public function __construct(private readonly Request $request)
-    {
-    }
+    public function __construct(private readonly Request $request) {}
 
     public function isGuest(): bool
     {
@@ -509,7 +506,7 @@ class CartService
             'subtotal' => $subtotal,
             'stock_label' => $available ? $variant->stockLabel() : 'Unavailable',
             'variant_label' => $variant->displayLabel(),
-            'thumbnail_url' => $image ? Storage::url($image->image) : null,
+            'thumbnail_url' => storage_image_url($image?->image, asset('images/products/img-01.png')),
             'product_url' => $product ? route('products.show', $product->slug) : null,
         ];
     }

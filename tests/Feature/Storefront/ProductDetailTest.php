@@ -123,6 +123,8 @@ class ProductDetailTest extends TestCase
     public function test_variant_media_primary_image_takes_priority_in_gallery(): void
     {
         Storage::fake('public');
+        Storage::disk('public')->put('variants/not-primary.jpg', 'fake-image-content');
+        Storage::disk('public')->put('variants/primary.jpg', 'fake-image-content');
         $product = $this->product($this->category(), 'Gallery Priority Product');
         $variant = $this->variant($product, ['is_default' => true]);
         $variant->images()->create(['image' => 'variants/not-primary.jpg', 'media_type' => 'image', 'is_primary' => false, 'sort_order' => 1]);
@@ -285,6 +287,8 @@ class ProductDetailTest extends TestCase
     public function test_og_image_uses_the_default_variants_primary_image(): void
     {
         Storage::fake('public');
+        Storage::disk('public')->put('variants/not-primary.jpg', 'fake-image-content');
+        Storage::disk('public')->put('variants/og-primary.jpg', 'fake-image-content');
         $product = $this->product($this->category(), 'OG Image Product');
         $variant = $this->variant($product, ['is_default' => true]);
         $variant->images()->create(['image' => 'variants/not-primary.jpg', 'media_type' => 'image', 'is_primary' => false, 'sort_order' => 1]);

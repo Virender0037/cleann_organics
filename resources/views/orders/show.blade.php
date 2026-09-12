@@ -150,6 +150,26 @@
                             <p class="font-body--xl-500">₹{{ number_format($order->grand_total, 2) }}</p>
                           </div>
                         </div>
+
+                        @if ($order->payment_method === 'razorpay' && $order->payment_status !== 'paid')
+                          <a href="{{ route('orders.pay', $order) }}" class="button button--md w-100" style="margin-top:16px;">
+                            Complete Payment
+                          </a>
+                          @if ($order->payment_status === 'failed')
+                            <p class="font-body--sm-400" style="margin-top:8px;color:#EA4B48;">Your last payment attempt didn't go through. Please try again.</p>
+                          @endif
+                        @endif
+
+                        @if ($order->payment_method === 'manual_upi' && $order->payment_status !== 'paid')
+                          <a href="{{ route('orders.manual-upi.pay', $order) }}" class="button button--md w-100" style="margin-top:16px;">
+                            {{ $order->payment?->status === 'rejected' ? 'Resubmit Payment Proof' : 'Complete Payment' }}
+                          </a>
+                          @if ($order->payment?->status === 'rejected')
+                            <p class="font-body--sm-400" style="margin-top:8px;color:#EA4B48;">Your payment could not be verified{{ $order->payment->admin_note ? ': '.$order->payment->admin_note : '.' }} Please resubmit.</p>
+                          @elseif ($order->payment?->submitted_at)
+                            <p class="font-body--sm-400" style="margin-top:8px;color:#666666;">We've received your payment reference and are verifying it.</p>
+                          @endif
+                        @endif
                       </div>
                     </div>
                   </div>
@@ -203,7 +223,7 @@
                             <td class="dashboard__order-history-table-item align-middle">
                               <div class="dashboard__product-item">
                                 <div class="dashboard__product-item-img">
-                                  <img src="{{ $thumbnail ? \Illuminate\Support\Facades\Storage::url($thumbnail->image) : asset('images/products/img-01.png') }}" alt="{{ $item->product_name }}" />
+                                  <img src="{{ storage_image_url($thumbnail?->image, asset('images/products/img-01.png')) }}" alt="{{ $item->product_name }}" />
                                 </div>
                                 <div>
                                   <h5 class="font-body--md-400">{{ $item->product_name }}</h5>

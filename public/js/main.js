@@ -213,6 +213,12 @@ const body = document.querySelector('body');
 // Open
 if (menuBtn) {
   menuBtn.addEventListener('click', function () {
+    // Close the mini-cart drawer first — both panels share the same
+    // .overlay backdrop, so having both "active" at once left the backdrop
+    // in an inconsistent state when either one was then closed alone.
+    if (shoppingCart) {
+      shoppingCart.classList.remove('active');
+    }
     mobileSidebar.classList.add('active');
     body.classList.add('overlay');
   });
@@ -254,6 +260,11 @@ const shoppingCart = document.querySelector('.shopping-cart');
 // Event Click Popup cart open
 cartBtn.addEventListener('click', function () {
   const body = document.querySelector('body');
+  // Same coordination as the mobile menu button above — never leave both
+  // off-canvas panels open at once.
+  if (mobileSidebar) {
+    mobileSidebar.classList.remove('active');
+  }
   body.classList.add('overlay');
   shoppingCart.classList.add('active');
 });

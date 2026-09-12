@@ -74,7 +74,7 @@
                         >
                           <div class="cart-table__product-item-img">
                             <img
-                              src="{{ $thumbnail ? \Illuminate\Support\Facades\Storage::url($thumbnail->image) : asset('images/products/img-01.png') }}"
+                              src="{{ storage_image_url($thumbnail?->image, asset('images/products/img-01.png')) }}"
                               alt="{{ $product->name }}"
                             />
                           </div>
@@ -172,7 +172,7 @@
                 <div class="shoping-card__img-wrapper">
                   <a href="{{ route('products.show', $product->slug) }}">
                     <img
-                      src="{{ $thumbnail ? \Illuminate\Support\Facades\Storage::url($thumbnail->image) : asset('images/products/img-01.png') }}"
+                      src="{{ storage_image_url($thumbnail?->image, asset('images/products/img-01.png')) }}"
                       alt="{{ $product->name }}"
                     />
                   </a>

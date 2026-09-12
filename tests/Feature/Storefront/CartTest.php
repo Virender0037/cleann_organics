@@ -5,6 +5,7 @@ namespace Tests\Feature\Storefront;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Category;
+use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
@@ -966,5 +967,44 @@ class CartTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk()->assertSee('Imageless Apple');
+    }
+
+    // ------------------------------------------------------------------
+    // Coupon box on the cart page (shares CheckoutService's session coupon)
+    // ------------------------------------------------------------------
+
+    public function test_applying_a_coupon_from_the_cart_page_shows_the_discount(): void
+    {
+        Coupon::create(['code' => 'SAVE10', 'type' => 'percentage', 'value' => 10, 'minimum_order_amount' => 0, 'start_date' => now()->subDay(), 'end_date' => now()->addDay(), 'status' => 'active']);
+        $variant = $this->variant($this->product($this->category(), 'Green Apple'));
+        $this->withHeaders($this->jsonHeaders())->post('/cart/items', ['product_variant_id' => $variant->id, 'quantity' => 1]);
+
+        $this->post('/checkout/coupon', ['code' => 'SAVE10']);
+
+        $response = $this->get('/shopping-cart');
+
+        $response->assertOk()
+            ->assertSee('Applied')
+            ->assertSee('SAVE10')
+            ->assertSee('₹90.00'); // 100 - 10% discount
+    }
+
+    public function test_cart_page_coupon_box_submits_to_a_real_endpoint(): void
+    {
+        $response = $this->get('/shopping-cart');
+
+        $response->assertOk()->assertSee('action="'.route('checkout.coupon.apply').'"', false);
+    }
+
+    public function test_guest_can_apply_a_coupon_from_the_cart_page(): void
+    {
+        Coupon::create(['code' => 'SAVE10', 'type' => 'percentage', 'value' => 10, 'minimum_order_amount' => 0, 'start_date' => now()->subDay(), 'end_date' => now()->addDay(), 'status' => 'active']);
+        $variant = $this->variant($this->product($this->category(), 'Green Apple'));
+        $this->withHeaders($this->jsonHeaders())->post('/cart/items', ['product_variant_id' => $variant->id, 'quantity' => 1]);
+
+        $response = $this->post('/checkout/coupon', ['code' => 'SAVE10']);
+
+        $response->assertRedirect();
+        $this->get('/shopping-cart')->assertOk()->assertSee('SAVE10');
     }
 }

@@ -194,7 +194,7 @@
                         @foreach ($homeCategories as $homeCategory)
                             <a href="{{ route('category.show', $homeCategory->slug) }}" class="cards-sm popular-categories__wrapper-item">
                                 <div class="cards-sm__img-wrapper">
-                                    <img src="{{ $homeCategory->image ? \Illuminate\Support\Facades\Storage::url($homeCategory->image) : 'https://placehold.co/100x100' }}" alt="{{ $homeCategory->name }}">
+                                    <img src="{{ storage_image_url($homeCategory->image, asset('images/products/img-01.png')) }}" alt="{{ $homeCategory->name }}">
                                 </div>
                                 <h5 class="font-body--xl-500">{{ $homeCategory->name }}</h5>
                             </a>
@@ -208,7 +208,7 @@
                                 <div class="swiper-slide">
                                     <a href="{{ route('category.show', $homeCategory->slug) }}" class="cards-sm popular-categories__wrapper-item">
                                         <div class="cards-sm__img-wrapper">
-                                            <img src="{{ $homeCategory->image ? \Illuminate\Support\Facades\Storage::url($homeCategory->image) : 'https://placehold.co/100x100' }}" alt="{{ $homeCategory->name }}">
+                                            <img src="{{ storage_image_url($homeCategory->image, asset('images/products/img-01.png')) }}" alt="{{ $homeCategory->name }}">
                                         </div>
                                         <h5 class="font-body--xl-500">{{ $homeCategory->name }}</h5>
                                     </a>
@@ -394,7 +394,7 @@
                             <div class="cards-lg__img-wrapper">
                                 <a href="{{ $heroUrl }}">
                                     <img
-                                        src="{{ $heroThumbnail ? \Illuminate\Support\Facades\Storage::url($heroThumbnail->image) : asset('images/products/img-01.png') }}"
+                                        src="{{ storage_image_url($heroThumbnail?->image, asset('images/products/img-01.png')) }}"
                                         alt="{{ $heroDeal->name }}"
                                         loading="lazy"
                                     />
@@ -1863,6 +1863,7 @@
         <script src="{{ asset('lib/js/jquery.syotimer.min.js') }}"></script>
         <script src="{{ asset('js/main.js') }}"></script>
         <script src="{{ asset('js/home1.js') }}"></script>
+        <script src="{{ asset('js/wishlist.js') }}"></script>
         <!-- Purchase Button -->
             <!-- <div class="templatecookie-btn">
                 <a href="https://1.envato.market/kjkaBN" target="_blank" class="purchase-btn">

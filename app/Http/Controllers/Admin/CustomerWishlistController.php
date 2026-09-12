@@ -36,6 +36,8 @@ class CustomerWishlistController extends Controller
 
     public function destroy(User $customer, Wishlist $wishlist): RedirectResponse
     {
+        abort_if($wishlist->user_id !== $customer->id, 404);
+
         $wishlist->delete();
 
         return back()->with('success', 'Removed from wishlist.');

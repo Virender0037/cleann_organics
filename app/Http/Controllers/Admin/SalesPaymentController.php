@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Services\CsvExporter;
+use App\Services\Payment\ManualUpiPaymentService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalesPaymentController extends Controller
 {
+    public function __construct(private readonly ManualUpiPaymentService $manualUpi) {}
+
     public function index(Request $request): View
     {
         $payments = Payment::with('order.user')
@@ -79,5 +83,45 @@ class SalesPaymentController extends Controller
         $payment->load('order.user');
 
         return view('admin.sales.payments.show', compact('payment'));
+    }
+
+    public function verify(Request $request, Payment $payment): RedirectResponse
+    {
+        if ($payment->payment_method !== 'manual_upi') {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'admin_note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $this->manualUpi->verify($payment, $validated['admin_note'] ?? null);
+
+        return redirect()
+            ->route('admin.sales.payments.show', $payment)
+            ->with('success', 'Payment marked as paid.');
+    }
+
+    public function reject(Request $request, Payment $payment): RedirectResponse
+    {
+        if ($payment->payment_method !== 'manual_upi') {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'admin_note' => ['required', 'string', 'max:500'],
+        ]);
+
+        $this->manualUpi->reject($payment, $validated['admin_note']);
+
+        return redirect()
+            ->route('admin.sales.payments.show', $payment)
+            ->with('success', 'Payment rejected — the customer can resubmit proof.');
+    }
+
+    /** Admin's view of a customer's submitted proof — gated by the whole admin route group's `superadmin` middleware. */
+    public function proof(Payment $payment): StreamedResponse
+    {
+        return $this->manualUpi->streamProof($payment);
     }
 }

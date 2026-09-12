@@ -267,4 +267,61 @@ class WishlistTest extends TestCase
 
         $page->assertOk()->assertSee('aria-label="Remove from wishlist"', false);
     }
+
+    // ------------------------------------------------------------------
+    // AJAX (heart-toggle) responses
+    // ------------------------------------------------------------------
+
+    public function test_json_add_request_returns_success_and_updated_header_count(): void
+    {
+        $user = User::factory()->create();
+        $product = $this->product($this->category(), 'Green Apple');
+
+        $response = $this->actingAs($user)
+            ->postJson('/wishlist', ['product_id' => $product->id]);
+
+        $response->assertOk()->assertJson([
+            'success' => true,
+            'wishlistCount' => 1,
+        ]);
+    }
+
+    public function test_json_remove_request_returns_success_and_updated_header_count(): void
+    {
+        $user = User::factory()->create();
+        $product = $this->product($this->category(), 'Green Apple');
+        Wishlist::create(['user_id' => $user->id, 'product_id' => $product->id]);
+
+        $response = $this->actingAs($user)
+            ->deleteJson('/wishlist/'.$product->id);
+
+        $response->assertOk()->assertJson([
+            'success' => true,
+            'wishlistCount' => 0,
+        ]);
+    }
+
+    public function test_json_add_of_an_unavailable_product_returns_422_and_does_not_change_count(): void
+    {
+        $user = User::factory()->create();
+        $product = $this->product($this->category(), 'Inactive Apple', ['status' => 'inactive']);
+
+        $response = $this->actingAs($user)
+            ->postJson('/wishlist', ['product_id' => $product->id]);
+
+        $response->assertStatus(422)->assertJson(['success' => false, 'wishlistCount' => 0]);
+    }
+
+    public function test_product_card_toggle_form_carries_the_data_attributes_the_ajax_script_needs(): void
+    {
+        $product = $this->product($this->category(), 'Green Apple');
+        $this->variant($product, ['is_default' => true]);
+
+        $response = $this->get('/shop');
+
+        $response->assertOk()
+            ->assertSee('data-wishlist-toggle', false)
+            ->assertSee('data-product-id="'.$product->id.'"', false)
+            ->assertSee('data-wishlisted="false"', false);
+    }
 }

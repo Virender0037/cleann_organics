@@ -110,18 +110,19 @@
 
         <div class="card mb-4">
             <div class="card-header">
-                <h5>UPI Payments</h5>
+                <h5>Manual UPI Payments</h5>
             </div>
 
             <div class="card-body">
                 <div class="form-check form-switch mb-4">
                     <input class="form-check-input" type="checkbox" name="enable_upi" value="1" id="enable_upi" @checked(old('enable_upi', $settings['enable_upi'] ?? '1') == '1')>
-                    <label class="form-check-label" for="enable_upi">Enable UPI</label>
+                    <label class="form-check-label" for="enable_upi">Enable Manual UPI at checkout</label>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">UPI ID</label>
                     <input type="text" name="upi_id" class="form-control @error('upi_id') is-invalid @enderror" value="{{ old('upi_id', $settings['upi_id'] ?? '') }}" placeholder="payment@upi">
+                    <div class="form-text">Shown to customers, with a QR code, on the Manual UPI payment page after checkout.</div>
                     @error('upi_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
             </div>

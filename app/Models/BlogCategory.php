@@ -24,4 +24,9 @@ class BlogCategory extends Model
     {
         return $this->hasMany(Blog::class);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 }
