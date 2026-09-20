@@ -52,6 +52,21 @@ class ProductReviewTest extends TestCase
         ], $overrides));
     }
 
+    /** A delivered order containing the product — the verified-purchase precondition for reviewing. */
+    private function deliveredPurchase(User $user, Product $product): void
+    {
+        $order = \App\Models\Order::create([
+            'user_id' => $user->id,
+            'order_number' => 'ORD-'.uniqid(),
+            'subtotal' => 100, 'grand_total' => 100,
+            'payment_method' => 'cod', 'payment_status' => 'paid', 'order_status' => 'delivered',
+        ]);
+        $order->items()->create([
+            'product_id' => $product->id, 'product_name' => $product->name,
+            'quantity' => 1, 'unit_price' => 100, 'total_price' => 100,
+        ]);
+    }
+
     private function validPayload(int $productId, array $overrides = []): array
     {
         return array_merge([
@@ -102,6 +117,7 @@ class ProductReviewTest extends TestCase
     {
         $user = User::factory()->create();
         $product = $this->product($this->category(), 'Green Apple');
+        $this->deliveredPurchase($user, $product);
 
         $response = $this->actingAs($user)->post('/reviews', $this->validPayload($product->id));
 
@@ -119,6 +135,7 @@ class ProductReviewTest extends TestCase
     {
         $user = User::factory()->create();
         $product = $this->product($this->category(), 'Green Apple');
+        $this->deliveredPurchase($user, $product);
 
         $this->actingAs($user)->post('/reviews', $this->validPayload($product->id, ['status' => 'approved']));
 
@@ -138,6 +155,7 @@ class ProductReviewTest extends TestCase
         $user = User::factory()->create();
         $otherUser = User::factory()->create();
         $product = $this->product($this->category(), 'Green Apple');
+        $this->deliveredPurchase($user, $product);
 
         $this->actingAs($user)->post('/reviews', $this->validPayload($product->id, ['user_id' => $otherUser->id]));
 
@@ -232,6 +250,7 @@ class ProductReviewTest extends TestCase
         $userB = User::factory()->create();
         $product = $this->product($this->category(), 'Green Apple');
         ProductReview::create(['user_id' => $userA->id, 'product_id' => $product->id, 'rating' => 5, 'review' => 'First review here', 'status' => 'pending']);
+        $this->deliveredPurchase($userB, $product);
 
         $response = $this->actingAs($userB)->post('/reviews', $this->validPayload($product->id));
 
@@ -246,6 +265,7 @@ class ProductReviewTest extends TestCase
         $productA = $this->product($category, 'Green Apple');
         $productB = $this->product($category, 'Fresh Orange');
         ProductReview::create(['user_id' => $user->id, 'product_id' => $productA->id, 'rating' => 5, 'review' => 'First review here', 'status' => 'pending']);
+        $this->deliveredPurchase($user, $productB);
 
         $response = $this->actingAs($user)->post('/reviews', $this->validPayload($productB->id));
 

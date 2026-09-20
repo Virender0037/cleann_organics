@@ -17,6 +17,8 @@ class Coupon extends Model
         'start_date',
         'end_date',
         'status',
+        'user_id',
+        'source_order_id',
     ];
 
     protected $casts = [
@@ -26,6 +28,18 @@ class Coupon extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
     ];
+
+    /** The only customer allowed to redeem it, when it's an earned voucher. */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /** The delivered order that earned this voucher (earned vouchers only). */
+    public function sourceOrder()
+    {
+        return $this->belongsTo(Order::class, 'source_order_id');
+    }
 
     public function carts()
     {

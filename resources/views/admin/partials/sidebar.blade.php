@@ -313,6 +313,33 @@
                 </li>
 
                 <li class="pc-item">
+                    <a class="pc-link" href="{{route('admin.cms.banners.index', ['section' => 'hero'])}}">
+                        <span class="pc-micon">
+                            <i class="ph ph-images"></i>
+                        </span>
+                        Hero Slides
+                    </a>
+                </li>
+
+                <li class="pc-item">
+                    <a class="pc-link" href="{{route('admin.cms.banners.index', ['section' => 'benefit'])}}">
+                        <span class="pc-micon">
+                            <i class="ph ph-seal-check"></i>
+                        </span>
+                        Benefits Strip
+                    </a>
+                </li>
+
+                <li class="pc-item">
+                    <a class="pc-link" href="{{route('admin.cms.reels.index')}}">
+                        <span class="pc-micon">
+                            <i class="ph ph-video"></i>
+                        </span>
+                        Reels
+                    </a>
+                </li>
+
+                <li class="pc-item">
                     <a class="pc-link" href="{{route('admin.cms.contact-messages.index')}}">
                         <span class="pc-micon">
                             <i class="ph ph-envelope-simple"></i>
@@ -489,6 +516,15 @@
                             <i class="ph ph-credit-card"></i>
                         </span>
                         Payment Settings
+                    </a>
+                </li>
+
+                <li class="pc-item">
+                    <a class="pc-link" href="{{ route('admin.settings.storefront.index') }}">
+                        <span class="pc-micon">
+                            <i class="ph ph-storefront"></i>
+                        </span>
+                        Storefront &amp; Offers
                     </a>
                 </li>
 

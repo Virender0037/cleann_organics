@@ -43,17 +43,24 @@
               <!-- Metrics -->
               <div class="row" style="margin-bottom:8px;">
                 @foreach ([
-                    ['label' => 'Total Orders', 'value' => $metrics['total']],
-                    ['label' => 'Active Orders', 'value' => $metrics['active']],
-                    ['label' => 'Delivered', 'value' => $metrics['delivered']],
-                    ['label' => 'Cancelled', 'value' => $metrics['cancelled']],
-                    ['label' => 'Saved Addresses', 'value' => $metrics['addresses']],
+                    ['label' => 'Total Orders', 'value' => $metrics['total'], 'href' => route('order-history')],
+                    ['label' => 'Active Orders', 'value' => $metrics['active'], 'href' => route('order-history', ['status' => 'active'])],
+                    ['label' => 'Delivered', 'value' => $metrics['delivered'], 'href' => null],
+                    ['label' => 'Cancelled', 'value' => $metrics['cancelled'], 'href' => null],
+                    ['label' => 'Saved Addresses', 'value' => $metrics['addresses'], 'href' => null],
                 ] as $metric)
                   <div class="col-lg-4 col-md-6" style="margin-bottom:16px;">
-                    <div style="border:1px solid #e5e5e5;border-radius:8px;padding:20px;">
-                      <p class="font-body--xxxl-600" style="margin-bottom:4px;">{{ $metric['value'] }}</p>
-                      <p class="font-body--md-400" style="color:#666666;">{{ $metric['label'] }}</p>
-                    </div>
+                    @if ($metric['href'])
+                      <a href="{{ $metric['href'] }}" class="dashboard-metric dashboard-metric--link" aria-label="{{ $metric['label'] }}: {{ $metric['value'] }} — view orders">
+                        <p class="font-body--xxxl-600" style="margin-bottom:4px;">{{ $metric['value'] }}</p>
+                        <p class="font-body--md-400" style="color:#666666;">{{ $metric['label'] }} <span aria-hidden="true">&rarr;</span></p>
+                      </a>
+                    @else
+                      <div class="dashboard-metric">
+                        <p class="font-body--xxxl-600" style="margin-bottom:4px;">{{ $metric['value'] }}</p>
+                        <p class="font-body--md-400" style="color:#666666;">{{ $metric['label'] }}</p>
+                      </div>
+                    @endif
                   </div>
                 @endforeach
               </div>

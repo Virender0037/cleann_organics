@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\UpdateEmailSettingsRequest;
 use App\Http\Requests\Admin\UpdateGeneralSettingsRequest;
 use App\Http\Requests\Admin\UpdatePaymentSettingsRequest;
 use App\Http\Requests\Admin\UpdateSeoSettingsRequest;
+use App\Http\Requests\Admin\UpdateStorefrontSettingsRequest;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Crypt;
@@ -110,6 +111,23 @@ class SettingController extends Controller
         Setting::forget('payment');
 
         return back()->with('success', 'Payment settings updated.');
+    }
+
+    public function storefront(): View
+    {
+        $settings = Setting::group('storefront');
+
+        return view('admin.settings.storefront.index', compact('settings'));
+    }
+
+    public function updateStorefront(UpdateStorefrontSettingsRequest $request): RedirectResponse
+    {
+        // Empty optional numbers are stored as '' so StorefrontSettings
+        // falls back to its default / "not configured" state.
+        Setting::setMany('storefront', array_map(fn ($value) => $value ?? '', $request->validated()));
+        Setting::forget('storefront');
+
+        return back()->with('success', 'Storefront & offers settings updated.');
     }
 
     /**

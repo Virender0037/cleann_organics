@@ -7,6 +7,7 @@ use App\Http\Requests\Storefront\AddCartItemRequest;
 use App\Http\Requests\Storefront\UpdateCartItemRequest;
 use App\Services\Storefront\CartService;
 use App\Services\Storefront\CheckoutService;
+use App\Services\Storefront\StorefrontSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ class CartController extends Controller
     public function __construct(
         private readonly CartService $cart,
         private readonly CheckoutService $checkout,
+        private readonly StorefrontSettings $settings,
     ) {}
 
     /**
@@ -39,6 +41,10 @@ class CartController extends Controller
             'itemCount' => $this->cart->itemCount(),
             'appliedCoupon' => $this->checkout->appliedCoupon(),
             'discountAmount' => $this->checkout->discountAmount(),
+            'eligibleAmount' => $this->checkout->eligibleAmount(),
+            'shippingEstimate' => $this->checkout->estimatedShippingAmount(),
+            'taxIncluded' => $this->checkout->taxAmount(),
+            'offers' => $this->settings->offers($this->checkout->eligibleAmount()),
         ]);
     }
 
@@ -100,6 +106,12 @@ class CartController extends Controller
                 'message' => $result['message'],
                 'itemCount' => $this->cart->itemCount(),
                 'subtotal' => $this->cart->subtotal(),
+                // Everything the add-to-cart toast shows comes from these
+                // server values — the browser never computes a total itself.
+                'cartTotal' => $this->cart->subtotal(),
+                'addedQuantity' => $result['added'] ?? 0,
+                'productName' => ($result['line']['product'] ?? null)?->name,
+                'cartUrl' => route('shopping-cart'),
                 'miniCartHtml' => view('components.frontend.cart-mini-contents', [
                     'lines' => $this->cart->lines(),
                     'subtotal' => $this->cart->subtotal(),

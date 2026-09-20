@@ -186,6 +186,60 @@ class ProductCatalogService
     }
 
     /**
+     * Admin-managed homepage collections are ordinary Product Tags (Admin →
+     * Catalog → Product Tags): create a tag with one of these slugs and
+     * attach products to it. No new table, and the same tag already filters
+     * the Shop via /shop?tag={slug}.
+     */
+    public const TAG_BIO_ENZYME = 'bio-enzyme';
+
+    public const TAG_LOWEST_PRICE_365 = '365-days-lowest-price';
+
+    /** "Explore Our Range" price ceilings, in rupees (lowest first). */
+    public const PRICE_BANDS = [10, 50, 99];
+
+    /**
+     * Public products carrying the given tag, newest first — for the
+     * homepage's tag-driven collection rows. Empty (and the section hidden)
+     * until the admin creates the tag and attaches products.
+     */
+    public function byTagSlug(string $slug, int $limit = 8)
+    {
+        return $this->productCardQuery()
+            ->whereHas('tags', fn (Builder $q) => $q->where('slug', $slug))
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * One entry per "Explore Our Range" band: how many public products have a
+     * starting price at or below the ceiling, plus a representative
+     * thumbnail. The price used is EFFECTIVE_PRICE_SUBQUERY — identical to
+     * what the Shop's max_price filter uses, so the count always matches
+     * what the linked shop page will actually list.
+     *
+     * @param  array<int, int|float>  $ceilings
+     * @return array<int, array{max: int|float, count: int, image: ?string}>
+     */
+    public function priceBands(array $ceilings = self::PRICE_BANDS): array
+    {
+        return array_map(function ($max) {
+            // CAST(? AS DECIMAL) — see the float-binding note in paginate().
+            $within = fn () => Product::query()->public()
+                ->whereRaw('('.self::EFFECTIVE_PRICE_SUBQUERY.') <= CAST(? AS DECIMAL(10,2))', [$max]);
+
+            $sample = $within()->with('variants.images')->orderByDesc('is_best_seller')->orderByDesc('created_at')->first();
+
+            return [
+                'max' => $max,
+                'count' => $within()->count(),
+                'image' => $sample?->thumbnailImage()?->image,
+            ];
+        }, $ceilings);
+    }
+
+    /**
      * Eager loads/aggregates shared by every "product-card ready" homepage
      * list (bestSellers/featured/dealsProducts): active default-first
      * variants + their images (for pricing/stock/thumbnail) and approved-only

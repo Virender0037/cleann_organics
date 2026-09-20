@@ -72,6 +72,16 @@ class HomeTest extends TestCase
         ], $overrides));
     }
 
+    public function test_sale_of_the_month_is_hidden_without_deals_and_shown_with_one(): void
+    {
+        $this->get('/')->assertOk()->assertDontSee('Sale of the Month');
+
+        $product = $this->product($this->category(), 'Discounted Item');
+        $this->discountedVariant($product);
+
+        $this->get('/')->assertOk()->assertSee('Sale of the Month')->assertSee('Discounted Item');
+    }
+
     public function test_homepage_returns_200(): void
     {
         $this->get('/')->assertOk();

@@ -37,6 +37,7 @@ class CheckoutService
         private readonly CartService $cart,
         private readonly Request $request,
         private readonly RazorpayPaymentService $razorpayPayment,
+        private readonly StorefrontSettings $settings,
     ) {}
 
     /** @return Collection<int, array<string, mixed>> */
@@ -69,28 +70,74 @@ class CheckoutService
     }
 
     /**
-     * Tax is per-product (products.tax_rate_id), not a single storefront
-     * rate — summed per line at that product's percentage. A product with
-     * no tax rate, or whose tax rate has been deactivated, contributes 0
-     * rather than falling back to some default rate.
+     * The GST already CONTAINED in the customer's payable amount — used for
+     * invoices/accounting and the "Includes GST" line only. It is never
+     * added to the total.
+     *
+     * Product prices are tax-inclusive (the admin-entered price is the final
+     * customer price), so the tax component is extracted backwards:
+     * amount × rate ÷ (100 + rate), per line at that product's own rate
+     * (products.tax_rate_id), on the line's value AFTER its proportional
+     * share of any coupon discount. A product with no tax rate, or whose
+     * tax rate has been deactivated, contributes 0.
      */
     public function taxAmount(): float
+    {
+        return round((float) $this->includedTaxByLine()->sum(), 2);
+    }
+
+    /**
+     * Included GST per available line, keyed by the line's variant id.
+     *
+     * @return Collection<int, float>
+     */
+    public function includedTaxByLine(): Collection
     {
         $lines = $this->lines()->where('available', true);
 
         $taxRateIds = $lines->pluck('product')->filter()->pluck('tax_rate_id')->filter()->unique();
 
         if ($taxRateIds->isEmpty()) {
-            return 0.0;
+            return collect();
         }
 
         $rates = TaxRate::query()->whereIn('id', $taxRateIds)->where('status', 'active')->get()->keyBy('id');
 
-        return round($lines->sum(function (array $line) use ($rates) {
-            $rate = $rates->get($line['product']?->tax_rate_id);
+        $subtotal = $this->subtotal();
+        $payableRatio = $subtotal > 0 ? ($subtotal - $this->discountAmount()) / $subtotal : 1.0;
 
-            return $rate ? $line['subtotal'] * ((float) $rate->percentage / 100) : 0.0;
-        }), 2);
+        return $lines->mapWithKeys(function (array $line) use ($rates, $payableRatio) {
+            $rate = $rates->get($line['product']?->tax_rate_id);
+            $percentage = $rate ? (float) $rate->percentage : 0.0;
+            $payable = $line['subtotal'] * $payableRatio;
+
+            return [$line['variant']->id => round($payable * $percentage / (100 + $percentage), 2)];
+        });
+    }
+
+    /**
+     * The one amount every free-shipping / offer rule is measured against:
+     * merchandise value AFTER coupon discount and BEFORE shipping. Tax is
+     * already inside product prices, so it plays no part.
+     */
+    public function eligibleAmount(): float
+    {
+        return round(max(0, $this->subtotal() - $this->discountAmount()), 2);
+    }
+
+    /**
+     * Cart-page shipping estimate. The customer's address (and therefore any
+     * zone rate) isn't known in the cart, so this applies only the global
+     * free-shipping threshold and the admin flat fallback; checkout confirms
+     * the final figure against the delivery address.
+     */
+    public function estimatedShippingAmount(): float
+    {
+        if ($this->eligibleAmount() >= $this->settings->freeShippingThreshold()) {
+            return 0.0;
+        }
+
+        return $this->settings->flatShippingCharge() ?? 0.0;
     }
 
     /**
@@ -141,19 +188,30 @@ class CheckoutService
     }
 
     /**
-     * 0 both when no zone/rate is configured for the address (rather than
-     * blocking checkout entirely over an admin data gap) and when the
-     * matched rate's free_shipping_above threshold is met by the subtotal.
+     * Shipping rule (one rule, used by cart, checkout and the order):
+     *   1. eligible amount (after discount, before shipping) at/above the
+     *      global free-shipping threshold (₹399 default) → free;
+     *   2. otherwise the matched ShippingZone/ShippingRate charge, unchanged
+     *      from before (still honouring that rate's own free_shipping_above);
+     *   3. otherwise, with no zone/rate matching, the admin flat fallback
+     *      charge — or 0 while none has been configured (never blocks
+     *      checkout over an admin data gap).
      */
     public function shippingAmount(Address $address): float
     {
-        $rate = $this->resolveShippingRate($address);
+        $eligible = $this->eligibleAmount();
 
-        if (! $rate) {
+        if ($eligible >= $this->settings->freeShippingThreshold()) {
             return 0.0;
         }
 
-        if ($rate->free_shipping_above !== null && $this->subtotal() >= (float) $rate->free_shipping_above) {
+        $rate = $this->resolveShippingRate($address);
+
+        if (! $rate) {
+            return $this->settings->flatShippingCharge() ?? 0.0;
+        }
+
+        if ($rate->free_shipping_above !== null && $eligible >= (float) $rate->free_shipping_above) {
             return 0.0;
         }
 
@@ -218,15 +276,30 @@ class CheckoutService
     private function couponIsValidFor(Coupon $coupon, float $subtotal): bool
     {
         return $coupon->status === 'active'
+            && $this->couponBelongsToShopper($coupon)
             && now()->between($coupon->start_date, $coupon->end_date)
             && ($coupon->usage_limit === null || $coupon->used_count < $coupon->usage_limit)
             && $subtotal >= (float) $coupon->minimum_order_amount;
+    }
+
+    /**
+     * An earned voucher (coupons.user_id set) works only for the customer
+     * who earned it — a guest or a different account is refused. Ordinary
+     * admin coupons (user_id null) are open to everyone as before.
+     */
+    private function couponBelongsToShopper(Coupon $coupon): bool
+    {
+        return $coupon->user_id === null || $coupon->user_id === Auth::id();
     }
 
     private function couponInvalidReason(Coupon $coupon, float $subtotal): string
     {
         if ($coupon->status !== 'active') {
             return 'This coupon is no longer active.';
+        }
+
+        if (! $this->couponBelongsToShopper($coupon)) {
+            return 'This voucher belongs to a different account.';
         }
 
         if (! now()->between($coupon->start_date, $coupon->end_date)) {
@@ -262,7 +335,8 @@ class CheckoutService
 
     public function grandTotal(Address $address): float
     {
-        return round($this->subtotal() - $this->discountAmount() + $this->shippingAmount($address) + $this->taxAmount(), 2);
+        // Tax is NOT added: product prices are tax-inclusive.
+        return round($this->subtotal() - $this->discountAmount() + $this->shippingAmount($address), 2);
     }
 
     /**
@@ -312,11 +386,13 @@ class CheckoutService
         $discount = $this->discountAmount();
         $shipping = $this->shippingAmount($address);
         $shippingZoneName = $this->shippingZoneName($address);
+        // Included GST (informational/invoice) — already inside the prices.
         $tax = $this->taxAmount();
-        $grandTotal = round($subtotal - $discount + $shipping + $tax, 2);
+        $lineTaxes = $this->includedTaxByLine();
+        $grandTotal = round($subtotal - $discount + $shipping, 2);
 
         try {
-            $order = $this->createOrderInTransaction($lines, $address, $paymentMethod, $subtotal, $coupon, $discount, $shipping, $shippingZoneName, $tax, $grandTotal);
+            $order = $this->createOrderInTransaction($lines, $address, $paymentMethod, $subtotal, $coupon, $discount, $shipping, $shippingZoneName, $tax, $grandTotal, $lineTaxes);
         } catch (\RuntimeException $e) {
             if ($e->getMessage() !== 'insufficient_stock') {
                 throw $e;
@@ -351,9 +427,9 @@ class CheckoutService
     /**
      * @param  Collection<int, array<string, mixed>>  $lines
      */
-    private function createOrderInTransaction(Collection $lines, Address $address, string $paymentMethod, float $subtotal, ?Coupon $coupon, float $discount, float $shipping, ?string $shippingZoneName, float $tax, float $grandTotal): Order
+    private function createOrderInTransaction(Collection $lines, Address $address, string $paymentMethod, float $subtotal, ?Coupon $coupon, float $discount, float $shipping, ?string $shippingZoneName, float $tax, float $grandTotal, Collection $lineTaxes): Order
     {
-        return DB::transaction(function () use ($lines, $address, $paymentMethod, $subtotal, $coupon, $discount, $shipping, $shippingZoneName, $tax, $grandTotal) {
+        return DB::transaction(function () use ($lines, $address, $paymentMethod, $subtotal, $coupon, $discount, $shipping, $shippingZoneName, $tax, $grandTotal, $lineTaxes) {
             $order = Order::create([
                 'user_id' => Auth::id(),
                 // Kept as an admin back-reference only — never read for
@@ -411,7 +487,7 @@ class CheckoutService
                     'quantity' => $line['quantity'],
                     'unit_price' => $line['unit_price'],
                     'discount_amount' => 0,
-                    'tax_amount' => 0,
+                    'tax_amount' => (float) ($lineTaxes[$variant->id] ?? 0),
                     'total_price' => $line['subtotal'],
                 ]);
             }

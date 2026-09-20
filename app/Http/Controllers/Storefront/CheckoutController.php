@@ -7,6 +7,7 @@ use App\Http\Requests\Storefront\ApplyCouponRequest;
 use App\Http\Requests\Storefront\PlaceOrderRequest;
 use App\Models\Address;
 use App\Services\Storefront\CheckoutService;
+use App\Services\Storefront\StorefrontSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,10 @@ use Illuminate\View\View;
  */
 class CheckoutController extends Controller
 {
-    public function __construct(private readonly CheckoutService $checkout) {}
+    public function __construct(
+        private readonly CheckoutService $checkout,
+        private readonly StorefrontSettings $settings,
+    ) {}
 
     /**
      * Address selection is a plain GET (?address_id=) that re-renders this
@@ -48,6 +52,8 @@ class CheckoutController extends Controller
             'selectedAddress' => $selectedAddress,
             'subtotal' => $this->checkout->subtotal(),
             'taxAmount' => $this->checkout->taxAmount(),
+            'eligibleAmount' => $this->checkout->eligibleAmount(),
+            'offers' => $this->settings->offers($this->checkout->eligibleAmount()),
             'appliedCoupon' => $this->checkout->appliedCoupon(),
             'discountAmount' => $this->checkout->discountAmount(),
             'shippingAmount' => $selectedAddress ? $this->checkout->shippingAmount($selectedAddress) : 0.0,

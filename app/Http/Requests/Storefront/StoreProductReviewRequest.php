@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Storefront;
 
 use App\Models\Product;
+use App\Services\Storefront\ReviewEligibility;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -33,6 +34,13 @@ class StoreProductReviewRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     if (! Product::query()->public()->whereKey($value)->exists()) {
                         $fail('This product is not available for review.');
+                    }
+                },
+                // Verified purchase only: the customer must have a DELIVERED
+                // order containing this product (never cancelled/pending).
+                function ($attribute, $value, $fail) {
+                    if (! app(ReviewEligibility::class)->hasPurchased((int) Auth::id(), (int) $value)) {
+                        $fail('You can review a product once an order containing it has been delivered.');
                     }
                 },
                 // One active review per customer per product (matches the

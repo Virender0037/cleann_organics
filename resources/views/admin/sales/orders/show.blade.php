@@ -32,6 +32,38 @@
 
             <div class="col-lg-8">
 
+                @if (! in_array($order->order_status, ['delivered', 'cancelled'], true))
+                    @php
+                        $sequence = ['pending', 'confirmed', 'packed', 'shipped', 'delivered'];
+                        $nextSteps = array_slice($sequence, array_search($order->order_status, $sequence, true) + 1);
+                    @endphp
+                    <div class="card mb-4">
+                        <div class="card-header"><h5>Update Fulfilment Status</h5></div>
+                        <div class="card-body">
+                            <form action="{{ route('admin.sales.orders.status.update', $order) }}" method="POST" class="d-flex flex-wrap align-items-center gap-2">
+                                @csrf
+                                @method('PATCH')
+                                <span class="me-2">Current: <strong>{{ ucfirst($order->order_status) }}</strong></span>
+                                <select name="status" class="form-select w-auto" aria-label="New status">
+                                    @foreach ($nextSteps as $step)
+                                        <option value="{{ $step }}">{{ ucfirst($step) }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </form>
+                            <p class="text-muted small mb-0 mt-2">Marking an order Delivered unlocks customer reviews and, for orders that qualify, issues the earned voucher.</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if ($order->earnedVoucher)
+                    <div class="alert alert-success mb-4">
+                        Voucher issued for this order: <strong>{{ $order->earnedVoucher->code }}</strong>
+                        (₹{{ number_format((float) $order->earnedVoucher->value, 2) }}, valid until {{ $order->earnedVoucher->end_date->format('d M Y') }},
+                        {{ $order->earnedVoucher->used_count > 0 ? 'already used' : 'unused' }}).
+                    </div>
+                @endif
+
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5>Order Timeline</h5>

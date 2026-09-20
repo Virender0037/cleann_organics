@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\Storefront\ReviewEligibility;
 use App\Services\Storefront\WishlistService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -69,6 +70,7 @@ class ProductController extends Controller
             'averageRating' => $averageRating,
             'isWishlisted' => $this->wishlist->isWishlisted($product->id),
             'userReview' => $userReview,
+            'canReview' => Auth::check() && app(ReviewEligibility::class)->canReview(Auth::id(), $product->id),
             'relatedProducts' => $product->relatedProducts(),
             'metaTitle' => $product->meta_title ?: $product->name,
             'metaDescription' => $product->meta_description ?: $product->short_description,

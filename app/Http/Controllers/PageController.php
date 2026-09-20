@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Page;
+use App\Models\Setting;
 use Illuminate\View\View;
 
 class PageController extends Controller
@@ -37,7 +38,12 @@ class PageController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
-        return view('contact', compact('page'));
+        // Address / email / phone come from Admin → Settings → General
+        // (company_*), never hardcoded in the view.
+        return view('contact', [
+            'page' => $page,
+            'company' => Setting::cached('general'),
+        ]);
     }
 
     /**

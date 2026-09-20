@@ -118,7 +118,7 @@
                             <h5 class="font-body--md-400">Payment:</h5>
                             <p class="font-body--md-500">
                               {{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}
-                              <span class="font-body--md-400" style="text-transform:capitalize;color:#666666;">&middot; {{ $order->payment_status }}</span>
+                              <span class="font-body--md-400" style="color:#666666;">&middot; {{ $order->customerPaymentLabel() }}</span>
                             </p>
                           </div>
                           <div class="dashboard__totalpayment-card-body-item">
@@ -141,8 +141,8 @@
                           </div>
                           @if ($order->tax_amount > 0)
                             <div class="dashboard__totalpayment-card-body-item">
-                              <h5 class="font-body--md-400">Tax:</h5>
-                              <p class="font-body--md-500">₹{{ number_format($order->tax_amount, 2) }}</p>
+                              <h5 class="font-body--md-400">Includes GST:</h5>
+                              <p class="font-body--md-500" style="color:#666666;">₹{{ number_format($order->tax_amount, 2) }}</p>
                             </div>
                           @endif
                           <div class="dashboard__totalpayment-card-body-item total">
@@ -170,6 +170,19 @@
                             <p class="font-body--sm-400" style="margin-top:8px;color:#666666;">We've received your payment reference and are verifying it.</p>
                           @endif
                         @endif
+
+                        @if ($order->payment_method === 'cod' && $order->payment_status !== 'paid' && $order->order_status !== 'cancelled')
+                          <p class="font-body--sm-400" style="margin-top:12px;color:#666666;">Cash on Delivery — please pay ₹{{ number_format($order->grand_total, 2) }} to the delivery partner when your order arrives.</p>
+                        @endif
+
+                        @if ($order->earnedVoucher)
+                          <div class="order-voucher-note">
+                            <strong>You earned a ₹{{ rtrim(rtrim(number_format((float) $order->earnedVoucher->value, 2, '.', ''), '0'), '.') }} voucher!</strong>
+                            <span>Code <code>{{ $order->earnedVoucher->code }}</code> — valid on your next order until {{ $order->earnedVoucher->end_date->format('d M Y') }}, one use only.</span>
+                          </div>
+                        @endif
+
+                        <p class="font-body--sm-400" style="margin-top:12px;color:#666666;">Shipping Partner: Velocity</p>
                       </div>
                     </div>
                   </div>
@@ -221,12 +234,31 @@
                           @endphp
                           <tr>
                             <td class="dashboard__order-history-table-item align-middle">
+                              @php
+                                  $productLink = ($item->product && in_array($item->product_id, $linkableProductIds, true))
+                                      ? route('products.show', $item->product->slug)
+                                      : null;
+                                  $canReviewItem = $productLink && in_array($item->product_id, $reviewableProductIds, true);
+                              @endphp
                               <div class="dashboard__product-item">
                                 <div class="dashboard__product-item-img">
-                                  <img src="{{ storage_image_url($thumbnail?->image, asset('images/products/img-01.png')) }}" alt="{{ $item->product_name }}" />
+                                  @if ($productLink)
+                                    <a href="{{ $productLink }}" aria-label="View {{ $item->product_name }}"><img src="{{ storage_image_url($thumbnail?->image, asset('images/products/img-01.png')) }}" alt="{{ $item->product_name }}" /></a>
+                                  @else
+                                    <img src="{{ storage_image_url($thumbnail?->image, asset('images/products/img-01.png')) }}" alt="{{ $item->product_name }}" />
+                                  @endif
                                 </div>
                                 <div>
-                                  <h5 class="font-body--md-400">{{ $item->product_name }}</h5>
+                                  <h5 class="font-body--md-400">
+                                    @if ($productLink)
+                                      <a href="{{ $productLink }}">{{ $item->product_name }}</a>
+                                    @else
+                                      {{ $item->product_name }}
+                                    @endif
+                                  </h5>
+                                  @if ($canReviewItem)
+                                    <a href="{{ $productLink }}#write-review" class="font-body--sm-500 order-item-review-link">Write a Review</a>
+                                  @endif
                                   @php
                                       // Variant details as snapshotted at order time — never re-read
                                       // from the live variant.

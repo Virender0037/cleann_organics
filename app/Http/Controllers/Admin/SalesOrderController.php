@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Models\Order;
 use App\Services\CsvExporter;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -77,6 +79,33 @@ class SalesOrderController extends Controller
     {
         $order->load(['user', 'address', 'items', 'payment', 'returns']);
 
+        $order->load('earnedVoucher');
+
         return view('admin.sales.orders.show', compact('order'));
+    }
+
+    /**
+     * Moves an order forward through fulfilment (confirmed → packed →
+     * shipped → delivered). Saved through the model (not a bulk query) so
+     * the Order::updated hook fires: reaching "delivered" is what issues
+     * the earned ₹ voucher (idempotently) and unlocks product reviews.
+     */
+    public function updateStatus(UpdateOrderStatusRequest $request, Order $order): RedirectResponse
+    {
+        $sequence = ['pending', 'confirmed', 'packed', 'shipped', 'delivered'];
+        $target = $request->validated('status');
+
+        $currentIndex = array_search($order->order_status, $sequence, true);
+
+        if ($currentIndex === false || array_search($target, $sequence, true) <= $currentIndex) {
+            return back()->with('error', 'That order cannot be moved to "'.$target.'" from "'.$order->order_status.'".');
+        }
+
+        $order->update([
+            'order_status' => $target,
+            $target.'_at' => $order->{$target.'_at'} ?? now(),
+        ]);
+
+        return back()->with('success', 'Order marked as '.$target.'.');
     }
 }

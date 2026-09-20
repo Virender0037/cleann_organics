@@ -51,6 +51,80 @@
         }, 5000);
     }
 
+    var toastTimer = null;
+
+    /**
+     * Bottom "added to cart" toast. Every figure shown (name, quantity added,
+     * cart count, cart total) comes straight from the server's JSON — the
+     * browser never computes a total. Built with textContent (never
+     * innerHTML) because the product name is data.
+     */
+    function showCartToast(data) {
+        var existing = document.getElementById('cart-toast');
+        if (existing && existing.parentNode) {
+            existing.parentNode.removeChild(existing);
+        }
+        window.clearTimeout(toastTimer);
+
+        var count = Number(data.itemCount || 0);
+        var added = Number(data.addedQuantity || 0);
+        var toast = document.createElement('div');
+        toast.id = 'cart-toast';
+        toast.className = 'cart-toast';
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+
+        var body = document.createElement('div');
+        body.className = 'cart-toast__body';
+
+        var title = document.createElement('p');
+        title.className = 'cart-toast__title';
+        title.textContent = 'Added to cart';
+
+        var line = document.createElement('p');
+        line.className = 'cart-toast__line';
+        line.textContent = added + ' × ' + (data.productName || 'Item');
+
+        var summary = document.createElement('p');
+        summary.className = 'cart-toast__summary';
+        summary.textContent = 'Cart: ' + count + (count === 1 ? ' item' : ' items') + ' · ₹' + Number(data.cartTotal || 0).toFixed(2);
+
+        body.appendChild(title);
+        body.appendChild(line);
+        body.appendChild(summary);
+
+        var actions = document.createElement('div');
+        actions.className = 'cart-toast__actions';
+
+        var view = document.createElement('a');
+        view.className = 'cart-toast__view';
+        view.href = data.cartUrl || '/shopping-cart';
+        view.textContent = 'View Cart';
+
+        var close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'cart-toast__close';
+        close.setAttribute('aria-label', 'Dismiss');
+        close.textContent = '×';
+        close.addEventListener('click', function () {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        });
+
+        actions.appendChild(view);
+        actions.appendChild(close);
+        toast.appendChild(body);
+        toast.appendChild(actions);
+        document.body.appendChild(toast);
+
+        toastTimer = window.setTimeout(function () {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 6000);
+    }
+
     function updateHeaderCart(data) {
         var countEl = document.getElementById('mini-cart-count');
         var subtotalEl = document.getElementById('mini-cart-subtotal');
@@ -121,7 +195,15 @@
             })
             .then(function (data) {
                 updateHeaderCart(data);
-                flashMessage(data.success ? 'success' : 'error', data.message);
+
+                // A real add (something actually went into the cart) gets the
+                // rich toast; errors, removals and "already at max stock"
+                // (nothing added) keep the plain flash message.
+                if (data.success && Number(data.addedQuantity || 0) > 0 && data.productName) {
+                    showCartToast(data);
+                } else {
+                    flashMessage(data.success ? 'success' : 'error', data.message);
+                }
             })
             .catch(function () {
                 flashMessage('error', 'Something went wrong. Please try again.');

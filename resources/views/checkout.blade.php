@@ -27,6 +27,7 @@
         <div class="section__head justify-content-center">
           <h2 class="section--title-four font-title--sm">Checkout</h2>
         </div>
+        <x-frontend.offer-bar :offers="$offers" :eligible="$eligibleAmount" />
 
         @if ($lines->isEmpty())
           <div class="cart-table" style="padding:60px 24px;text-align:center;">
@@ -223,16 +224,14 @@
                           {{ $shippingAmount > 0 ? '₹'.number_format($shippingAmount, 2) : 'Free' }}
                         </span>
                       </div>
-                      @if ($taxAmount > 0)
-                        <div class="bill-card__memo-item subtotal">
-                          <p class="font-body--md-400">Tax:</p>
-                          <span class="font-body--md-500">₹{{ number_format($taxAmount, 2) }}</span>
-                        </div>
-                      @endif
                       <div class="bill-card__memo-item total">
                         <p class="font-body--lg-400">Total:</p>
-                        <span class="font-body--xl-500">₹{{ number_format($grandTotal ?? $subtotal, 2) }}</span>
+                        <span class="font-body--xl-500">₹{{ number_format($grandTotal ?? ($subtotal - $discountAmount), 2) }}</span>
                       </div>
+                      <p class="bill-card__tax-note font-body--sm-400">
+                        Inclusive of all taxes{{ $taxAmount > 0 ? " (includes GST ₹".number_format($taxAmount, 2).")" : "" }}.
+                        Shipping Partner: Velocity.
+                      </p>
                     </div>
 
                     <button

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Product;
+use App\Services\Storefront\ReviewEligibility;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -31,10 +33,19 @@ class OrderController extends Controller
             ]),
             'payment',
             'coupon',
+            'earnedVoucher',
         ]);
+
+        $productIds = $order->items->pluck('product_id')->filter()->unique();
 
         return view('orders.show', [
             'order' => $order,
+            // Only publicly visible products get a link; a deleted/inactive
+            // product still renders its order-time snapshot, just unlinked.
+            'linkableProductIds' => Product::query()->public()->whereIn('id', $productIds)->pluck('id')->all(),
+            // Only products from a delivered order that the customer
+            // hasn't already reviewed show "Write a Review".
+            'reviewableProductIds' => app(ReviewEligibility::class)->reviewableAmong(Auth::id(), $productIds),
         ]);
     }
 }

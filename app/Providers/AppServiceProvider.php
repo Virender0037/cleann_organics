@@ -4,8 +4,11 @@ namespace App\Providers;
 
 use App\Listeners\MergeGuestCartOnLogin;
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\Setting;
 use App\Services\Storefront\CartService;
+use App\Services\Storefront\StorefrontSettings;
+use App\Services\Storefront\VoucherService;
 use App\Services\Storefront\WishlistService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Pagination\Paginator;
@@ -27,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
         // same instance — a fresh instance per app() call would re-run the
         // query once per card.
         $this->app->singleton(WishlistService::class);
+        $this->app->singleton(StorefrontSettings::class);
     }
 
     /**
@@ -102,5 +106,15 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('footerCategories', Category::query()->active()->ordered()->limit(4)->get());
             }
         );
+
+        // Earned voucher (₹999+ offer): issued when an order first reaches
+        // "delivered", through ANY path that saves the model (the admin
+        // status action today, a courier webhook later). VoucherService is
+        // idempotent, so a repeated save can never issue a second voucher.
+        Order::updated(function (Order $order) {
+            if ($order->wasChanged('order_status') && $order->order_status === 'delivered') {
+                app(VoucherService::class)->issueForDeliveredOrder($order);
+            }
+        });
     }
 }

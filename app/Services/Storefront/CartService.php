@@ -108,6 +108,7 @@ class CartService
                 'success' => true,
                 'message' => $message,
                 'line' => $this->buildLine($variantId, $variant, $clampedQty),
+                'added' => $clampedQty - $existingQty,
             ];
         }
 
@@ -117,7 +118,8 @@ class CartService
             ->where('product_variant_id', $variantId)
             ->first();
 
-        $desiredQty = ($existing->quantity ?? 0) + $quantity;
+        $existingQty = (int) ($existing->quantity ?? 0);
+        $desiredQty = $existingQty + $quantity;
         $clampedQty = max(1, min($desiredQty, $variant->stock_quantity));
         $unitPrice = $variant->unitPriceForQuantity($clampedQty);
 
@@ -140,6 +142,7 @@ class CartService
             'success' => true,
             'message' => $message,
             'line' => $this->buildLine($item->id, $variant, $clampedQty),
+            'added' => $clampedQty - $existingQty,
         ];
     }
 

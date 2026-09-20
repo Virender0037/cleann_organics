@@ -171,8 +171,9 @@ class CheckoutTest extends TestCase
 
         $response = $this->get('/checkout');
 
-        // 5% of 200 = 10
-        $response->assertOk()->assertSee('₹10.00');
+        // Prices are tax-inclusive: the 5% GST is CONTAINED in the ₹200 price
+        // (200 × 5 / 105 = 9.52), shown as a breakup — never added on top.
+        $response->assertOk()->assertSee('includes GST ₹9.52')->assertDontSee('₹210.00');
     }
 
     public function test_no_tax_when_product_has_no_tax_rate(): void

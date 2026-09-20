@@ -79,6 +79,7 @@ Status below reflects this repo's actual git state (verify with `git log`/`grep 
 
 **Done, CRUD only** (no import/export):
 - Tax Rates, Shipping Methods, Shipping Rates (child of Shipping Zones via `shipping_zone_id`), Blogs, Blog Categories, Blog Tags, Pages, FAQs, Team Members, Testimonials, Settings, Contact Messages (inbox-style: view/status/delete), Customers + Customer Addresses/Wishlists, Dashboard.
+- (2026-09-20) **Hero Slides** and **Benefits Strip** (both `HomeBannerController` over the one `home_banners` table, split by `section`; `?section=hero|benefit`), **Reels** (`ReelController`), **Settings → Storefront & Offers** (`SettingController::storefront`), plus a forward-only order status action on `admin.sales.orders.show` (`SalesOrderController::updateStatus`) — see "Storefront offers, homepage & vouchers" below.
 
 **Done, export only** (no import, no manual create — records originate elsewhere): Product Reviews, Inventory (stock levels/low-stock/out-of-stock), Sales Orders, Returns. Sales Payments is export-only for record creation, but (2026-09-12) its detail page (`admin.sales.payments.show`) now also has a real Verify/Reject action for `manual_upi` payments — see "Storefront, Payments & Blog" below.
 
@@ -92,7 +93,7 @@ Update this list as work lands — don't rely on chat history to track this.
 
 Verified, tested state as of this phase — supersedes any earlier assumption that storefront routes are still bare `Route::view(...)` for the areas covered here (checkout, cart, wishlist, orders, blog, product/shop pages, payments are all real, controller-backed, and tested).
 
-**Automated tests**: 543 passing, 0 failing (`php artisan test`). Includes new coverage added this phase for Razorpay payments, the webhook, blog, image-fallback behavior, admin wishlist scoping, and (2026-09-12) the Manual UPI submit/verify/reject/resubmit lifecycle and private-disk proof storage/access-control.
+**Automated tests**: 593 passing, 0 failing as of 2026-09-20 (`php artisan test`; was 543 on 2026-09-12). Includes new coverage added this phase for Razorpay payments, the webhook, blog, image-fallback behavior, admin wishlist scoping, and (2026-09-12) the Manual UPI submit/verify/reject/resubmit lifecycle and private-disk proof storage/access-control.
 
 **COD** — fully functional, unchanged, works independently of the other two payment methods. Order placed with `payment_status: pending`; admin marks paid at fulfillment.
 
@@ -138,6 +139,27 @@ Payment-proof screenshots are stored on the **private `local` disk** (`storage/a
 - NEEDS REAL DATA/CONTENT: product images, blog posts.
 - NEEDS MANUAL TESTING: live Razorpay sandbox payment, real email delivery, a real Manual UPI submit → admin verify/reject → resubmit round-trip (UAT steps below).
 - BLOCKERS: none identified.
+
+## Storefront offers, homepage & vouchers (added 2026-09-20)
+
+Business rules live in **one place**: `App\Services\Storefront\StorefrontSettings` (typed reader over the admin-editable `storefront` settings group — Admin → Settings → Storefront & Offers). Cart, checkout, shipping, vouchers and the homepage all read it, so they cannot disagree.
+
+- **Prices are tax-inclusive.** The admin/listed price is the final customer price; GST is only a *breakup* extracted backwards (`amount × rate ÷ (100 + rate)`, per line, after its share of any coupon) into `orders.tax_amount` / `order_items.tax_amount`. It is never added to `grand_total` (`CheckoutService::taxAmount()`, `includedTaxByLine()`). Cart/checkout/PDP say "Inclusive of all taxes".
+- **Shipping / offers** are judged on `CheckoutService::eligibleAmount()` = subtotal − discount, before shipping. Below the free-shipping threshold (default ₹399) the existing zone/rate logic applies unchanged, falling back to the admin `flat_shipping_charge` (null/0 until configured — no amount is invented). Two offers only: ≥₹399 free shipping + gift; ≥₹999 free shipping + gift + ₹150 voucher (`StorefrontSettings::offers()`, rendered by `<x-frontend.offer-bar>` on cart and checkout).
+- **₹150 voucher** = an ordinary `Coupon` (fixed, `usage_limit` 1) with `user_id` (only that customer can redeem) and `source_order_id` (UNIQUE — makes issuing idempotent at DB level). `VoucherService` issues it from an `Order::updated` hook in `AppServiceProvider` when `order_status` first becomes `delivered`, from any code path that saves the model. Validity days / min order are admin-configurable (validity defaults to 365 days, not client-specified).
+- **Reviews**: only a customer with a **delivered** order containing the product, once per product (`ReviewEligibility`, enforced in `StoreProductReviewRequest`; also gates the "Write a Review" links on order pages).
+- **COD wording**: customers see "Payment on Delivery" via `Order::customerPaymentLabel()`; the stored `payment_status` stays `pending`. Admin screens use the raw value. Dashboard "Total/Active Orders" link to `/order-history` and `/order-history?status=active` (`Order::ACTIVE_STATUSES`).
+- **Add-to-cart toast**: `public/js/cart.js` builds it (textContent only) from the server JSON (`productName`, `addedQuantity`, `itemCount`, `cartTotal`, `cartUrl`) — the browser never computes a total. Home loads `cart.js` too.
+- **Homepage sliders — one table, no second system**: `home_banners.section` = `hero` (main slideshow) or `benefit` (trust strip under it); future homepage sliders reuse it. Admin: Hero Slides / Benefits Strip (CMS). Columns beyond the basics: `icon` (built-in SVG key from `HomeBanner::ICONS`, rendered by `<x-frontend.benefit-icon>`), `alt_text`, `opens_new_tab`, `mobile_image`, `link_type` (`product|category|tag|url|none`). Images: public disk `home-banners/`, server-generated names, replaced/removed/deleted files are cleaned up. A benefit description may contain the token `{free_shipping_threshold}` (resolved by `HomeBanner::renderedSubtitle()`) so the Free Shipping card always follows the real threshold. Both sections render nothing when they have no active items. Sliders are initialised in `public/js/home1.js` (`.home-hero__slider`, `.home-benefits__slider`).
+- **Seeders (production-safe, run once each)**: `HomeBenefitSeeder` (4 cards) and `HomeHeroSeeder` (3 slides; optimised WebP copies of the Clean Organics lifestyle photos live in `database/seeders/assets/home-hero/`, copied onto the public disk). Each records a flag in `settings` (`home_benefits_seeded` / `home_hero_seeded`) and seeds only into an empty section, so re-runs never duplicate or overwrite admin edits.
+- **Tag-driven homepage collections**: "100% Bio-Enzyme Products" and "365 Days Lowest Price" show products carrying the Product Tag slugs `bio-enzyme` / `365-days-lowest-price` (`ProductCatalogService::TAG_*`); hidden until curated. "Sale of the Month" (formerly Hot Deals) is hidden while no product is genuinely discounted. "Explore Our Range" (Under ₹10/₹50/₹99) links to the shop's existing `max_price` filter, counts from the same price rule (`ProductCatalogService::priceBands()`).
+- **Reels** (`reels` table, Admin → CMS → Reels): each ties to a real product/variant; "Add to Cart" uses the normal cart endpoint. Videos are either an upload (≤30 MB) or a URL — the original 112 MB source video has **not** been optimised/used (no `ffmpeg` locally); the section stays empty until a reel is added in admin.
+- **Newsletter removed** everywhere (sections + popup). **Contact Us**: `Storefront\ContactController` saves a `ContactMessage` (validation, honeypot, `throttle:5,1`); address/email/phone come from Admin → Settings → General company fields, hidden when unset. About Us no longer uses the stock farmer photo.
+- **Storefront CSS**: still no build step — this phase's styles are in `public/scss/components/_storefront-offers.scss`, mirrored verbatim at the end of `public/css/style.css` (the served file). Edit both.
+- **Velocity**: checkout/order pages only show the text "Shipping Partner: Velocity" — there is still **no** Velocity integration (see below).
+- **Local dev gotcha**: local `APP_URL=http://localhost` does not include the `/cleann_organics/public` subfolder, so `Storage::url()` image URLs 404 in a browser (existing product images too). Not a code bug — production `APP_URL` is correct. To eyeball locally: `APP_URL=http://127.0.0.1:8000 php artisan serve`.
+
+**Production deploy after pulling this phase**: `php artisan migrate --force`, then `php artisan db:seed --class=HomeBenefitSeeder --force` and `--class=HomeHeroSeeder --force`, `php artisan storage:link` (if missing), `php artisan optimize:clear` (settings are cached forever via `Setting::cached()`), then config/route/view cache. Backup the DB first; roll back by restoring the backup, not `migrate:rollback` (drops banner/reel data).
 
 ## Shipping — Velocity Integration: PENDING / BLOCKED BY API DOCUMENTATION (added 2026-09-12)
 

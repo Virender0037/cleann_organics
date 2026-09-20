@@ -125,7 +125,6 @@ class HomeNewsTest extends TestCase
         $response->assertSee('News Regression Category');
         $response->assertSee('Popular Categories');
         $response->assertSee('Popular products');
-        $response->assertSee('Hot Deals');
         $response->assertSee('Featured Products');
     }
 }

@@ -34,12 +34,16 @@
             <div class="container">
               <div class="dashboard__order-history">
                 <div class="dashboard__order-history-title">
-                  <h2 class="font-body--xxl-500">Order History</h2>
+                  <h2 class="font-body--xxl-500">{{ $activeOnly ? 'Active Orders' : 'Order History' }}</h2>
+                  <div class="order-filter-tabs" role="tablist" aria-label="Filter orders">
+                    <a href="{{ route('order-history') }}" class="{{ $activeOnly ? '' : 'is-active' }}" @unless ($activeOnly) aria-current="page" @endunless>All orders</a>
+                    <a href="{{ route('order-history', ['status' => 'active']) }}" class="{{ $activeOnly ? 'is-active' : '' }}" @if ($activeOnly) aria-current="page" @endif>Active orders</a>
+                  </div>
                 </div>
 
                 @if ($orders->isEmpty())
                   <div style="border:1px solid #e5e5e5;border-radius:8px;padding:48px 24px;text-align:center;">
-                    <p class="font-body--lg-400" style="margin-bottom:16px;">You haven't placed any orders yet.</p>
+                    <p class="font-body--lg-400" style="margin-bottom:16px;">{{ $activeOnly ? 'You have no active orders right now.' : "You haven't placed any orders yet." }}</p>
                     <a href="{{ route('shop') }}" class="button button--md">Start Shopping</a>
                   </div>
                 @else
@@ -64,7 +68,7 @@
                               <td class="dashboard__order-history-table-item">₹{{ number_format($order->grand_total, 2) }}</td>
                               <td class="dashboard__order-history-table-item">
                                 {{ strtoupper(str_replace('_', ' ', $order->payment_method)) }}
-                                <span class="font-body--md-400" style="text-transform:capitalize;color:#666666;">({{ $order->payment_status }})</span>
+                                <span class="font-body--md-400" style="color:#666666;">({{ $order->customerPaymentLabel() }})</span>
                               </td>
                               <td class="dashboard__order-history-table-item order-status" style="text-transform:capitalize;">{{ $order->order_status }}</td>
                               <td class="dashboard__order-history-table-item">

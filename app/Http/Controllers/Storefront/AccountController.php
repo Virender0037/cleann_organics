@@ -26,7 +26,7 @@ class AccountController extends Controller
                 'total' => (clone $orders)->count(),
                 // "Active" = anything not yet finished — using only the real
                 // order_status enum values, no invented "processing" state.
-                'active' => (clone $orders)->whereNotIn('order_status', ['delivered', 'cancelled'])->count(),
+                'active' => (clone $orders)->active()->count(),
                 'delivered' => (clone $orders)->where('order_status', 'delivered')->count(),
                 'cancelled' => (clone $orders)->where('order_status', 'cancelled')->count(),
                 'addresses' => $user->addresses()->count(),
@@ -37,8 +37,19 @@ class AccountController extends Controller
 
     public function orderHistory(Request $request): View
     {
+        // ?status=active narrows to in-progress orders (same definition as
+        // the dashboard's Active Orders count: Order::ACTIVE_STATUSES).
+        $activeOnly = $request->query('status') === 'active';
+
+        $orders = $request->user()->orders()
+            ->when($activeOnly, fn ($query) => $query->active())
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
         return view('order-history', [
-            'orders' => $request->user()->orders()->latest()->paginate(10),
+            'orders' => $orders,
+            'activeOnly' => $activeOnly,
         ]);
     }
 

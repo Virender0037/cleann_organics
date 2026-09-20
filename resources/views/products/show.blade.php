@@ -210,6 +210,7 @@
                             the next-tier/best-price incentive banner.
                         --}}
                         <div class="products__content-tier-feedback" id="tier-pricing-feedback"></div>
+                        <p class="bill-card__tax-note font-body--sm-400" style="margin:0 0 12px;">Inclusive of all taxes</p>
 
                         @if ($variants->count() > 1)
                             <div class="products__content-category font-body--md-500" style="margin-bottom: 8px;">Options:</div>
@@ -460,7 +461,7 @@
                                     @endforelse
 
                                     <div class="products-tab__feedback-content" style="border-top:1px solid #e5e5e5;padding-top:24px;margin-top:8px;">
-                                        <h5 class="font-body--lg-500" style="margin-bottom:16px;">Write a Review</h5>
+                                        <h5 class="font-body--lg-500" id="write-review" style="margin-bottom:16px;">Write a Review</h5>
 
                                         @auth
                                             @if ($userReview)
@@ -471,6 +472,8 @@
                                                 @else
                                                     <p class="font-body--md-400">You've already reviewed this product. Thanks for your feedback!</p>
                                                 @endif
+                                            @elseif (! $canReview)
+                                                <p class="font-body--md-400">Only customers who have received this product can review it. Once your order is delivered, you can write a review from your order details.</p>
                                             @else
                                                 @if (session('success'))
                                                     <p class="font-body--md-400" style="color:#00B307;margin-bottom:16px;">{{ session('success') }}</p>
@@ -559,6 +562,21 @@
     <script src="{{ asset('js/main.js') }}"></script>
     <script src="{{ asset('js/cart.js') }}"></script>
     <script src="{{ asset('js/wishlist.js') }}"></script>
+    <script>
+        // Deep link from an order ("Write a Review") → open the Customer
+        // feedback tab and scroll to the review form.
+        window.addEventListener('load', function () {
+            if (window.location.hash !== '#write-review') {
+                return;
+            }
+            var tab = document.getElementById('pills-customer-tab');
+            var target = document.getElementById('write-review');
+            if (tab) { tab.click(); }
+            if (target) {
+                window.setTimeout(function () { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 250);
+            }
+        });
+    </script>
     <script>
         // Variant switching: price, stock, SKU, gallery and Add-to-Cart
         // state all update in place from data already on the page — no

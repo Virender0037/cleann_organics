@@ -104,6 +104,43 @@ class Order extends Model
     }
 
     /**
+     * The voucher this order earned (order >= the gift/voucher threshold,
+     * issued on delivery). Null until then, or if it never qualified.
+     */
+    public function earnedVoucher()
+    {
+        return $this->hasOne(Coupon::class, 'source_order_id');
+    }
+
+    /** Statuses that count as "in progress" — everything not finished or cancelled. */
+    public const ACTIVE_STATUSES = ['pending', 'confirmed', 'packed', 'shipped'];
+
+    public function scopeActive($query)
+    {
+        return $query->whereIn('order_status', self::ACTIVE_STATUSES);
+    }
+
+    /**
+     * Customer-facing payment wording. The stored payment_status stays
+     * technically 'pending' for COD until cash is collected, but showing a
+     * customer "Pending" reads like a failed order — so COD says what is
+     * actually true. Admin screens keep using the raw payment_status.
+     */
+    public function customerPaymentLabel(): string
+    {
+        if ($this->payment_method === 'cod') {
+            return match (true) {
+                $this->payment_status === 'paid' => 'Paid',
+                $this->order_status === 'cancelled' => 'Cancelled',
+                $this->payment_status === 'refunded' => 'Refunded',
+                default => 'Payment on Delivery',
+            };
+        }
+
+        return ucfirst($this->payment_status);
+    }
+
+    /**
      * The frozen shipping address for this order, as a plain array — always
      * read this (never $order->address) for anything a customer or admin
      * sees about where the order went.

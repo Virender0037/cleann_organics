@@ -150,9 +150,10 @@
                 <path d="M3 18H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
         </button>
-        <img src="{{ storage_image_url($generalSettings['logo'] ?? null, asset('images/vertical-logo.jpeg')) }}"
-     alt="{{ $generalSettings['site_name'] ?? 'brand-logo' }}"
-     style="height: 39px; width: auto;">
+        <a href="{{ route('home') }}" class="header__logo-link" aria-label="{{ $generalSettings['site_name'] ?? 'Cleann Organics' }} — Home">
+            <img class="header__logo" src="{{ storage_image_url($generalSettings['logo'] ?? null, asset('images/vertical-logo.jpeg')) }}"
+                alt="{{ $generalSettings['site_name'] ?? 'Cleann Organics' }}">
+        </a>
     </div>
     <form action="{{ route('shop') }}" method="GET">
         <div class="header__input-form">

@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerWishlistController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\HomeBannerController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InventoryReportController;
 use App\Http\Controllers\Admin\OrdersReportController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductsReportController;
 use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\ReelController;
 use App\Http\Controllers\Admin\ReturnController;
 use App\Http\Controllers\Admin\SalesOrderController;
 use App\Http\Controllers\Admin\SalesPaymentController;
@@ -88,6 +90,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // /cleann_organics/public) — redirect()->route() builds the destination via
 // the url() helper instead, so it resolves correctly under any base path.
 Route::get('/contact-us', [PublicPageController::class, 'contact'])->name('contact');
+Route::post('/contact-us', [\App\Http\Controllers\Storefront\ContactController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('contact.store');
 Route::get('/contact', fn () => redirect()->route('contact', [], 301));
 
 // Canonical About Us URL. Mirrors the /contact-us pattern: the old /aboutus
@@ -390,6 +395,7 @@ Route::prefix('admin')
             Route::get('/orders', [SalesOrderController::class, 'index'])->name('orders.index');
             Route::get('/orders/export', [SalesOrderController::class, 'export'])->name('orders.export');
             Route::get('/orders/{order}', [SalesOrderController::class, 'show'])->name('orders.show');
+            Route::patch('/orders/{order}/status', [SalesOrderController::class, 'updateStatus'])->name('orders.status.update');
             Route::get('/payments', [SalesPaymentController::class, 'index'])->name('payments.index');
             Route::get('/payments/export', [SalesPaymentController::class, 'export'])->name('payments.export');
             Route::get('/payments/{payment}', [SalesPaymentController::class, 'show'])->name('payments.show');
@@ -531,6 +537,23 @@ Route::prefix('admin')
                 Route::put('/{testimonial}', 'update')->name('update');
                 Route::delete('/{testimonial}', 'destroy')->name('destroy');
             });
+            Route::prefix('banners')->name('banners.')->controller(HomeBannerController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{banner}/edit', 'edit')->name('edit');
+                Route::put('/{banner}', 'update')->name('update');
+                Route::patch('/{banner}/toggle', 'toggle')->name('toggle');
+                Route::delete('/{banner}', 'destroy')->name('destroy');
+            });
+            Route::prefix('reels')->name('reels.')->controller(ReelController::class)->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::get('/create', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{reel}/edit', 'edit')->name('edit');
+                Route::put('/{reel}', 'update')->name('update');
+                Route::delete('/{reel}', 'destroy')->name('destroy');
+            });
             Route::prefix('contact-messages')->name('contact-messages.')->controller(ContactMessageController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/{message}', 'show')->name('show');
@@ -581,6 +604,8 @@ Route::prefix('admin')
             Route::put('/email', 'updateEmail')->name('email.update');
             Route::get('/payment', 'payment')->name('payment.index');
             Route::put('/payment', 'updatePayment')->name('payment.update');
+            Route::get('/storefront', 'storefront')->name('storefront.index');
+            Route::put('/storefront', 'updateStorefront')->name('storefront.update');
         });
         Route::prefix('profile')->name('profile.')->controller(AdminProfileController::class)->group(function () {
             Route::get('/', 'edit')->name('edit');
