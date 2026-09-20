@@ -16,7 +16,7 @@
             @foreach ($bands as $band)
                 <a href="{{ route('shop', ['max_price' => $band['max']]) }}" class="explore-range__tile" aria-label="Shop products under ₹{{ $band['max'] }}">
                     <span class="explore-range__arch">
-                        <img src="{{ storage_image_url($band['image'], asset('images/products/img-01.png')) }}" alt="" loading="lazy">
+                        <img src="{{ storage_image_url($band['image'], asset('images/products/img-01.png')) }}" alt="" loading="lazy" style="max-width:100%;">
                     </span>
                     <span class="explore-range__label">
                         Under ₹{{ $band['max'] }}

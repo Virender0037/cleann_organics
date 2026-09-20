@@ -28,7 +28,7 @@
                             <span class="home-hero__media">
                                 <picture>
                                     <source media="(max-width: 767px)" srcset="{{ $mobile }}">
-                                    <img src="{{ $desktop }}" alt="{{ $alt }}" @if ($loop->first) fetchpriority="high" @else loading="lazy" @endif>
+                                    <img src="{{ $desktop }}" alt="{{ $alt }}" style="max-width:100%;" @if ($loop->first) fetchpriority="high" @else loading="lazy" @endif>
                                 </picture>
                             </span>
                             @if ($banner->title || $banner->subtitle || $banner->button_text)

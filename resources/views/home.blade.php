@@ -1380,9 +1380,9 @@
         <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('lib/js/jquery.syotimer.min.js') }}"></script>
         <script src="{{ asset('js/main.js') }}"></script>
-        <script src="{{ asset('js/home1.js') }}"></script>
+        <script src="{{ admin_asset('js/home1.js') }}"></script>
         <script src="{{ asset('js/wishlist.js') }}"></script>
-        <script src="{{ asset('js/cart.js') }}"></script>
+        <script src="{{ admin_asset('js/cart.js') }}"></script>
         <!-- Purchase Button -->
             <!-- <div class="templatecookie-btn">
                 <a href="https://1.envato.market/kjkaBN" target="_blank" class="purchase-btn">

@@ -46,7 +46,7 @@
     <link rel="stylesheet" href="{{ asset('lib/css/bvselect.css') }}" />
     <link rel="stylesheet" href="{{ asset('lib/css/venobox.css') }}" />
     <link rel="stylesheet" href="{{ asset('lib/css/bootstrap.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
+    <link rel="stylesheet" href="{{ admin_asset('css/style.css') }}" />
 </head>
 
 <body>
@@ -151,7 +151,7 @@
             </svg>
         </button>
         <a href="{{ route('home') }}" class="header__logo-link" aria-label="{{ $generalSettings['site_name'] ?? 'Cleann Organics' }} — Home">
-            <img class="header__logo" src="{{ storage_image_url($generalSettings['logo'] ?? null, asset('images/vertical-logo.jpeg')) }}"
+            <img class="header__logo" style="max-width:220px;max-height:64px;" src="{{ storage_image_url($generalSettings['logo'] ?? null, asset('images/vertical-logo.jpeg')) }}"
                 alt="{{ $generalSettings['site_name'] ?? 'Cleann Organics' }}">
         </a>
     </div>

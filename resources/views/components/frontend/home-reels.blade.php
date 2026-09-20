@@ -29,16 +29,16 @@
                     <article class="home-reels__card">
                         <div class="home-reels__media">
                             @if ($source)
-                                <video controls playsinline preload="none" @if ($poster) poster="{{ $poster }}" @endif aria-label="{{ $reel->title ?: $product->name }}">
+                                <video controls playsinline preload="none" style="max-width:100%;" @if ($poster) poster="{{ $poster }}" @endif aria-label="{{ $reel->title ?: $product->name }}">
                                     <source src="{{ $source }}">
                                 </video>
                             @elseif ($reel->instagram_url)
                                 <a href="{{ $reel->instagram_url }}" target="_blank" rel="noopener noreferrer" class="home-reels__poster-link">
-                                    <img src="{{ $poster ?? asset('images/products/img-01.png') }}" alt="{{ $reel->title ?: $product->name }}" loading="lazy">
+                                    <img src="{{ $poster ?? asset('images/products/img-01.png') }}" alt="{{ $reel->title ?: $product->name }}" loading="lazy" style="max-width:100%;">
                                     <span class="home-reels__play">Watch on Instagram</span>
                                 </a>
                             @else
-                                <img src="{{ $poster ?? asset('images/products/img-01.png') }}" alt="{{ $reel->title ?: $product->name }}" loading="lazy">
+                                <img src="{{ $poster ?? asset('images/products/img-01.png') }}" alt="{{ $reel->title ?: $product->name }}" loading="lazy" style="max-width:100%;">
                             @endif
                         </div>
                         <div class="home-reels__body">

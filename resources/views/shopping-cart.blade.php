@@ -411,7 +411,7 @@
     <script src="{{ asset('lib/js/bvselect.js') }}"></script>
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-    <script src="{{ asset('js/cart.js') }}"></script>
+    <script src="{{ admin_asset('js/cart.js') }}"></script>
   </body>
 </html>
 </x-layouts.app>

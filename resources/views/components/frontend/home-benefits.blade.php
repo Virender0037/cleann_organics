@@ -29,7 +29,7 @@
                         @endif
                             <span class="home-benefits__icon">
                                 @if ($image)
-                                    <img src="{{ $image }}" alt="{{ $item->alt_text }}" loading="lazy">
+                                    <img src="{{ $image }}" alt="{{ $item->alt_text }}" loading="lazy" style="max-width:48px;max-height:48px;">
                                 @else
                                     <x-frontend.benefit-icon :name="$item->icon ?: 'leaf'" :size="26" />
                                 @endif
