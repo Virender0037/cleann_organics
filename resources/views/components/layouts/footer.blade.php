@@ -6,9 +6,11 @@
                 <div class="col-lg-4">
                     <div class="footer__brand-info">
                         <div class="footer__brand-info-logo">
+                            <a href="{{ route('home') }}" aria-label="{{ $generalSettings['site_name'] ?? 'Cleann Organics' }} — Home">
                             <img src="{{ storage_image_url($generalSettings['logo'] ?? null, asset('images/vertical-logo.jpeg')) }}"
-                            alt="{{ $generalSettings['site_name'] ?? 'brand-logo' }}"
-                            style="height: 56px; width: auto;">
+                            alt="{{ $generalSettings['site_name'] ?? 'Cleann Organics' }}"
+                            style="max-width:min(240px,100%);max-height:72px;">
+                            </a>
                         </div>
                         <div class="footer__brand-info-contact">
                             <a href="tel:{{ $generalSettings['company_phone'] ?? '+91-9999667014' }}" class="footer__brand-info-contact-item">

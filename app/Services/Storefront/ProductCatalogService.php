@@ -56,6 +56,13 @@ class ProductCatalogService
         )
         SQL;
 
+    /**
+     * Average rating of a product's APPROVED, non-deleted reviews — the same
+     * value withAvg('reviews as approved_average_rating') selects, written as
+     * a correlated scalar subquery so the rating filter can live in WHERE.
+     */
+    private const APPROVED_RATING_SUBQUERY = "(SELECT AVG(pr.rating) FROM product_reviews pr WHERE pr.product_id = products.id AND pr.status = 'approved' AND pr.deleted_at IS NULL)";
+
     public function paginate(Request $request, ?Category $category = null): LengthAwarePaginator
     {
         $query = $this->baseQuery();
@@ -81,39 +88,31 @@ class ProductCatalogService
 
         $minPrice = $request->filled('min_price') ? (float) $request->input('min_price') : null;
         $maxPrice = $request->filled('max_price') ? (float) $request->input('max_price') : null;
-        $hasHaving = $request->filled('rating') || $minPrice !== null || $maxPrice !== null;
 
-        if ($hasHaving) {
-            // SQLite (used by the test suite) rejects a HAVING clause with
-            // no GROUP BY when it references anything other than an
-            // aggregate function — unlike MySQL, which tolerates this for
-            // a plain SELECT-list alias. Grouping by the primary key is a
-            // no-op for the actual result set (one row per product either
-            // way) but satisfies both engines' grammar.
-            $query->groupBy('products.id');
-        }
-
+        // Price and rating filters are plain WHERE conditions on the same
+        // correlated subqueries the listing already SELECTs (one row per
+        // product by construction) — deliberately NOT GROUP BY + HAVING.
+        // Grouping products.* by id is rejected by MySQL/MariaDB under
+        // ONLY_FULL_GROUP_BY (error 1055: MariaDB has no functional-
+        // dependence detection) and it also broke the pagination count
+        // query. Without GROUP BY the query is valid in every sql_mode and
+        // on SQLite, with unchanged results, ordering and pagination.
+        //
+        // The bound value is wrapped in CAST(? AS DECIMAL(10,2)) because
+        // PDO's SQLite driver binds a PHP float without numeric affinity
+        // when it is compared against a subquery (confirmed: float bindings
+        // silently matched nothing). DECIMAL(10,2) matches the variant
+        // price columns and is the one numeric cast both MySQL and SQLite
+        // accept (MySQL has no CAST AS REAL; a bare DECIMAL would truncate).
         if ($request->filled('rating')) {
-            $query->havingRaw('"approved_average_rating" >= CAST(? AS DECIMAL(10,2))', [$request->integer('rating')]);
+            $query->whereRaw(self::APPROVED_RATING_SUBQUERY.' >= CAST(? AS DECIMAL(10,2))', [$request->integer('rating')]);
         }
 
-        // havingRaw() with the bound value wrapped in CAST(? AS DECIMAL(10,2)),
-        // rather than having()'s plain "column >= ?": PDO's SQLite driver
-        // binds a PHP float in a way that does not get proper numeric
-        // affinity applied when compared directly against this
-        // correlated-subquery alias under GROUP BY — confirmed by testing
-        // (float bindings silently produced zero matching rows; the same
-        // value cast in the SQL text works correctly on the exact same
-        // query). DECIMAL(10,2) (matching the variant price columns'
-        // precision) rather than REAL specifically because MySQL has no
-        // CAST(... AS REAL) — DECIMAL is the one numeric cast type both
-        // engines support, and specifying (10,2) keeps MySQL from
-        // truncating to a whole number (its no-precision default).
         if ($minPrice !== null || $maxPrice !== null) {
-            $query->havingRaw('"effective_min_price" >= CAST(? AS DECIMAL(10,2))', [$minPrice ?? 0]);
+            $query->whereRaw(self::EFFECTIVE_PRICE_SUBQUERY.' >= CAST(? AS DECIMAL(10,2))', [$minPrice ?? 0]);
 
             if ($maxPrice !== null) {
-                $query->havingRaw('"effective_min_price" <= CAST(? AS DECIMAL(10,2))', [$maxPrice]);
+                $query->whereRaw(self::EFFECTIVE_PRICE_SUBQUERY.' <= CAST(? AS DECIMAL(10,2))', [$maxPrice]);
             }
         }
 

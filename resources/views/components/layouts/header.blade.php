@@ -151,7 +151,7 @@
             </svg>
         </button>
         <a href="{{ route('home') }}" class="header__logo-link" aria-label="{{ $generalSettings['site_name'] ?? 'Cleann Organics' }} — Home">
-            <img class="header__logo" style="max-width:220px;max-height:64px;" src="{{ storage_image_url($generalSettings['logo'] ?? null, asset('images/vertical-logo.jpeg')) }}"
+            <img class="header__logo" style="max-width:min(260px,100%);max-height:72px;" src="{{ storage_image_url($generalSettings['logo'] ?? null, asset('images/vertical-logo.jpeg')) }}"
                 alt="{{ $generalSettings['site_name'] ?? 'Cleann Organics' }}">
         </a>
     </div>

@@ -185,7 +185,7 @@
   &__img-wrapper {
     position: relative;
 
-    a {
+    > a {
       padding: 5px;
       width: 100%;
       height: 230px;
@@ -242,7 +242,7 @@
   &--three,
   &--four {
     .cards-md__img-wrapper {
-      a {
+      > a {
         img {
           @include max(767px) {
             object-fit: contain !important;
@@ -255,7 +255,7 @@
   &--two {
     .cards-md__img-wrapper {
       padding: 0;
-      a {
+      > a {
         width: 100%;
         height: 246px;
         img {
@@ -270,7 +270,7 @@
       padding: 0;
       height: auto;
       margin-bottom: 16px;
-      a {
+      > a {
         width: 100%;
         height: 312px;
         img {
@@ -289,7 +289,7 @@
       padding: 0;
       height: auto;
       margin-bottom: 16px;
-      a {
+      > a {
         width: 100%;
         height: 300px;
         img {

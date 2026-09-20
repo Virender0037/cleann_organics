@@ -235,6 +235,132 @@ class ShopTest extends TestCase
      * would otherwise produce false failures for assertDontSee() checks in
      * a tiny test catalog where every product qualifies as a "best seller".
      */
+    // ------------------------------------------------------------------
+    // ONLY_FULL_GROUP_BY regression (production MariaDB, error 1055)
+    // ------------------------------------------------------------------
+    //
+    // The suite runs on SQLite, which tolerates a bare GROUP BY products.id,
+    // so the bug cannot be caught by looking at results. It is caught by the
+    // SHAPE of the SQL instead: the product listing must never use GROUP BY or
+    // HAVING (filters live in WHERE on correlated subqueries), which is valid
+    // under every MySQL/MariaDB sql_mode, including ONLY_FULL_GROUP_BY.
+
+    /** @return array<int, string> the product-listing SQL run while $callback executes */
+    private function listingQueriesDuring(callable $callback): array
+    {
+        $queries = [];
+        \Illuminate\Support\Facades\DB::listen(function ($query) use (&$queries) {
+            $sql = strtolower($query->sql);
+
+            // The listing SELECT and its pagination COUNT both embed the variant
+            // price subquery; the sidebar's legitimate GROUP BY category_id count does not.
+            if (str_contains($sql, 'effective_min_price') || preg_match('/product_variants[`"]?\s+pv/', $sql)) {
+                $queries[] = $sql;
+            }
+        });
+
+        $callback();
+
+        return $queries;
+    }
+
+    public function test_price_and_rating_filters_never_group_or_use_having(): void
+    {
+        $category = $this->category(['slug' => 'cleaners']);
+        $product = $this->product($category, 'Floor Cleaner');
+        $this->variant($product, ['single_price' => 40.00]);
+        $this->approveReview($product, 5);
+
+        $urls = [
+            '/shop?max_price=50',
+            '/shop?min_price=10&max_price=99',
+            '/shop?rating=3',
+            '/shop?rating=3&max_price=99&search=floor&sort=price-asc',
+            '/shop?category=cleaners&min_price=5&max_price=500&rating=1&sort=price-desc&page=1',
+            '/category/cleaners?max_price=99',
+        ];
+
+        $queries = $this->listingQueriesDuring(function () use ($urls) {
+            foreach ($urls as $url) {
+                $this->get($url)->assertOk();
+            }
+        });
+
+        $this->assertNotEmpty($queries, 'The listing queries were not captured.');
+
+        foreach ($queries as $sql) {
+            $this->assertStringNotContainsString(' group by ', $sql, 'Product listing must not GROUP BY (breaks ONLY_FULL_GROUP_BY).');
+            $this->assertStringNotContainsString(' having ', $sql, 'Product listing must not use HAVING.');
+        }
+    }
+
+    public function test_combined_filters_return_the_exact_matching_products_and_paginate(): void
+    {
+        $category = $this->category(['name' => 'Cleaners', 'slug' => 'cleaners']);
+        $other = $this->category(['name' => 'Bottles', 'slug' => 'bottles']);
+
+        $match = $this->product($category, 'Lemon Floor Cleaner');
+        $this->variant($match, ['single_price' => 45.00]);
+        $this->approveReview($match, 5);
+
+        $tooPricey = $this->product($category, 'Lemon Deluxe Cleaner');
+        $this->variant($tooPricey, ['single_price' => 400.00]);
+        $this->approveReview($tooPricey, 5);
+
+        $lowRated = $this->product($category, 'Lemon Basic Cleaner');
+        $this->variant($lowRated, ['single_price' => 30.00]);
+        $this->approveReview($lowRated, 1);
+
+        $wrongCategory = $this->product($other, 'Lemon Bottle');
+        $this->variant($wrongCategory, ['single_price' => 20.00]);
+        $this->approveReview($wrongCategory, 5);
+
+        $grid = $this->gridContentOf($this->get('/shop?category=cleaners&max_price=99&rating=4&search=lemon&sort=price-asc')->assertOk());
+
+        $this->assertStringContainsString('Lemon Floor Cleaner', $grid);
+        $this->assertStringNotContainsString('Lemon Deluxe Cleaner', $grid);
+        $this->assertStringNotContainsString('Lemon Basic Cleaner', $grid);
+        $this->assertStringNotContainsString('Lemon Bottle', $grid);
+    }
+
+    public function test_price_filtered_listing_counts_and_paginates_correctly(): void
+    {
+        $category = $this->category(['slug' => 'cleaners']);
+
+        // 15 cheap products (2 pages of 12) + 3 expensive ones that must not be counted.
+        foreach (range(1, 15) as $i) {
+            $this->variant($this->product($category, "Cheap Item {$i}"), ['single_price' => 20.00]);
+        }
+        foreach (range(1, 3) as $i) {
+            $this->variant($this->product($category, "Pricey Item {$i}"), ['single_price' => 900.00]);
+        }
+
+        $first = $this->get('/shop?max_price=50')->assertOk();
+        $second = $this->get('/shop?max_price=50&page=2')->assertOk();
+
+        // Assert on the paginator itself: the count query must see exactly the 15
+        // matches (not 18), split 12 + 3 across two pages.
+        $firstPage = $first->viewData('products');
+        $secondPage = $second->viewData('products');
+
+        $this->assertSame(15, $firstPage->total());
+        $this->assertSame(2, $firstPage->lastPage());
+        $this->assertCount(12, $firstPage->items());
+        $this->assertCount(3, $secondPage->items());
+        $this->assertTrue($firstPage->getCollection()->concat($secondPage->getCollection())->every(fn ($p) => str_starts_with($p->name, 'Cheap Item')));
+    }
+
+    public function test_homepage_explore_our_range_links_load_without_error(): void
+    {
+        $category = $this->category();
+        $this->variant($this->product($category, 'Tiny Item'), ['single_price' => 9.00]);
+
+        foreach ([10, 50, 99] as $ceiling) {
+            $this->get("/shop?max_price={$ceiling}")->assertOk()->assertSee('Tiny Item');
+        }
+    }
+
+
     private function gridContentOf(\Illuminate\Testing\TestResponse $response): string
     {
         $content = $response->getContent();

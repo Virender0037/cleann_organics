@@ -6523,13 +6523,13 @@ body.overlay::after {
 .cards-md__img-wrapper {
   position: relative;
 }
-.cards-md__img-wrapper a {
+.cards-md__img-wrapper > a {
   padding: 5px;
   width: 100%;
   height: 230px;
   overflow: hidden;
 }
-.cards-md__img-wrapper a img {
+.cards-md__img-wrapper > a img {
   width: 100%;
   height: 100%;
   -o-object-fit: cover;
@@ -6569,7 +6569,7 @@ body.overlay::after {
   cursor: pointer;
 }
 @media (max-width: 767px) {
-  .cards-md--two .cards-md__img-wrapper a img, .cards-md--three .cards-md__img-wrapper a img, .cards-md--four .cards-md__img-wrapper a img {
+  .cards-md--two .cards-md__img-wrapper > a img, .cards-md--three .cards-md__img-wrapper > a img, .cards-md--four .cards-md__img-wrapper > a img {
     -o-object-fit: contain !important;
        object-fit: contain !important;
   }
@@ -6577,11 +6577,11 @@ body.overlay::after {
 .cards-md--two .cards-md__img-wrapper {
   padding: 0;
 }
-.cards-md--two .cards-md__img-wrapper a {
+.cards-md--two .cards-md__img-wrapper > a {
   width: 100%;
   height: 246px;
 }
-.cards-md--two .cards-md__img-wrapper a img {
+.cards-md--two .cards-md__img-wrapper > a img {
   -o-object-fit: contain;
      object-fit: contain;
 }
@@ -6590,11 +6590,11 @@ body.overlay::after {
   height: auto;
   margin-bottom: 16px;
 }
-.cards-md--three .cards-md__img-wrapper a {
+.cards-md--three .cards-md__img-wrapper > a {
   width: 100%;
   height: 312px;
 }
-.cards-md--three .cards-md__img-wrapper a img {
+.cards-md--three .cards-md__img-wrapper > a img {
   -o-object-fit: contain;
      object-fit: contain;
 }
@@ -6607,11 +6607,11 @@ body.overlay::after {
   height: auto;
   margin-bottom: 16px;
 }
-.cards-md--four .cards-md__img-wrapper a {
+.cards-md--four .cards-md__img-wrapper > a {
   width: 100%;
   height: 300px;
 }
-.cards-md--four .cards-md__img-wrapper a img {
+.cards-md--four .cards-md__img-wrapper > a img {
   -o-object-fit: contain;
      object-fit: contain;
 }
@@ -11802,10 +11802,42 @@ select:focus-visible,
  * public/css/style.css (the file actually served).
  */
 
-/* ---------- Header logo ---------- */
-.header__logo-link { display: inline-flex; align-items: center; }
-.header__logo { height: 64px; width: auto; max-width: 220px; object-fit: contain; }
-@media (max-width: 991px) { .header__logo { height: 48px; max-width: 170px; } }
+/* ---------- Header / footer logo ---------- */
+/* Elastic: the logo keeps its aspect ratio and may shrink with the flex row
+   (min-width:0 on every flex ancestor), so a wide logo can never push the
+   header cart past a 320px viewport. Height is capped, not fixed. */
+.header__brand { min-width: 0; }
+.header__logo-link { display: inline-flex; align-items: center; min-width: 0; }
+.header__logo { height: auto; width: auto; min-width: 0; max-height: 72px; max-width: min(260px, 100%); object-fit: contain; object-position: left center; }
+@media (max-width: 991px) { .header__logo { max-height: 52px; max-width: min(190px, 100%); } }
+.footer__brand-info-logo a { display: inline-block; }
+.footer__brand-info-logo img { height: auto; width: auto; max-height: 72px; max-width: min(240px, 100%); object-fit: contain; object-position: left center; }
+
+/* ---------- Layout fixes found in the responsive audit ---------- */
+/* Testimonial avatars: the 56px flex item was shrinking in narrow cards, turning the circle into an oval. */
+.cards-tm__info--user-img { flex-shrink: 0; }
+/* Mini-cart thumbnail: same shrink problem (112px box around a 120px image). */
+.shopping-cart__product-content-item .img-wrapper { flex-shrink: 0; }
+/* About page testimonial arrows sat 64px outside a 1320px container: 4px of horizontal scroll at 1400-1447px viewports. */
+@media (min-width: 1400px) and (max-width: 1447px) {
+    .members--two .container .arrows .arrows__btn-prev { left: -32px; }
+    .members--two .container .arrows .arrows__btn-next { right: -32px; }
+}
+
+/* ---------- Touch targets (>= 44px hit area on phones/tablets) ---------- */
+@media (max-width: 991px) {
+    .header__sidebar-btn { min-width: 44px; min-height: 44px; padding: 10px 12px 10px 0; display: inline-flex; align-items: center; justify-content: flex-start; }
+    .header__top-right .header__in a { display: inline-block; padding: 10px 6px; margin: -10px -2px; }
+    .shoping-card .close-btn { min-width: 44px; min-height: 44px; }
+}
+@media (max-width: 767px) {
+    .footer__navigation-link a { display: inline-block; padding: 6px 0; }
+}
+
+/* Larger tap area without moving anything: invisible pseudo-element hit zones (heart link, password show/hide). */
+@media (max-width: 991px) {
+    .header .fav::after, button.icon.icon-eye::after { content: ""; position: absolute; top: -10px; right: -8px; bottom: -10px; left: -8px; }
+}
 
 /* ---------- Cart / checkout offer bar ---------- */
 .offer-bar { border: 1px solid #e5e5e5; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; background: #f7fbf7; }
@@ -11942,6 +11974,8 @@ a.home-benefits__card:hover, a.home-benefits__card:focus-visible { border-color:
 @media (max-width: 767px) { .home-reels__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; } }
 
 /* ---------- Blog images: keep ratio, never stretch ---------- */
+/* The image link was inline-block with no width, so it shrank to the photo's natural size and the image could not fill its wrapper. */
+.cards-blog__img-wrapper > a { display: block; width: 100%; height: 100%; }
 .blog-list .cards-blog__img-wrapper { height: auto; aspect-ratio: 16 / 10; }
 .blog-list .cards-blog__img-wrapper img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .single-blog__img-wrapper.one { height: auto; aspect-ratio: 16 / 9; }
