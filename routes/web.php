@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\OrdersReportController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PaymentsReportController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductMarketplacePriceController;
 use App\Http\Controllers\Admin\ProductReviewController;
 use App\Http\Controllers\Admin\ProductsReportController;
 use App\Http\Controllers\Admin\ProductVariantController;
@@ -51,6 +52,7 @@ use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\ManualUpiPaymentController;
 use App\Http\Controllers\Storefront\OrderController as StorefrontOrderController;
 use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
+use App\Http\Controllers\Storefront\MarketplaceRedirectController;
 use App\Http\Controllers\Storefront\ProductReviewController as StorefrontProductReviewController;
 use App\Http\Controllers\Storefront\RazorpayPaymentController;
 use App\Http\Controllers\Storefront\ShopController;
@@ -285,6 +287,8 @@ Route::get('/category/{slug}', [StorefrontCategoryController::class, 'show'])->n
 // Looked up manually inside the controller (not via {product:slug} implicit
 // binding) — see StorefrontProductController::show().
 Route::get('/products/{slug}', [StorefrontProductController::class, 'show'])->name('products.show');
+// Outbound marketplace links: logs the click, then redirects ONLY to the URL stored on the active record (never a URL from the request).
+Route::get('/out/marketplace/{marketplacePrice}', MarketplaceRedirectController::class)->whereNumber('marketplacePrice')->middleware('throttle:60,1')->name('marketplace.out');
 
 // Admin login/logout are intentionally outside the protected group below —
 // the login form must be reachable by guests, and logout only needs `auth`.
@@ -336,6 +340,11 @@ Route::prefix('admin')
                 Route::get('/{product}/edit', 'edit')->name('edit');
                 Route::put('/{product}', 'update')->name('update');
                 Route::delete('/{product}', 'destroy')->name('destroy');
+                // Marketplace Pricing card on the product edit page (independent forms; the product form is not involved)
+                Route::post('/{product}/marketplace-prices', [ProductMarketplacePriceController::class, 'store'])->name('marketplace-prices.store');
+                Route::put('/{product}/marketplace-prices/{marketplacePrice}', [ProductMarketplacePriceController::class, 'update'])->name('marketplace-prices.update');
+                Route::patch('/{product}/marketplace-prices/{marketplacePrice}/toggle', [ProductMarketplacePriceController::class, 'toggle'])->name('marketplace-prices.toggle');
+                Route::delete('/{product}/marketplace-prices/{marketplacePrice}', [ProductMarketplacePriceController::class, 'destroy'])->name('marketplace-prices.destroy');
             });
             // Variants
             Route::prefix('variants')->name('variants.')->controller(ProductVariantController::class)->group(function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\Storefront\MarketplaceComparison;
 use App\Services\Storefront\ReviewEligibility;
 use App\Services\Storefront\WishlistService;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,8 @@ class ProductController extends Controller
                 'tags:id,name,slug',
                 'variants' => fn ($q) => $q->where('status', 'active')->orderByDesc('is_default')->orderBy('sort_order'),
                 'variants.images',
-                'reviews' => fn ($q) => $q->where('status', 'approved')->latest()->with('user:id,name'),
+                'visibleMarketplacePrices',
+                'reviews' =>fn ($q) => $q->where('status', 'approved')->latest()->with('user:id,name'),
             ])
             ->where('slug', $slug)
             ->firstOrFail();
@@ -60,7 +62,16 @@ class ProductController extends Controller
             ? $product->reviews()->withTrashed()->where('user_id', Auth::id())->first()
             : null;
 
+        // Marketplace comparison per variant (a variant-specific offer first, the product-level one as fallback).
+        // Variants with nothing to compare are absent; the whole section is omitted when the collection is empty.
+        $comparison = app(MarketplaceComparison::class);
+        $comparePayloads = $product->variants
+            ->mapWithKeys(fn ($variant) => [$variant->id => $comparison->payload($product, $variant, 'product_detail')])
+            ->filter();
+
         return view('products.show', [
+            'comparePayloads' => $comparePayloads,
+            'defaultCompare' => $defaultVariant ? $comparePayloads->get($defaultVariant->id) : null,
             'product' => $product,
             'variants' => $product->variants,
             'defaultVariant' => $defaultVariant,

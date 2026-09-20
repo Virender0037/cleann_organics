@@ -1,0 +1,114 @@
+/**
+ * Marketplace price comparison (product page, product-card trigger, shared dialog).
+ *
+ * Plain CSS only (valid SCSS too). There is no SCSS build step for the storefront, so this exact block is
+ * mirrored at the end of public/css/style.css (the file actually served). Edit both.
+ *
+ * Direction: Clean Organics is the primary option (highlighted, green accent); marketplaces are compact,
+ * neutral secondary cards. Wordmarks are text unless a logo file exists in public/images/marketplaces/.
+ */
+
+/* ---------- Section on the product page ---------- */
+.compare { margin: 24px 0 0; padding-top: 20px; border-top: 1px solid #e5e5e5; }
+.compare--pdp { margin-bottom: 20px; }
+.compare[hidden] { display: none; }
+.compare__title-row { margin-bottom: 12px; }
+.compare__title { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.3; color: #1a1a1a; }
+.compare__sub { margin: 2px 0 0; font-size: 13px; line-height: 1.4; color: #808080; }
+
+/* ---------- Cards ---------- */
+.compare__stack { display: flex; flex-direction: column; gap: 12px; }
+.compare__offers { display: flex; flex-wrap: wrap; gap: 12px; }
+.compare__card--offer { flex: 1 1 132px; max-width: 240px; }
+.compare__card { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 14px; background: #fff; border: 1px solid #e5e5e5; border-radius: 14px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); overflow-wrap: anywhere; }
+.compare__card--own { border-color: #00b207; background: #f5fbf5; box-shadow: 0 4px 16px rgba(0, 178, 7, 0.1); }
+
+.compare__head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; min-height: 24px; }
+.compare__mark { display: inline-flex; align-items: center; height: 24px; max-width: 100%; }
+.compare__mark-text { font-size: 14px; font-weight: 700; letter-spacing: 0.01em; line-height: 1; color: #4d4d4d; white-space: nowrap; }
+.compare__mark--own .compare__mark-text { color: #2c742f; }
+.compare__mark-img { display: block; height: 20px; width: auto; max-width: 96px; object-fit: contain; }
+
+.compare__badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; line-height: 1.5; white-space: nowrap; }
+.compare__badge--best { background: #dff3e0; color: #2c742f; }
+
+.compare__price { font-size: 22px; font-weight: 700; line-height: 1.2; color: #1a1a1a; white-space: nowrap; }
+.compare__card--own .compare__price { font-size: 26px; }
+
+.compare__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; min-height: 20px; font-size: 12.5px; line-height: 1.4; color: #808080; }
+.compare__mrp { color: #999999; white-space: nowrap; }
+.compare__off { font-weight: 600; color: #2c742f; white-space: nowrap; }
+.compare__official { font-weight: 600; color: #2c742f; }
+.compare__note-tax { color: #808080; }
+
+.compare__cta { margin-top: auto; padding-top: 6px; }
+.compare__cta form { margin: 0; }
+
+.compare__btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 10px; font-size: 14px; font-weight: 600; line-height: 1; text-decoration: none; white-space: nowrap; cursor: pointer; transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+.compare__btn--primary { background: #00b207; color: #fff; }
+.compare__btn--primary:hover { background: #2c742f; color: #fff; }
+.compare__btn--primary:disabled { background: #cccccc; cursor: not-allowed; }
+.compare__btn--ghost { background: #fff; border-color: #cccccc; color: #333333; }
+.compare__btn--ghost:hover { border-color: #00b207; color: #2c742f; }
+.compare__btn:focus-visible { outline: 2px solid #2c742f; outline-offset: 2px; }
+
+.compare__disclaimer { margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: #999999; }
+
+/* Our own card is a wide, horizontal banner on tablet/desktop: info on the left, the action on the right. */
+@media (min-width: 576px) {
+    .compare__card--own { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "head cta" "price cta" "meta cta"; align-items: center; column-gap: 16px; row-gap: 4px; padding: 16px 18px; }
+    .compare__card--own .compare__head { grid-area: head; }
+    .compare__card--own .compare__price { grid-area: price; }
+    .compare__card--own .compare__meta { grid-area: meta; }
+    .compare__card--own .compare__cta { grid-area: cta; margin: 0; padding: 0; min-width: 160px; }
+}
+
+/* Phones: compact vertical rows — name/price on the first line, discount/action on the second. */
+@media (max-width: 575.98px) {
+    .compare__stack { gap: 8px; }
+    .compare__offers { flex-direction: column; flex-wrap: nowrap; gap: 8px; }
+    .compare__card--offer { flex: 0 0 auto; max-width: none; }
+    .compare__card, .compare__card--own { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "head price" "meta cta"; align-items: center; column-gap: 12px; row-gap: 6px; padding: 12px 14px; border-radius: 12px; }
+    .compare__head { grid-area: head; }
+    .compare__price, .compare__card--own .compare__price { grid-area: price; font-size: 18px; text-align: right; }
+    .compare__meta { grid-area: meta; }
+    .compare__cta { grid-area: cta; margin: 0; padding: 0; }
+    .compare__btn { width: auto; min-height: 44px; padding: 0 14px; font-size: 13px; }
+}
+
+/* ---------- Product-card trigger ---------- */
+/* Keep names/prices on the same line across a row whether or not a card has the compare link: the info block is
+   top-anchored (it used to be vertically centred in the leftover space) and the link sits at the card bottom. */
+.cards-md__info { flex: 0 0 auto; }
+.cards-md__compare { margin-top: auto; }
+.cards-md__compare { padding: 0 12px 12px; }
+.cards-md--three .cards-md__compare, .cards-md--four .cards-md__compare { padding: 0 20px 16px; }
+.cards-md__compare-btn { display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 4px 0; background: none; border: 0; font-size: 13px; font-weight: 500; line-height: 1.4; color: #2c742f; cursor: pointer; }
+.cards-md__compare-btn:hover { text-decoration: underline; }
+.cards-md__compare-btn:focus-visible { outline: 2px solid #2c742f; outline-offset: 2px; border-radius: 4px; }
+.cards-md__compare-count { font-weight: 400; color: #808080; }
+@media (max-width: 991px) { .cards-md__compare-btn { min-height: 36px; } }
+
+/* ---------- Shared comparison dialog (desktop: centred modal · phones: bottom sheet) ---------- */
+html.compare-lock { overflow: hidden; }
+.compare-dialog { width: min(560px, calc(100vw - 32px)); max-width: none; max-height: calc(100vh - 48px); margin: auto; padding: 0; border: 0; border-radius: 16px; background: #fff; color: #1a1a1a; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25); overflow: hidden; }
+.compare-dialog::backdrop { background: rgba(0, 0, 0, 0.45); }
+.compare-dialog__panel { display: flex; flex-direction: column; max-height: calc(100vh - 48px); }
+.compare-dialog__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px 12px; }
+.compare-dialog__eyebrow { margin: 0 0 2px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #2c742f; }
+.compare-dialog__title { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.35; color: #1a1a1a; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.compare-dialog__close { flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 1px solid #e5e5e5; border-radius: 50%; background: #fff; color: #4d4d4d; cursor: pointer; }
+.compare-dialog__close:hover { background: #f2f2f2; }
+.compare-dialog__close:focus-visible { outline: 2px solid #2c742f; outline-offset: 2px; }
+.compare-dialog__body { padding: 0 20px 20px; overflow-y: auto; overscroll-behavior: contain; }
+
+@media (max-width: 575.98px) {
+    .compare-dialog { width: 100%; max-height: min(88vh, 88dvh); margin: auto 0 0; border-radius: 18px 18px 0 0; animation: compare-sheet-up 0.22s ease-out; }
+    .compare-dialog__panel { max-height: min(88vh, 88dvh); }
+    .compare-dialog__head { position: relative; padding: 22px 16px 10px; }
+    .compare-dialog__head::before { content: ""; position: absolute; top: 8px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #e5e5e5; }
+    .compare-dialog__body { padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px)); }
+    .compare-dialog__close { width: 44px; height: 44px; margin-top: -6px; }
+}
+@keyframes compare-sheet-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .compare-dialog { animation: none; } }

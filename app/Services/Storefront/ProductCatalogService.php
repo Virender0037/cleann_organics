@@ -252,6 +252,7 @@ class ProductCatalogService
             ->with([
                 'variants' => fn ($q) => $q->where('status', 'active')->orderByDesc('is_default')->orderBy('sort_order'),
                 'variants.images',
+                'visibleMarketplacePrices',
             ])
             ->withCount(['reviews as approved_review_count' => fn (Builder $q) => $q->where('status', 'approved')])
             ->withAvg(['reviews as approved_average_rating' => fn (Builder $q) => $q->where('status', 'approved')], 'rating');
@@ -309,6 +310,7 @@ class ProductCatalogService
                 'category:id,name,slug',
                 'variants' => fn ($q) => $q->where('status', 'active')->orderByDesc('is_default')->orderBy('sort_order'),
                 'variants.images',
+                'visibleMarketplacePrices',
                 'tags:id,name,slug',
             ])
             ->withCount(['reviews as approved_review_count' => fn (Builder $q) => $q->where('status', 'approved')])

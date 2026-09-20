@@ -73,6 +73,21 @@ class Product extends Model
         return $this->hasMany(Wishlist::class);
     }
 
+    /** All manually maintained marketplace prices (any status), in display order. Admin use. */
+    public function marketplacePrices()
+    {
+        return $this->hasMany(ProductMarketplacePrice::class)->ordered();
+    }
+
+    /**
+     * Storefront view of the same relation: only active, priced rows. Eager-load THIS
+     * (`with('visibleMarketplacePrices')`) wherever the comparison UI is rendered.
+     */
+    public function visibleMarketplacePrices()
+    {
+        return $this->hasMany(ProductMarketplacePrice::class)->visible()->ordered();
+    }
+
     /**
      * Products safe to expose on the storefront: active status and an
      * active parent category. Centralized here so no controller has to
@@ -110,6 +125,7 @@ class Product extends Model
             ->with([
                 'variants' => fn ($q) => $q->where('status', 'active')->orderByDesc('is_default')->orderBy('sort_order'),
                 'variants.images',
+                'visibleMarketplacePrices',
             ])
             ->withCount(['reviews as approved_review_count' => fn ($q) => $q->where('status', 'approved')])
             ->withAvg(['reviews as approved_average_rating' => fn ($q) => $q->where('status', 'approved')], 'rating')

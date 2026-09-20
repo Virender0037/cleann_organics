@@ -5,7 +5,7 @@
     different inner card modifier) without changing what Shop/Product-Detail
     already render — both default to their original values.
 --}}
-@props(['product', 'wrapperClass' => 'col-xl-4 col-md-6', 'wrap' => true, 'cardClass' => 'cards-md cards-md--four w-100'])
+@props(['product', 'wrapperClass' => 'col-xl-4 col-md-6', 'wrap' => true, 'cardClass' => 'cards-md cards-md--four w-100', 'source' => 'product_card'])
 @php
     // variants is expected pre-loaded, scoped to active and ordered
     // is_default desc, sort_order asc — first() is the variant a shopper
@@ -25,6 +25,9 @@
     // request, so this is safe to call once per card without N+1 — the
     // underlying query runs at most once no matter how many cards render.
     $isWishlisted = app(\App\Services\Storefront\WishlistService::class)->isWishlisted($product->id);
+    // Marketplace comparison: only when this list eager-loaded `visibleMarketplacePrices` (never lazy-loads per card)
+    // and the card's variant actually has an offer. Otherwise the card is exactly as it always was.
+    $comparePayload = $variant ? app(\App\Services\Storefront\MarketplaceComparison::class)->payload($product, $variant, $source) : null;
 @endphp
 @if ($wrap)
 <div class="{{ $wrapperClass }}">
@@ -145,6 +148,22 @@
                 @endif
             </div>
         </div>
+        @if ($comparePayload)
+            {{-- Outside the product link, under the price. The comparison itself lives in one shared dialog (public/js/compare-prices.js). --}}
+            <div class="cards-md__compare">
+                <button type="button" class="cards-md__compare-btn" data-compare-open data-product-name="{{ $product->name }}" aria-haspopup="dialog">
+                    Compare prices
+                    <span class="cards-md__compare-count">&middot; {{ count($comparePayload['offers']) }} {{ count($comparePayload['offers']) === 1 ? 'store' : 'stores' }}</span>
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M3 1.5l3.5 3.5L3 8.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <template data-compare-template>
+                    <x-frontend.compare-offers :payload="$comparePayload" mode="dialog" />
+                </template>
+            </div>
+            @once
+                <script src="{{ admin_asset('js/compare-prices.js') }}" defer></script>
+            @endonce
+        @endif
     </div>
 @if ($wrap)
 </div>

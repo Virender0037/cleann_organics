@@ -22,7 +22,7 @@
         </div>
         <div class="home-collection__grid">
             @foreach ($products as $product)
-                <x-frontend.product-card :product="$product" :wrap="false" card-class="cards-md w-100" />
+                <x-frontend.product-card :product="$product" :wrap="false" card-class="cards-md w-100" source="homepage" />
             @endforeach
         </div>
     </div>

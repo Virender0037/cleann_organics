@@ -280,6 +280,31 @@
                         </div>
 
                         {{--
+                            Price comparison (marketplace offers) — an extra buying aid under the purchase controls.
+                            Rendered only when at least one active, priced offer applies to a variant. The default
+                            variant's block is server-rendered; every variant's block also ships as a <template> so
+                            switching variants swaps it in place (public/js/compare-prices.js), no reload.
+                        --}}
+                        @if ($comparePayloads->isNotEmpty())
+                            <section class="compare compare--pdp" id="compare-prices" aria-labelledby="compare-heading" @unless ($defaultCompare) hidden @endunless>
+                                <div class="compare__title-row">
+                                    <h2 class="compare__title" id="compare-heading">Compare prices</h2>
+                                    <p class="compare__sub">See how our price stands against other marketplaces</p>
+                                </div>
+                                <div class="compare__body" data-compare-body>
+                                    @if ($defaultCompare)
+                                        <x-frontend.compare-offers :payload="$defaultCompare" mode="pdp" />
+                                    @endif
+                                </div>
+                                @foreach ($comparePayloads as $compareVariantId => $comparePayload)
+                                    <template data-compare-variant="{{ $compareVariantId }}">
+                                        <x-frontend.compare-offers :payload="$comparePayload" mode="pdp" />
+                                    </template>
+                                @endforeach
+                            </section>
+                        @endif
+
+                        {{--
                             Trust row — only claims already genuinely made elsewhere
                             on the site are reused here (verified before adding):
                             "Free Shipping" and "100% Secure Payment" copy is reused
@@ -544,7 +569,7 @@
                 <div class="swiper-container related-slider--one">
                     <div class="swiper-wrapper">
                         @foreach ($relatedProducts as $related)
-                            <x-frontend.product-card :product="$related" wrapper-class="swiper-slide" />
+                            <x-frontend.product-card :product="$related" wrapper-class="swiper-slide" source="related_products" />
                         @endforeach
                     </div>
                     <div class="swiper-pagination featured-pagination"></div>
@@ -561,6 +586,7 @@
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
     <script src="{{ admin_asset('js/cart.js') }}"></script>
+    <script src="{{ admin_asset('js/compare-prices.js') }}"></script>
     <script src="{{ asset('js/wishlist.js') }}"></script>
     <script>
         // Deep link from an order ("Write a Review") → open the Customer
@@ -985,6 +1011,7 @@
                 renderStock(variant);
                 applyTierPricing(variant);
                 rebuildGallery(variant.media);
+                if (window.CompareOffers) { window.CompareOffers.showVariant(variantId); }
             }
 
             document.querySelectorAll('.variant-option').forEach(function (button) {

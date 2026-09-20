@@ -546,7 +546,7 @@
                         <!-- Desktop Version  -->
                         <div class="row shop__product-items">
                             @forelse ($products as $product)
-                                <x-frontend.product-card :product="$product" />
+                                <x-frontend.product-card :product="$product" source="shop" />
                             @empty
                                 <div class="col-12">
                                     <p class="font-body--md-400" style="padding: 40px 0; text-align: center;">

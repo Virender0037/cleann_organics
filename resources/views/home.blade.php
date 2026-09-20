@@ -77,6 +77,7 @@
                             :product="$popularProduct"
                             :wrap="false"
                             card-class="cards-md"
+                            source="homepage"
                         />
                     @endforeach
                 </div>
@@ -89,6 +90,7 @@
                                 :product="$popularProduct"
                                 wrapper-class="swiper-slide"
                                 card-class="cards-md w-100"
+                            source="homepage"
                             />
                         @empty
                             {{-- No qualifying public product yet — the swiper stays
@@ -319,6 +321,7 @@
                             :product="$dealProduct"
                             :wrap="false"
                             :card-class="'cards-md deals-products__wrapper-item deals-products__wrapper-item--'.($dealOrdinals[$index] ?? 'twelve')"
+                            source="homepage"
                         />
                     @endforeach
 
@@ -330,6 +333,7 @@
                                 :product="$dealProduct"
                                 wrapper-class="swiper-slide"
                                 card-class="cards-md"
+                            source="homepage"
                             />
                         @empty
                             {{-- No genuinely discounted public product yet — the swiper
@@ -368,6 +372,7 @@
                                 :product="$featuredProduct"
                                 wrapper-class="swiper-slide"
                                 card-class="cards-md w-100"
+                            source="homepage"
                             />
                         @empty
                             {{-- No is_featured=true public products yet — the swiper stays

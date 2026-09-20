@@ -275,6 +275,8 @@
 
     </form>
 
+    @include('admin.catalog.products._marketplace-pricing')
+
     <template id="specification-row-template">
         <div class="row specification-row mb-2 align-items-start">
             <div class="col-md-5">

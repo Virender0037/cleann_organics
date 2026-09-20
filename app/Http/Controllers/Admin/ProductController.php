@@ -34,6 +34,7 @@ class ProductController extends Controller
                             ->orderBy('sort_order');
                     }]);
             }])
+            ->with('visibleMarketplacePrices:id,product_id,marketplace')
             ->withCount('variants')
             ->withSum('variants', 'stock_quantity')
             ->withMin('variants', 'single_price')
@@ -353,7 +354,12 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
-        $product->load(['specifications' => fn ($query) => $query->orderBy('sort_order'), 'tags']);
+        $product->load([
+            'specifications' => fn ($query) => $query->orderBy('sort_order'),
+            'tags',
+            'variants' => fn ($query) => $query->orderByDesc('is_default')->orderBy('sort_order'),
+            'marketplacePrices' => fn ($query) => $query->with('variant:id,variant_name,size,weight,unit,color,pack_quantity,sku,deleted_at')->withCount('clicks'),
+        ]);
         $categories = Category::ordered()->get();
         $taxRates = TaxRate::all();
         $tags = Tag::orderBy('name')->get();

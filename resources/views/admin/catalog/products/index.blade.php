@@ -77,6 +77,10 @@
                     <strong>{{ $product->name }}</strong>
                     <br>
                     <small class="text-muted">Slug: {{ $product->slug }}</small>
+                    @php
+                        $marketplaceLabels = $product->visibleMarketplacePrices->pluck('marketplace')->unique()->map(fn ($key) => \App\Support\Marketplaces::label($key))->values();
+                    @endphp
+                    {!! $marketplaceLabels->isNotEmpty() ? '<br><span class="badge bg-light-success text-success mt-1" title="Marketplace prices shown to customers: '.e($marketplaceLabels->implode(', ')).'"><i class="ph ph-storefront me-1"></i>'.$marketplaceLabels->count().' Active</span>' : '' !!}
                 </td>
 
                 <td>{{ $product->category->name ?? '—' }}</td>
