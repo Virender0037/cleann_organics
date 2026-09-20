@@ -1,13 +1,15 @@
 <x-admin-layout title="Activity Logs">
 <main class="pc-container-edit">
 
+<x-admin.not-implemented what="Activity Logs" />
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="mb-1">Activity Logs</h4>
         <p class="text-muted mb-0">Track admin user actions across the system</p>
     </div>
 
-    <button class="btn btn-light-secondary">
+    <button class="btn btn-light-secondary" disabled aria-disabled="true" title="Not implemented yet">
         <i class="ph ph-download-simple me-1"></i>
         Export
     </button>

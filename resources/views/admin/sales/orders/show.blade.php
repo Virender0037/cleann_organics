@@ -3,20 +3,22 @@
 
         <x-admin.page-header title="Order #{{ $order->order_number }}" subtitle="Complete order details and activity">
             <x-slot:actions>
-                <button class="btn btn-light-secondary me-2" disabled>
+                <a href="{{ route('admin.sales.orders.print', $order) }}" target="_blank" rel="noopener" class="btn btn-light-secondary me-2" title="Opens the printable invoice — choose &quot;Save as PDF&quot; in the print dialog">
                     <i class="ph ph-download-simple me-1"></i>
                     Invoice
-                </button>
+                </a>
 
                 <a href="{{ route('admin.sales.orders.print', [$order, 'auto' => 1]) }}" target="_blank" rel="noopener" class="btn btn-success me-2">
                     <i class="ph ph-printer me-1"></i>
                     Print
                 </a>
 
-                <button class="btn btn-primary" disabled>
-                    <i class="ph ph-arrows-clockwise me-1"></i>
-                    Update Status
-                </button>
+                @if (! in_array($order->order_status, ['delivered', 'cancelled'], true))
+                    <a href="#update-status" class="btn btn-primary">
+                        <i class="ph ph-arrows-clockwise me-1"></i>
+                        Update Status
+                    </a>
+                @endif
             </x-slot:actions>
         </x-admin.page-header>
 
@@ -37,7 +39,7 @@
                         $sequence = ['pending', 'confirmed', 'packed', 'shipped', 'delivered'];
                         $nextSteps = array_slice($sequence, array_search($order->order_status, $sequence, true) + 1);
                     @endphp
-                    <div class="card mb-4">
+                    <div class="card mb-4" id="update-status">
                         <div class="card-header"><h5>Update Fulfilment Status</h5></div>
                         <div class="card-body">
                             <form action="{{ route('admin.sales.orders.status.update', $order) }}" method="POST" class="d-flex flex-wrap align-items-center gap-2">
@@ -278,19 +280,19 @@
                             <strong>Invoice Date:</strong> {{ $order->invoice_date ? $order->invoice_date->format('d M Y') : '—' }}
                         </p>
                         <div class="d-grid gap-2">
-                            <button class="btn btn-light-primary" disabled>
+                            <a href="{{ route('admin.sales.orders.print', $order) }}" target="_blank" rel="noopener" class="btn btn-light-primary" title="Opens the printable invoice — choose &quot;Save as PDF&quot; in the print dialog">
                                 <i class="ph ph-file-pdf me-1"></i>
-                                Download Invoice
-                            </button>
+                                Invoice (Print / Save as PDF)
+                            </a>
 
-                            <button class="btn btn-light-secondary" disabled>
+                            <button class="btn btn-light-secondary" disabled aria-disabled="true" title="Not available yet — no packing-slip document has been built">
                                 <i class="ph ph-package me-1"></i>
-                                Packing Slip
+                                Packing Slip <small>(not available yet)</small>
                             </button>
 
-                            <button class="btn btn-light-secondary" disabled>
+                            <button class="btn btn-light-secondary" disabled aria-disabled="true" title="Not available yet — courier (Velocity) integration is pending its API documentation">
                                 <i class="ph ph-truck me-1"></i>
-                                Shipping Label
+                                Shipping Label <small>(courier integration pending)</small>
                             </button>
                         </div>
                     </div>

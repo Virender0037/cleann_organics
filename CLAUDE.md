@@ -83,9 +83,11 @@ Status below reflects this repo's actual git state (verify with `git log`/`grep 
 
 **Done, export only** (no import, no manual create — records originate elsewhere): Product Reviews, Inventory (stock levels/low-stock/out-of-stock), Sales Orders, Returns. Sales Payments is export-only for record creation, but (2026-09-12) its detail page (`admin.sales.payments.show`) now also has a real Verify/Reject action for `manual_upi` payments — see "Storefront, Payments & Blog" below.
 
-**Pending** — still bare `Route::view(...)`, no controller:
-- Reports (sales/orders/products/inventory/payments/coupons dashboards)
-- Administration (users, roles, permissions, activity logs)
+**Reports** — real controllers (sales/orders/products/customers/inventory/payments/coupons/returns), each with export.
+
+**Administration** (admin audit 2026-09-20): only the admin **Users list** is real (read-only). Users create/edit, Roles, Permissions and Activity Logs are static `Route::view` mock-ups with sample data — they now show a `<x-admin.not-implemented>` banner and disabled forms. Spatie roles/permissions are installed but **unused**: admin access is the `superadmin` middleware on `users.role`.
+
+**Known gaps found by the admin audit (not built, not faked):** no order-cancel path (admin status flow is confirmed→packed→shipped→delivered only; `cancelled_at`/`cancellation_reason` are never written, so no stock-restore-on-cancel); Returns are approve/reject flags only — nothing in the storefront creates a `ReturnRequest`, and approving neither refunds nor restocks; Payment refunds, Packing Slip and Shipping Label buttons are disabled with a "not available yet" label; `ShippingMethod` is not connected to checkout; Settings → Payment toggles/currency/Razorpay+Stripe keys are stored but **not read by checkout** (only `upi_id` is live; Razorpay reads `.env`; all four checkout methods always show; Stripe not integrated) — the page carries a warning saying so; there is a single site logo (no separate footer logo setting).
 
 Update this list as work lands — don't rely on chat history to track this.
 

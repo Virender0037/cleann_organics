@@ -65,6 +65,32 @@
                                 <p class="mb-0">{{ $payment->paid_at ? $payment->paid_at->format('d M Y, h:i A') : '—' }}</p>
                             </div>
 
+                            @if ($payment->gateway_order_id || $payment->gateway_payment_id)
+                                <div class="col-md-6 mb-3">
+                                    <label class="text-muted">Razorpay Order ID</label>
+                                    <p class="mb-0 text-break">{{ $payment->gateway_order_id ?? '—' }}</p>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="text-muted">Razorpay Payment ID</label>
+                                    <p class="mb-0 text-break">{{ $payment->gateway_payment_id ?? '—' }}</p>
+                                </div>
+                            @endif
+
+                            @if ($payment->failure_reason)
+                                <div class="col-md-12 mb-3">
+                                    <label class="text-muted">Failure Reason</label>
+                                    <p class="mb-0 text-danger">{{ $payment->failure_reason }}</p>
+                                </div>
+                            @endif
+
+                            @if ($payment->refunded_at)
+                                <div class="col-md-6 mb-3">
+                                    <label class="text-muted">Refunded At</label>
+                                    <p class="mb-0">{{ $payment->refunded_at->format('d M Y, h:i A') }}</p>
+                                </div>
+                            @endif
+
                             @if ($payment->admin_note)
                                 <div class="col-md-12 mb-3">
                                     <label class="text-muted">Admin Note</label>
@@ -196,19 +222,17 @@
                     </div>
 
                     <div class="card-body d-grid gap-2">
-                        <button class="btn btn-light-primary" disabled>
-                            <i class="ph ph-download-simple me-1"></i>
-                            Download Receipt
-                        </button>
+                        @if ($payment->order)
+                            <a href="{{ route('admin.sales.orders.print', $payment->order) }}" target="_blank" rel="noopener" class="btn btn-light-primary" title="Opens the printable order sheet with the payment details — choose &quot;Save as PDF&quot; in the print dialog">
+                                <i class="ph ph-download-simple me-1"></i>
+                                Receipt (Print / Save as PDF)
+                            </a>
+                        @endif
 
-                        <button class="btn btn-light-secondary" disabled>
-                            <i class="ph ph-printer me-1"></i>
-                            Print Receipt
-                        </button>
 
-                        <button class="btn btn-light-danger" disabled>
+                        <button class="btn btn-light-danger" disabled aria-disabled="true" title="Not implemented — refunds are not processed from this panel. Refund Razorpay payments from the Razorpay dashboard.">
                             <i class="ph ph-arrow-counter-clockwise me-1"></i>
-                            Refund Payment
+                            Refund Payment <small>(not available yet)</small>
                         </button>
                     </div>
                 </div>

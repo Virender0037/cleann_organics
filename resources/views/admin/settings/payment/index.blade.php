@@ -8,6 +8,13 @@
 
     @include('admin.partials.alerts')
 
+    <div class="alert alert-warning" role="alert" data-payment-settings-note>
+        <strong>What actually takes effect:</strong> only the <em>Manual UPI ID</em> below is used by the storefront.
+        The gateway toggles, currency and Razorpay/Stripe key fields on this page are stored but are <strong>not read by checkout</strong>:
+        Razorpay uses <code>RAZORPAY_KEY_ID</code>, <code>RAZORPAY_KEY_SECRET</code> and <code>RAZORPAY_WEBHOOK_SECRET</code> from the server's <code>.env</code>,
+        and Stripe is not integrated. All four checkout methods (COD, Razorpay, Manual UPI, Bank Transfer) are always shown regardless of these toggles; Manual UPI shows an "unavailable" message until a UPI ID is set.
+    </div>
+
     <form action="{{ route('admin.settings.payment.update') }}" method="POST">
         @csrf
         @method('PUT')

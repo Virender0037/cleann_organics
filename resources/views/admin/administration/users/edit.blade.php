@@ -1,6 +1,8 @@
 <x-admin-layout title="Edit User">
 <main class="pc-container-edit">
 
+<x-admin.not-implemented what="Editing an admin user" />
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="mb-1">Edit User</h4>
@@ -12,7 +14,8 @@
     </a>
 </div>
 
-<form action="#" method="POST">
+<form action="#" method="POST" onsubmit="return false;">
+<fieldset disabled>
 @csrf
 @method('PUT')
 
@@ -60,6 +63,7 @@
     </div>
 </div>
 
+</fieldset>
 </form>
 
 </main>

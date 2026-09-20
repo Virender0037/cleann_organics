@@ -581,6 +581,11 @@ body[data-pc-preset="preset-1"] {
   .pc-container-edit {
     margin-left: 0px;
     margin-right: 0px;
+    /* Standard CRUD pages have no horizontal padding of their own, so once the
+       sidebar is off-canvas the page title and cards sat flush against the
+       screen edge. Same 12px gutter the .admin-content-padded pages use. */
+    padding-left: 12px;
+    padding-right: 12px;
   }
 }
 

@@ -22,6 +22,9 @@ class SalesPaymentController extends Controller
                 $search = $request->string('search');
                 $query->where(function ($query) use ($search) {
                     $query->where('transaction_id', 'like', "%{$search}%")
+                        ->orWhere('gateway_payment_id', 'like', "%{$search}%")
+                        ->orWhere('gateway_order_id', 'like', "%{$search}%")
+                        ->orWhere('upi_reference', 'like', "%{$search}%")
                         ->orWhereHas('order', function ($query) use ($search) {
                             $query->where('order_number', 'like', "%{$search}%")
                                 ->orWhereHas('user', function ($query) use ($search) {
@@ -47,6 +50,9 @@ class SalesPaymentController extends Controller
                 $search = $request->string('search');
                 $query->where(function ($query) use ($search) {
                     $query->where('transaction_id', 'like', "%{$search}%")
+                        ->orWhere('gateway_payment_id', 'like', "%{$search}%")
+                        ->orWhere('gateway_order_id', 'like', "%{$search}%")
+                        ->orWhere('upi_reference', 'like', "%{$search}%")
                         ->orWhereHas('order', function ($query) use ($search) {
                             $query->where('order_number', 'like', "%{$search}%")
                                 ->orWhereHas('user', function ($query) use ($search) {

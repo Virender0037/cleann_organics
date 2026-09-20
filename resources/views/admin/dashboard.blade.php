@@ -6,39 +6,39 @@
         <div class="row mb-4">
 
             <div class="col-md-3">
-                <div class="card">
+                <a href="{{ route('admin.sales.orders.index', ['payment_status' => 'paid']) }}" class="card text-decoration-none text-reset admin-stat-link">
                     <div class="card-body">
                         <p class="text-muted mb-1">Total Revenue</p>
                         <h4 class="mb-0">₹{{ number_format((float) $stats['total_revenue'], 2) }}</h4>
                     </div>
-                </div>
+                </a>
             </div>
 
             <div class="col-md-3">
-                <div class="card">
+                <a href="{{ route('admin.sales.orders.index') }}" class="card text-decoration-none text-reset admin-stat-link">
                     <div class="card-body">
                         <p class="text-muted mb-1">Total Orders</p>
                         <h4 class="mb-0">{{ $stats['total_orders'] }}</h4>
                     </div>
-                </div>
+                </a>
             </div>
 
             <div class="col-md-3">
-                <div class="card">
+                <a href="{{ route('admin.sales.orders.index', ['order_status' => 'pending']) }}" class="card text-decoration-none text-reset admin-stat-link">
                     <div class="card-body">
                         <p class="text-muted mb-1">Pending Orders</p>
                         <h4 class="mb-0 text-warning">{{ $stats['pending_orders'] }}</h4>
                     </div>
-                </div>
+                </a>
             </div>
 
             <div class="col-md-3">
-                <div class="card">
+                <a href="{{ route('admin.customers.index') }}" class="card text-decoration-none text-reset admin-stat-link">
                     <div class="card-body">
                         <p class="text-muted mb-1">Total Customers</p>
                         <h4 class="mb-0">{{ $stats['total_customers'] }}</h4>
                     </div>
-                </div>
+                </a>
             </div>
 
         </div>
@@ -46,30 +46,30 @@
         <div class="row mb-4">
 
             <div class="col-md-4">
-                <div class="card">
+                <a href="{{ route('admin.catalog.products.index') }}" class="card text-decoration-none text-reset admin-stat-link">
                     <div class="card-body">
                         <p class="text-muted mb-1">Total Products</p>
                         <h4 class="mb-0">{{ $stats['total_products'] }}</h4>
                     </div>
-                </div>
+                </a>
             </div>
 
             <div class="col-md-4">
-                <div class="card">
+                <a href="{{ route('admin.inventory.low-stock.index') }}" class="card text-decoration-none text-reset admin-stat-link">
                     <div class="card-body">
                         <p class="text-muted mb-1">Low Stock Variants</p>
                         <h4 class="mb-0 text-warning">{{ $stats['low_stock_count'] }}</h4>
                     </div>
-                </div>
+                </a>
             </div>
 
             <div class="col-md-4">
-                <div class="card">
+                <a href="{{ route('admin.inventory.out-of-stock.index') }}" class="card text-decoration-none text-reset admin-stat-link">
                     <div class="card-body">
                         <p class="text-muted mb-1">Out of Stock Variants</p>
                         <h4 class="mb-0 text-danger">{{ $stats['out_of_stock_count'] }}</h4>
                     </div>
-                </div>
+                </a>
             </div>
 
         </div>

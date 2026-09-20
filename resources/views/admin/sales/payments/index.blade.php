@@ -85,7 +85,7 @@
                     </td>
 
                     <td>
-                        {{ $payment->transaction_id ?? '—' }}
+                        {{ $payment->transaction_id ?? $payment->gateway_payment_id ?? $payment->upi_reference ?? '—' }}
                     </td>
 
                     <td>
@@ -120,9 +120,11 @@
                             <i class="ph ph-eye"></i>
                         </a>
 
-                        <button class="btn btn-success btn-sm" title="Download Receipt" disabled>
-                            <i class="ph ph-download-simple"></i>
-                        </button>
+                        @if ($payment->order)
+                            <a href="{{ route('admin.sales.orders.print', [$payment->order, 'auto' => 1]) }}" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Print receipt" aria-label="Print receipt for order {{ $payment->order->order_number }}">
+                                <i class="ph ph-printer"></i>
+                            </a>
+                        @endif
 
                     </td>
 

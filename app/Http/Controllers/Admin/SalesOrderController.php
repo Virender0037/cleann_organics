@@ -13,12 +13,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalesOrderController extends Controller
 {
-    public function index(Request $request): View
+    /**
+     * The single filter definition behind the list AND the CSV export, so the two can never
+     * disagree. There is deliberately NO default filter: every order (any status, any payment
+     * method) is listed unless the admin narrows it. Filters are validated against the known
+     * values so a bad/foreign value simply matches nothing instead of silently doing nothing.
+     */
+    private function filtered(Request $request): \Illuminate\Database\Eloquent\Builder
     {
-        $orders = Order::with('user')
-            ->withCount('items')
+        return Order::with('user')
             ->when($request->filled('search'), function ($query) use ($request) {
-                $search = $request->string('search');
+                $search = trim((string) $request->input('search'));
                 $query->where(function ($query) use ($search) {
                     $query->where('order_number', 'like', "%{$search}%")
                         ->orWhereHas('user', function ($query) use ($search) {
@@ -27,10 +32,17 @@ class SalesOrderController extends Controller
                         });
                 });
             })
-            ->when($request->filled('order_status'), fn ($query) => $query->where('order_status', $request->string('order_status')))
-            ->when($request->filled('payment_status'), fn ($query) => $query->where('payment_status', $request->string('payment_status')))
+            ->when($request->filled('order_status'), fn ($query) => $query->where('order_status', (string) $request->input('order_status')))
+            ->when($request->filled('payment_status'), fn ($query) => $query->where('payment_status', (string) $request->input('payment_status')))
+            ->when($request->filled('payment_method'), fn ($query) => $query->where('payment_method', (string) $request->input('payment_method')))
             ->when($request->filled('from'), fn ($query) => $query->whereDate('created_at', '>=', $request->date('from')))
-            ->when($request->filled('to'), fn ($query) => $query->whereDate('created_at', '<=', $request->date('to')))
+            ->when($request->filled('to'), fn ($query) => $query->whereDate('created_at', '<=', $request->date('to')));
+    }
+
+    public function index(Request $request): View
+    {
+        $orders = $this->filtered($request)
+            ->withCount('items')
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -40,21 +52,7 @@ class SalesOrderController extends Controller
 
     public function export(Request $request, CsvExporter $exporter): StreamedResponse
     {
-        $orders = Order::with('user')
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $search = $request->string('search');
-                $query->where(function ($query) use ($search) {
-                    $query->where('order_number', 'like', "%{$search}%")
-                        ->orWhereHas('user', function ($query) use ($search) {
-                            $query->where('name', 'like', "%{$search}%")
-                                ->orWhere('email', 'like', "%{$search}%");
-                        });
-                });
-            })
-            ->when($request->filled('order_status'), fn ($query) => $query->where('order_status', $request->string('order_status')))
-            ->when($request->filled('payment_status'), fn ($query) => $query->where('payment_status', $request->string('payment_status')))
-            ->when($request->filled('from'), fn ($query) => $query->whereDate('created_at', '>=', $request->date('from')))
-            ->when($request->filled('to'), fn ($query) => $query->whereDate('created_at', '<=', $request->date('to')))
+        $orders = $this->filtered($request)
             ->latest()
             ->lazy(200);
 

@@ -1,6 +1,8 @@
 <x-admin-layout title="Roles">
 <main class="pc-container-edit">
 
+<x-admin.not-implemented what="Roles" />
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="mb-1">Roles</h4>
@@ -43,7 +45,7 @@
                                 <i class="ph ph-pencil-simple"></i>
                             </a>
 
-                            <button class="btn btn-sm btn-danger" title="Delete Role">
+                            <button class="btn btn-sm btn-danger" disabled aria-disabled="true" title="Not implemented yet" title="Delete Role">
                                 <i class="ph ph-trash"></i>
                             </button>
                         </td>
@@ -60,7 +62,7 @@
                                 <i class="ph ph-pencil-simple"></i>
                             </a>
 
-                            <button class="btn btn-sm btn-danger" title="Delete Role">
+                            <button class="btn btn-sm btn-danger" disabled aria-disabled="true" title="Not implemented yet" title="Delete Role">
                                 <i class="ph ph-trash"></i>
                             </button>
                         </td>

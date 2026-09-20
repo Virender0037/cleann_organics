@@ -17,7 +17,7 @@
         <x-admin.table-card title="Order List">
             <x-slot:toolbar>
                 <x-admin.filter-toolbar action="{{ route('admin.sales.orders.index') }}">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <input type="text"
                                name="search"
                                class="form-control"
@@ -39,6 +39,15 @@
                             <option value="">All Payment Status</option>
                             @foreach (['pending' => 'Pending', 'paid' => 'Paid', 'failed' => 'Failed', 'refunded' => 'Refunded'] as $value => $label)
                                 <option value="{{ $value }}" @selected(request('payment_status') === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select name="payment_method" class="form-select">
+                            <option value="">All Payment Methods</option>
+                            @foreach (['cod' => 'COD', 'razorpay' => 'Razorpay', 'manual_upi' => 'Manual UPI', 'bank_transfer' => 'Bank Transfer', 'upi' => 'UPI (legacy)'] as $value => $label)
+                                <option value="{{ $value }}" @selected(request('payment_method') === $value)>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>

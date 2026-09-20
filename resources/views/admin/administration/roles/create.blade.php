@@ -1,6 +1,8 @@
 <x-admin-layout title="Add Role">
 <main class="pc-container-edit">
 
+<x-admin.not-implemented what="Adding a role" />
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="mb-1">Add Role</h4>
@@ -12,7 +14,8 @@
     </a>
 </div>
 
-<form action="#" method="POST">
+<form action="#" method="POST" onsubmit="return false;">
+<fieldset disabled>
 @csrf
 
 <div class="card mb-4">
@@ -100,6 +103,7 @@
     </div>
 </div>
 
+</fieldset>
 </form>
 
 </main>

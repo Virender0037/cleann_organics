@@ -1,6 +1,8 @@
 <x-admin-layout title="Add User">
 <main class="pc-container-edit">
 
+<x-admin.not-implemented what="Adding an admin user" />
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="mb-1">Add User</h4>
@@ -12,7 +14,8 @@
     </a>
 </div>
 
-<form action="#" method="POST">
+<form action="#" method="POST" onsubmit="return false;">
+<fieldset disabled>
 @csrf
 
 <div class="card">
@@ -69,6 +72,7 @@
     </div>
 </div>
 
+</fieldset>
 </form>
 
 </main>
