@@ -90,6 +90,7 @@ class HomeBannerController extends Controller
     {
         $data = $request->safe()->except(['image', 'mobile_image', 'remove_image', 'remove_mobile_image']);
         $data['sort_order'] = $data['sort_order'] ?? 0;
+        $data['text_position'] = $data['text_position'] ?? 'left';
         $data['opens_new_tab'] = $request->boolean('opens_new_tab');
 
         // Keep only the target that matches the chosen destination type, so

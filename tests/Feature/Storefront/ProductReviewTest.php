@@ -273,6 +273,23 @@ class ProductReviewTest extends TestCase
         $this->assertDatabaseHas('product_reviews', ['user_id' => $user->id, 'product_id' => $productB->id]);
     }
 
+    public function test_product_page_explains_the_purchase_rule_then_offers_the_form_once_delivered(): void
+    {
+        $user = User::factory()->create();
+        $product = $this->product($this->category(), 'Green Apple');
+        $this->variant($product);
+
+        $this->actingAs($user)->get('/products/'.$product->slug)->assertOk()
+            ->assertSee('Only customers who have received this product can review')
+            ->assertDontSee('name="review"', false);
+
+        $this->deliveredPurchase($user, $product);
+
+        $this->actingAs($user)->get('/products/'.$product->slug)->assertOk()
+            ->assertDontSee('Only customers who have received this product can review')
+            ->assertSee('name="review"', false);
+    }
+
     // ------------------------------------------------------------------
     // Moderation / privacy
     // ------------------------------------------------------------------

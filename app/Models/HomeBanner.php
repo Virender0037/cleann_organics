@@ -40,8 +40,10 @@ class HomeBanner extends Model
     /** Subtitle placeholder replaced with the live free-shipping threshold. */
     public const THRESHOLD_TOKEN = '{free_shipping_threshold}';
 
+    public const TEXT_POSITIONS = ['left', 'right'];
+
     protected $fillable = [
-        'section', 'title', 'subtitle', 'button_text', 'image', 'mobile_image', 'icon', 'alt_text',
+        'section', 'title', 'subtitle', 'button_text', 'text_position', 'image', 'mobile_image', 'icon', 'alt_text',
         'link_type', 'product_id', 'category_id', 'tag_id', 'link_url', 'opens_new_tab',
         'sort_order', 'status',
     ];
@@ -90,6 +92,33 @@ class HomeBanner extends Model
         return $this->subtitle === null
             ? null
             : str_replace(self::THRESHOLD_TOKEN, $formattedThreshold, $this->subtitle);
+    }
+
+    /**
+     * width / height of the stored image (or its mobile version), so the hero
+     * frame can match the uploaded artwork instead of cropping it into a fixed
+     * banner ratio. Null when the file is missing/unreadable. Cached per file
+     * version, so getimagesize() runs once per upload, not per request.
+     */
+    public function imageRatio(bool $mobile = false): ?float
+    {
+        $path = $mobile ? ($this->mobile_image ?: $this->image) : $this->image;
+
+        if (! $path) {
+            return null;
+        }
+
+        return \Illuminate\Support\Facades\Cache::rememberForever('home-banner-ratio.'.md5($path.'|'.$this->updated_at?->timestamp), function () use ($path) {
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+
+            if (! $disk->exists($path)) {
+                return null;
+            }
+
+            $size = @getimagesize($disk->path($path));
+
+            return $size && $size[1] > 0 ? round($size[0] / $size[1], 4) : null;
+        });
     }
 
     public function hasLink(): bool

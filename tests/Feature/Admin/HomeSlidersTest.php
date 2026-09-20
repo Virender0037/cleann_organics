@@ -195,6 +195,18 @@ class HomeSlidersTest extends TestCase
         $this->assertSame('active', $banner->fresh()->status);
     }
 
+    public function test_create_and_edit_forms_render_for_both_sections(): void
+    {
+        $admin = $this->admin();
+        $hero = $this->hero(['text_position' => 'right']);
+        $benefit = $this->benefit();
+
+        $this->actingAs($admin)->get('/admin/cms/banners/create?section=hero')->assertOk()->assertSee('Text card side')->assertSee('proportions');
+        $this->actingAs($admin)->get('/admin/cms/banners/create?section=benefit')->assertOk()->assertDontSee('Text card side')->assertSee('Icon');
+        $this->actingAs($admin)->get("/admin/cms/banners/{$hero->id}/edit")->assertOk()->assertSee('value="right" selected', false);
+        $this->actingAs($admin)->get("/admin/cms/banners/{$benefit->id}/edit")->assertOk();
+    }
+
     // ------------------------------------------------------------------
     // Homepage rendering
     // ------------------------------------------------------------------
@@ -272,6 +284,69 @@ class HomeSlidersTest extends TestCase
     public function test_old_hardcoded_shipping_strip_is_gone(): void
     {
         $this->get('/')->assertOk()->assertDontSee('shipping-container', false)->assertDontSee('cards-ship__item', false);
+    }
+
+    // ------------------------------------------------------------------
+    // Hero frame / text card (uploaded 16:9 art was cropped by a fixed 8:3 frame)
+    // ------------------------------------------------------------------
+
+    public function test_hero_frame_follows_the_first_slide_image_ratio(): void
+    {
+        $path = UploadedFile::fake()->image('wide.png', 1120, 630)->store('home-banners', 'public');
+        $this->hero(['title' => 'Wide Slide', 'image' => $path]);
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertStringContainsString('--hero-ratio: 1.7778;', $html);
+        // No mobile image uploaded → the mobile frame uses the same (clamped) ratio, not a forced square.
+        $this->assertStringContainsString('--hero-ratio-m: 1.7778;', $html);
+    }
+
+    public function test_hero_ratio_is_clamped_and_falls_back_when_the_file_is_missing(): void
+    {
+        $this->hero(['title' => 'Missing File', 'image' => 'home-banners/does-not-exist.png']);
+
+        $this->get('/')->assertOk()->assertSee('--hero-ratio: 2.6667;', false);
+
+        $tall = UploadedFile::fake()->image('tall.png', 400, 800)->store('home-banners', 'public');
+        HomeBanner::query()->update(['image' => $tall]);
+        \Illuminate\Support\Facades\Cache::flush();
+
+        $this->get('/')->assertOk()->assertSee('--hero-ratio: 1.4;', false)->assertSee('--hero-ratio-m: 0.75;', false);
+    }
+
+    public function test_hero_text_card_side_and_cta_only_variants(): void
+    {
+        $this->hero(['title' => 'Right Side', 'subtitle' => 'Sub', 'text_position' => 'right']);
+        $this->hero(['title' => null, 'subtitle' => null, 'button_text' => 'SHOP NOW', 'text_position' => 'left']);
+
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('~home-hero__text home-hero__text--right\s+"~', $html);
+        $this->assertMatchesRegularExpression('~home-hero__text home-hero__text--left home-hero__text--cta-only~', $html);
+    }
+
+    public function test_admin_can_set_text_position_and_invalid_values_are_rejected(): void
+    {
+        $admin = $this->admin();
+        $base = ['section' => 'hero', 'link_type' => 'url', 'link_url' => '/shop', 'status' => 'active'];
+
+        $this->actingAs($admin)->post('/admin/cms/banners', $base + ['image' => UploadedFile::fake()->image('a.jpg', 1600, 900), 'text_position' => 'right'])->assertRedirect();
+        $this->assertSame('right', HomeBanner::firstOrFail()->text_position);
+
+        $this->actingAs($admin)->post('/admin/cms/banners', $base + ['image' => UploadedFile::fake()->image('b.jpg', 1600, 900), 'text_position' => 'diagonal'])->assertSessionHasErrors('text_position');
+
+        $this->actingAs($admin)->post('/admin/cms/banners', $base + ['image' => UploadedFile::fake()->image('c.jpg', 1600, 900)]);
+        $this->assertSame('left', HomeBanner::orderByDesc('id')->first()->text_position, 'An omitted side defaults to left.');
+    }
+
+    public function test_hero_stylesheet_never_forces_a_fixed_banner_ratio_or_scales_text(): void
+    {
+        $css = file_get_contents(public_path('css/style.css'));
+
+        $this->assertStringContainsString('.home-hero__media { display: block; width: 100%; aspect-ratio: var(--hero-ratio, 2.667);', $css);
+        $this->assertStringNotContainsString('aspect-ratio: 8 / 3', $css);
+        $this->assertDoesNotMatchRegularExpression('~\.home-hero__(title|subtitle|text)[^{]*\{[^}]*(scaleX|scale\(|letter-spacing|white-space:\s*nowrap)~', $css, 'Hero text must never be scaled or forced onto one line.');
     }
 
     // ------------------------------------------------------------------

@@ -6,7 +6,7 @@
         <div class="container">
           <ul class="breedcrumb__content">
             <li>
-              <a href="index.html">
+              <a href="{{ route('home') }}">
                 <svg
                   width="18"
                   height="19"
@@ -25,7 +25,7 @@
                 <span> > </span>
               </a>
             </li>
-            <li class="active"><a href="faq.html">Sign in</a></li>
+            <li class="active"><a href="{{ route('sign-in') }}">Sign in</a></li>
           </ul>
         </div>
       </div>

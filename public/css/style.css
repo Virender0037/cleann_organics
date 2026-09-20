@@ -11887,10 +11887,13 @@ select:focus-visible,
 .home-hero { padding-top: 16px; }
 .home-hero__slider { position: relative; border-radius: 12px; overflow: hidden; background: #f2f2f2; }
 .home-hero__slide { display: block; position: relative; color: inherit; text-decoration: none; }
-.home-hero__media { display: block; aspect-ratio: 8 / 3; background: #e6ebe0; }
+.home-hero__media { display: block; width: 100%; aspect-ratio: var(--hero-ratio, 2.667); max-height: max(420px, 78vh); background: #e6ebe0; }
 .home-hero__media picture { display: block; width: 100%; height: 100%; }
 .home-hero__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .home-hero__text { position: absolute; left: 5%; top: 50%; transform: translateY(-50%); z-index: 2; max-width: min(44%, 540px); display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: clamp(14px, 2vw, 28px); background: rgba(255, 255, 255, 0.92); border-radius: 12px; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12); color: #1a1a1a; }
+.home-hero__text--right { left: auto; right: 5%; }
+/* CTA-only slide (no title/subtitle): no white card over the artwork, just the button low in the frame. */
+.home-hero__text--cta-only { top: auto; bottom: 12%; transform: none; max-width: none; padding: 0; background: none; box-shadow: none; }
 .home-hero__title { font-size: clamp(20px, 2.5vw, 36px); line-height: 1.15; font-weight: 700; }
 .home-hero__subtitle { font-size: clamp(14px, 1.3vw, 18px); line-height: 1.4; color: #4d4d4d; }
 .home-hero__cta { margin-top: 4px; pointer-events: none; }
@@ -11911,7 +11914,7 @@ select:focus-visible,
 @media (max-width: 767px) {
     .home-hero { padding-top: 10px; }
     /* Phones: square image, text stacked BELOW it so it never covers the product. */
-    .home-hero__media { aspect-ratio: 1 / 1; }
+    .home-hero__media { aspect-ratio: var(--hero-ratio-m, 1); max-height: none; }
     .home-hero__text { position: static; transform: none; max-width: none; padding: 14px 16px 38px; border-radius: 0; box-shadow: none; background: #fff; }
     .home-hero__subtitle { display: block; }
     .home-hero__nav { display: none; }
@@ -11996,3 +11999,23 @@ a.home-benefits__card:hover, a.home-benefits__card:focus-visible { border-color:
 .about-story .hero__text-content { max-width: none; }
 .about-story .reading-text { font-size: 17px; line-height: 1.8; }
 @media (min-width: 992px) { .about-story .hero__text-content { text-align: left; } }
+
+/* ---------- Product cards: consistent image ratio + touch-usable actions ---------- */
+/* The image link had a fixed pixel height with a fluid width, so the photo ratio changed at every breakpoint
+   (0.86 to 1.35 measured). A square frame is consistent everywhere; object-fit keeps photos undistorted. */
+.cards-md__img-wrapper > a,
+.cards-md--two .cards-md__img-wrapper > a,
+.cards-md--three .cards-md__img-wrapper > a,
+.cards-md--four .cards-md__img-wrapper > a { height: auto; aspect-ratio: 1 / 1; }
+/* Hover-only actions are unreachable on phones/tablets: keep them visible wherever there is no hover. */
+@media (hover: none), (max-width: 991px) {
+    .cards-md .cards-md__favs-list { opacity: 1; visibility: visible; pointer-events: all; }
+}
+/* Long names / prices must not wreck row alignment. */
+.cards-md__info-left h6 { min-height: 42px; min-height: 2lh; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.cards-md__info-price { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; }
+.cards-md__info-price del, .cards-md__info-price span { white-space: nowrap; }
+
+/* ---------- About: team grid ---------- */
+.about-team .cards-mb__img-wrapper img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.about-team .cards-mb__img-wrapper--social span a { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; }

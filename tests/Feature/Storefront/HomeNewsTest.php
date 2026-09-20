@@ -74,16 +74,25 @@ class HomeNewsTest extends TestCase
         $response->assertSee('3 hours ago');
     }
 
-    public function test_first_ever_api_failure_falls_back_to_static_cards_not_an_empty_section(): void
+    /**
+     * The old fallback was three hardcoded template cards with Latin placeholder
+     * text ("Curabitur porttitor…") that reached production. When the external
+     * feed has nothing, the section now shows the store's own published blog
+     * posts, and is hidden entirely when there are none — never placeholders.
+     */
+    public function test_first_ever_api_failure_shows_real_blog_posts_or_hides_the_section_never_placeholders(): void
     {
         Http::fake(['newsdata.io/*' => Http::response([], 500)]);
 
-        $response = $this->get('/');
+        $this->get('/')->assertOk()->assertDontSee('Curabitur')->assertDontSee('Latest News');
 
-        $response->assertOk();
-        // The original static demo card content — used only as the
-        // emergency fallback when neither a fresh nor stale cache exists.
-        $response->assertSee('Curabitur porttitor orci eget neque accumsan venenatis');
+        $category = \App\Models\BlogCategory::create(['name' => 'Eco', 'slug' => 'eco-'.uniqid(), 'status' => 'active']);
+        \App\Models\Blog::create([
+            'blog_category_id' => $category->id, 'title' => 'Our Own Published Post', 'slug' => 'our-own-published-post',
+            'short_description' => 'Short.', 'content' => '<p>Body</p>', 'status' => 'published', 'published_at' => now()->subDay(),
+        ]);
+
+        $this->get('/')->assertOk()->assertSee('Latest News')->assertSee('Our Own Published Post')->assertDontSee('Curabitur');
     }
 
     public function test_malformed_api_response_does_not_break_homepage(): void

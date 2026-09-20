@@ -54,6 +54,8 @@ class HomeController extends Controller
             'instagramUrl' => $settings->instagramUrl(),
             'freeShippingLabel' => $settings->formatMoney($settings->freeShippingThreshold()),
             'environmentalNews' => $news->latest(self::NEWS_LIMIT),
+            // Fallback for the Latest News section when the external feed has nothing: real blog posts.
+            'latestBlogs' => \App\Models\Blog::query()->published()->with('category')->latest('published_at')->limit(6)->get(),
         ]);
     }
 }

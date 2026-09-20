@@ -8,10 +8,18 @@
 @props(['banners'])
 
 @if ($banners->isNotEmpty())
-@php $single = $banners->count() < 2; @endphp
+@php
+    $single = $banners->count() < 2;
+    // The frame follows the FIRST slide's real proportions (clamped) instead of a
+    // fixed banner ratio, so uploaded artwork is not cropped — a 16:9 photo with
+    // embedded text used to lose a third of its height in an 8:3 frame.
+    $first = $banners->first();
+    $ratioDesktop = round(min(max($first->imageRatio() ?? (8 / 3), 1.4), 3.2), 4);
+    $ratioMobile = round(min(max($first->imageRatio(true) ?? $ratioDesktop, 0.75), 1.8), 4);
+@endphp
 <section class="banner banner--01 home-hero" aria-label="Featured offers">
     <div class="container">
-        <div class="swiper-container home-hero__slider {{ $single ? 'is-single' : '' }}" data-slides="{{ $banners->count() }}">
+        <div class="swiper-container home-hero__slider {{ $single ? 'is-single' : '' }}" data-slides="{{ $banners->count() }}" style="--hero-ratio: {{ $ratioDesktop }}; --hero-ratio-m: {{ $ratioMobile }};">
             <div class="swiper-wrapper">
                 @foreach ($banners as $banner)
                     @php
@@ -32,7 +40,7 @@
                                 </picture>
                             </span>
                             @if ($banner->title || $banner->subtitle || $banner->button_text)
-                                <span class="home-hero__text">
+                                <span class="home-hero__text home-hero__text--{{ $banner->text_position === 'right' ? 'right' : 'left' }} {{ ($banner->title || $banner->subtitle) ? '' : 'home-hero__text--cta-only' }}">
                                     @if ($banner->title)<strong class="home-hero__title">{{ $banner->title }}</strong>@endif
                                     @if ($banner->subtitle)<span class="home-hero__subtitle">{{ $banner->subtitle }}</span>@endif
                                     @if ($banner->button_text)<span class="button button--md home-hero__cta">{{ $banner->button_text }}</span>@endif

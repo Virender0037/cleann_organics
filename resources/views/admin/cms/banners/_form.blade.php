@@ -30,7 +30,16 @@
                 @endunless
             </div>
             @if ($isHero)
-                <div class="col-md-6 mb-3">
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Text card side</label>
+                    <select name="text_position" class="form-select @error('text_position') is-invalid @enderror">
+                        <option value="left" @selected(old('text_position', $b?->text_position ?? 'left') === 'left')>Left</option>
+                        <option value="right" @selected(old('text_position', $b?->text_position ?? 'left') === 'right')>Right</option>
+                    </select>
+                    @error('text_position') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <div class="form-text">Put it on the side away from the photo's subject. Leave title, subtitle and button empty to show the image only.</div>
+                </div>
+                <div class="col-md-3 mb-3">
                     <label class="form-label">Button text</label>
                     <input type="text" name="button_text" class="form-control @error('button_text') is-invalid @enderror" value="{{ old('button_text', $b?->button_text) }}" maxlength="60" placeholder="Shop Now">
                     @error('button_text') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -84,7 +93,7 @@
                 <input type="file" name="image" accept="image/jpeg,image/png,image/webp" class="form-control @error('image') is-invalid @enderror" {{ ($isHero && ! $currentImage) ? 'required' : '' }}>
                 @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 <div class="form-text">
-                    {{ $isHero ? 'Wide image, about 1920×720 px.' : 'Small square image, about 96×96 px.' }} JPG/PNG/WebP, max 4 MB. Uploading a new file replaces the current one.
+                    {{ $isHero ? 'Any wide image works (16:9 or wider, e.g. 1920×1080). The slideshow frame follows the FIRST slide’s proportions and never stretches text or images, so upload every slide at the same ratio.' : 'Small square image, about 96×96 px.' }} JPG/PNG/WebP, max 4 MB. Uploading a new file replaces the current one.
                 </div>
                 @if ($currentImage)
                     <img src="{{ $currentImage }}" alt="{{ $b->alt_text }}" class="mt-2 rounded border d-block" style="max-height:90px;max-width:100%">

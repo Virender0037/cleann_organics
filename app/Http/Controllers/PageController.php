@@ -58,6 +58,15 @@ class PageController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
-        return view('aboutus', compact('page'));
+        $settings = app(\App\Services\Storefront\StorefrontSettings::class);
+
+        return view('aboutus', [
+            'page' => $page,
+            // Real, admin-managed content only (Admin → CMS): the old template
+            // stock team and feature cards are gone; empty sections are hidden.
+            'teamMembers' => \App\Models\TeamMember::query()->where('status', 'active')->orderBy('sort_order')->orderBy('id')->get(),
+            'benefits' => \App\Models\HomeBanner::query()->section(\App\Models\HomeBanner::SECTION_BENEFIT)->active()->ordered()->get(),
+            'freeShippingLabel' => $settings->formatMoney($settings->freeShippingThreshold()),
+        ]);
     }
 }

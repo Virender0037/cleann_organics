@@ -27,6 +27,7 @@ class SaveHomeBannerRequest extends FormRequest
             'title' => [$isHero ? 'nullable' : 'required', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:255'],
             'button_text' => ['nullable', 'string', 'max:60'],
+            'text_position' => ['nullable', Rule::in(HomeBanner::TEXT_POSITIONS)],
             'image' => [$imageRule, 'image', 'mimes:jpeg,jpg,png,webp', 'max:4096'],
             'mobile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:4096'],
             'remove_image' => ['nullable', 'boolean'],
