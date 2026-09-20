@@ -395,6 +395,7 @@ Route::prefix('admin')
             Route::get('/orders', [SalesOrderController::class, 'index'])->name('orders.index');
             Route::get('/orders/export', [SalesOrderController::class, 'export'])->name('orders.export');
             Route::get('/orders/{order}', [SalesOrderController::class, 'show'])->name('orders.show');
+            Route::get('/orders/{order}/print', [SalesOrderController::class, 'print'])->name('orders.print');
             Route::patch('/orders/{order}/status', [SalesOrderController::class, 'updateStatus'])->name('orders.status.update');
             Route::get('/payments', [SalesPaymentController::class, 'index'])->name('payments.index');
             Route::get('/payments/export', [SalesPaymentController::class, 'export'])->name('payments.export');

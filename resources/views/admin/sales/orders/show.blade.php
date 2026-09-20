@@ -8,10 +8,10 @@
                     Invoice
                 </button>
 
-                <button class="btn btn-success me-2" disabled>
+                <a href="{{ route('admin.sales.orders.print', [$order, 'auto' => 1]) }}" target="_blank" rel="noopener" class="btn btn-success me-2">
                     <i class="ph ph-printer me-1"></i>
                     Print
-                </button>
+                </a>
 
                 <button class="btn btn-primary" disabled>
                     <i class="ph ph-arrows-clockwise me-1"></i>

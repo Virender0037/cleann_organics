@@ -85,6 +85,21 @@ class SalesOrderController extends Controller
     }
 
     /**
+     * Printer-friendly order / invoice sheet (opened in a new tab from the Orders
+     * list and the order page). Read-only; sits in the same admin-only route
+     * group as every other Sales screen, so guests and customers never reach it.
+     */
+    public function print(Order $order): View
+    {
+        $order->load(['user', 'items', 'payment', 'coupon']);
+
+        return view('admin.sales.orders.print', [
+            'order' => $order,
+            'company' => \App\Models\Setting::cached('general'),
+        ]);
+    }
+
+    /**
      * Moves an order forward through fulfilment (confirmed → packed →
      * shipped → delivered). Saved through the model (not a bulk query) so
      * the Order::updated hook fires: reaching "delivered" is what issues

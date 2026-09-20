@@ -103,10 +103,12 @@
                             <i class="ph ph-eye"></i>
                         </a>
 
-                        <button class="btn btn-sm btn-success"
-                                title="Print Invoice" disabled>
+                        <a href="{{ route('admin.sales.orders.print', [$order, 'auto' => 1]) }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-sm btn-success"
+                           title="Print Order" aria-label="Print order {{ $order->order_number }}">
                             <i class="ph ph-printer"></i>
-                        </button>
+                        </a>
 
                         <button class="btn btn-sm btn-warning"
                                 title="Update Status" disabled>
