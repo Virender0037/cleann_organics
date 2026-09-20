@@ -73,7 +73,7 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Default Address</h5>
-                        <a href="{{ route('admin.customers.addresses.index', $customer) }}" class="btn btn-sm btn-light">
+                        <a href="{{ route('admin.customers.addresses.index', $customer) }}" class="btn btn-sm btn-light" title="Manage addresses" aria-label="Manage addresses">
                             <i class="ph ph-map-pin"></i>
                         </a>
                     </div>
@@ -119,7 +119,7 @@
                             </td>
                             <td>
                                 <a href="{{ route('admin.sales.orders.show', $order) }}"
-                                   class="btn btn-sm btn-info">
+                                   class="btn btn-sm btn-info" title="View order" aria-label="View order">
                                     <i class="ph ph-eye"></i>
                                 </a>
                             </td>

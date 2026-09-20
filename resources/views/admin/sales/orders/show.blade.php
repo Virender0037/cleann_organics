@@ -250,25 +250,52 @@
                     </div>
                 </div>
 
+                @php
+                    // The address frozen onto the order at checkout. The live `address` relation can be edited or
+                    // deleted by the customer afterwards, so it is only a fallback for legacy orders without a snapshot.
+                    $ship = $order->shippingSnapshot();
+                    if (blank($ship['address_line_1']) && $order->address) {
+                        $ship = $order->address->only(['name', 'phone', 'address_line_1', 'address_line_2', 'city', 'state', 'country', 'pincode']);
+                    }
+                    $bill = $order->billingSnapshot();
+                @endphp
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5>{{ $order->address && $order->address->type === 'billing' ? 'Billing Address' : 'Delivery Address' }}</h5>
+                        <h5>Delivery Address</h5>
                     </div>
 
                     <div class="card-body">
-                        @if ($order->address)
+                        @if (filled($ship['address_line_1'] ?? null))
                             <p class="mb-0">
-                                {{ $order->address->name }}<br>
-                                {{ $order->address->address_line_1 }}@if ($order->address->address_line_2), {{ $order->address->address_line_2 }}@endif<br>
-                                {{ $order->address->city }}, {{ $order->address->state }}<br>
-                                {{ $order->address->country }} - {{ $order->address->pincode }}
+                                <strong>{{ $ship['name'] }}</strong><br>
+                                {{ $ship['address_line_1'] }}{{ filled($ship['address_line_2'] ?? null) ? ', '.$ship['address_line_2'] : '' }}<br>
+                                {{ $ship['city'] }}, {{ $ship['state'] }}<br>
+                                {{ $ship['country'] }} - {{ $ship['pincode'] }}
+                                {!! filled($ship['phone'] ?? null) ? '<br>Phone: '.e($ship['phone']) : '' !!}
                             </p>
+                            {!! filled($order->shipping_zone_name) ? '<p class="text-muted small mt-2 mb-0">Shipping zone: '.e($order->shipping_zone_name).'</p>' : '' !!}
                         @else
                             <p class="text-muted mb-0">No address on file for this order.</p>
                         @endif
                     </div>
                 </div>
 
+                @if (! $order->billing_same_as_shipping && filled($bill['address_line_1'] ?? null))
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Billing Address</h5>
+                        </div>
+
+                        <div class="card-body">
+                            <p class="mb-0">
+                                <strong>{{ $bill['name'] }}</strong><br>
+                                {{ $bill['address_line_1'] }}{{ filled($bill['address_line_2'] ?? null) ? ', '.$bill['address_line_2'] : '' }}<br>
+                                {{ $bill['city'] }}, {{ $bill['state'] }}<br>
+                                {{ $bill['country'] }} - {{ $bill['pincode'] }}
+                            </p>
+                        </div>
+                    </div>
+                @endif
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5>Documents</h5>

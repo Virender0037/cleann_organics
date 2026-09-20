@@ -19,7 +19,7 @@ class OrdersReportController extends Controller
 
     private const PAYMENT_STATUSES = ['pending', 'paid', 'failed', 'refunded'];
 
-    private const PAYMENT_METHODS = ['cod', 'upi', 'bank_transfer'];
+    private const PAYMENT_METHODS = ['cod', 'razorpay', 'manual_upi', 'bank_transfer', 'upi'];
 
     public function index(Request $request): View
     {

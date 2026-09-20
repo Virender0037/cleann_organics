@@ -254,4 +254,41 @@ class AdminModulesAuditTest extends TestCase
         $this->assertStringNotContainsString($orderB->order_number, $html);
         $this->assertStringNotContainsString('Bravo Customer', $html);
     }
+    // ------------------------------------------- Order snapshot & report filters
+
+    public function test_admin_order_detail_shows_the_frozen_address_not_the_customers_edited_one(): void
+    {
+        $admin = $this->admin();
+        $customer = User::factory()->create();
+        $address = \App\Models\Address::create([
+            'user_id' => $customer->id, 'type' => 'shipping', 'name' => 'Asha', 'phone' => '9000000000',
+            'address_line_1' => '12 Original Street', 'city' => 'Ludhiana', 'state' => 'Punjab', 'country' => 'India', 'pincode' => '141001', 'is_default' => true,
+        ]);
+        $order = $this->order($customer);
+        $order->forceFill([
+            'address_id' => $address->id, 'shipping_name' => 'Asha', 'shipping_phone' => '9000000000',
+            'shipping_address_line_1' => '12 Original Street', 'shipping_city' => 'Ludhiana', 'shipping_state' => 'Punjab',
+            'shipping_country' => 'India', 'shipping_pincode' => '141001', 'shipping_zone_name' => 'Punjab',
+        ])->save();
+
+        // The customer edits their saved address after ordering.
+        $address->update(['address_line_1' => '99 Changed Road', 'city' => 'Delhi']);
+
+        $html = $this->actingAs($admin)->get(route('admin.sales.orders.show', $order))->assertOk()->getContent();
+        $this->assertStringContainsString('12 Original Street', $html);
+        $this->assertStringContainsString('9000000000', $html);
+        $this->assertStringContainsString('Shipping zone: Punjab', $html);
+        $this->assertStringNotContainsString('99 Changed Road', $html);
+    }
+
+    public function test_order_and_sales_reports_can_filter_by_razorpay_and_manual_upi(): void
+    {
+        $admin = $this->admin();
+
+        foreach (['razorpay', 'manual_upi', 'cod', 'bank_transfer'] as $method) {
+            foreach (['admin.reports.orders.index', 'admin.reports.sales.index'] as $route) {
+                $this->actingAs($admin)->get(route($route, ['payment_method' => $method]))->assertOk();
+            }
+        }
+    }
 }

@@ -167,6 +167,33 @@
   border-radius: 5px;
 }
 
+/* Icon-only action buttons (view / edit / delete): the glyph sat ~2.5px below centre because the icon
+   inherited the button's text line-height. Centre it with flex and give it a fixed, larger hit area. */
+.btn:has(> i.ph:only-child) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.btn.btn-sm:has(> i.ph:only-child) {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+
+.btn:has(> i.ph:only-child) > i.ph {
+  font-size: 16px;
+  line-height: 1;
+}
+
+@media (max-width: 767.98px) {
+  .btn.btn-sm:has(> i.ph:only-child) {
+    width: 38px;
+    height: 38px;
+  }
+}
+
 .btn:focus,
 .btn:focus-visible {
   box-shadow: 0 0 0 0.2rem rgba(4, 169, 245, 0.25);
@@ -977,4 +1004,32 @@ body[data-pc-preset="preset-1"] {
   color: var(--admin-muted);
   font-size: 0.875rem;
   padding: var(--admin-space-3) 0;
+}
+
+/* ============================================================
+   Admin polish (2026-09-20 UI review)
+   ============================================================ */
+
+/* The vendor theme gives .pc-container-edit a left margin for the sidebar but no right gutter, so on desktop
+   cards and header buttons ("Add Product") touched the screen edge. <=1024px is handled above (12px). */
+@media (min-width: 1025px) {
+  .pc-container-edit:not(.admin-content-padded):not(.admin-dashboard) {
+    padding-right: 30px;
+  }
+}
+
+/* Status badges ("In Stock", "Out of Stock") wrapped onto two lines and turned into blobs. */
+.badge {
+  white-space: nowrap;
+}
+
+/* "Showing 1 to 15 of 16 results" sat flush against the pager buttons. */
+.pc-container-edit nav p.small {
+  margin-right: 1rem;
+}
+
+/* Images that fail to load are swapped for this neutral placeholder by the script in the admin footer. */
+img.admin-img-missing {
+  object-fit: contain;
+  background: #f1f3f5;
 }

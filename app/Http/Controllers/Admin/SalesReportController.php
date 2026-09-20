@@ -16,7 +16,7 @@ class SalesReportController extends Controller
 {
     use HandlesReportFilters;
 
-    private const PAYMENT_METHODS = ['cod', 'upi', 'bank_transfer'];
+    private const PAYMENT_METHODS = ['cod', 'razorpay', 'manual_upi', 'bank_transfer', 'upi'];
 
     public function index(Request $request): View
     {
