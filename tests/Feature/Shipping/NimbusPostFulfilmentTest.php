@@ -711,6 +711,23 @@ class NimbusPostFulfilmentTest extends TestCase
         $this->assertSame('001-IT', $shipment->fresh()->provider_status);
     }
 
+    public function test_check_command_lists_warehouses_with_only_the_key_pair_so_the_id_can_be_found(): void
+    {
+        $this->configure(['nimbuspost.warehouse_id' => null, 'nimbuspost.pickup_pincode' => null]);
+        Http::fake([self::API.'warehouses' => $this->ok([['warehouse_id' => 'WH-777', 'name' => 'Delhi Store', 'address' => ['city' => 'New Delhi', 'pincode' => 110059]]])]);
+
+        $this->artisan('nimbuspost:check')
+            ->expectsOutputToContain('NIMBUSPOST_WAREHOUSE_ID     MISSING')
+            ->expectsOutputToContain('Authentication OK')
+            ->expectsOutputToContain('WH-777')
+            ->expectsOutputToContain('Set NIMBUSPOST_WAREHOUSE_ID to one of the warehouse ids listed above')
+            ->assertFailed();
+
+        // Shipment-related calls still refuse to run without the warehouse id.
+        $this->expectException(NimbusPostNotConfigured::class);
+        app(NimbusPostService::class)->track('AWB1');
+    }
+
     public function test_check_command_verifies_auth_and_warehouse_without_printing_secrets(): void
     {
         $this->configure();

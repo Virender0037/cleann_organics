@@ -31,8 +31,11 @@ class CheckNimbusPost extends Command
             $this->warn('NIMBUSPOST_API_KEY does not start with "npk_" — v2 key ids always do. Check you pasted the key id, not the secret.');
         }
 
-        if (! $nimbus->isConfigured()) {
-            $this->error('Not configured: '.implode(', ', $nimbus->isEnabled() ? $nimbus->missingConfiguration() : ['NIMBUSPOST_ENABLED=true']));
+        // Only the key pair (and the v2 base URL) are needed to authenticate and list warehouses — so this also works
+        // before NIMBUSPOST_WAREHOUSE_ID is known, which is how you find it.
+        $blocking = array_filter($nimbus->missingConfiguration(), fn ($name) => ! str_starts_with($name, 'NIMBUSPOST_WAREHOUSE_ID') && ! str_starts_with($name, 'NIMBUSPOST_PICKUP_PINCODE'));
+        if (! $nimbus->isEnabled() || $blocking !== []) {
+            $this->error('Not configured: '.implode(', ', $nimbus->isEnabled() ? $blocking : ['NIMBUSPOST_ENABLED=true']));
 
             return self::FAILURE;
         }
@@ -56,7 +59,15 @@ class CheckNimbusPost extends Command
         }
 
         if (! $found) {
-            $this->warn('NIMBUSPOST_WAREHOUSE_ID does not match any warehouse listed above.');
+            $this->warn($configured === ''
+                ? 'Set NIMBUSPOST_WAREHOUSE_ID to one of the warehouse ids listed above (and NIMBUSPOST_PICKUP_PINCODE to its pincode).'
+                : 'NIMBUSPOST_WAREHOUSE_ID does not match any warehouse listed above.');
+
+            return self::FAILURE;
+        }
+
+        if (blank(config('nimbuspost.pickup_pincode'))) {
+            $this->warn('NIMBUSPOST_PICKUP_PINCODE is not set — use the pincode of the warehouse marked *.');
 
             return self::FAILURE;
         }

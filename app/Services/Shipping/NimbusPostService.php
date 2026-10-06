@@ -161,7 +161,8 @@ class NimbusPostService
     /** @return array<int, array<string, mixed>> the org's warehouses (used by `php artisan nimbuspost:check`) */
     public function warehouses(): array
     {
-        $data = $this->call('GET', '/v2/warehouses');
+        // Read-only and needs only the key pair: it is how the warehouse id is discovered in the first place.
+        $data = $this->call('GET', '/v2/warehouses', credentialsOnly: true);
 
         return is_array($data) ? array_values($data) : [];
     }
@@ -169,9 +170,9 @@ class NimbusPostService
     // ------------------------------------------------------------------ internals
 
     /** @return mixed the `data` member of a {"success": true, …} envelope */
-    private function call(string $method, string $path, array $payload = []): mixed
+    private function call(string $method, string $path, array $payload = [], bool $credentialsOnly = false): mixed
     {
-        $this->assertConfigured();
+        $this->assertConfigured($credentialsOnly);
 
         $client = Http::baseUrl((string) config('nimbuspost.base_url'))
             ->withHeaders([
@@ -233,13 +234,17 @@ class NimbusPostService
         return $body['data'] ?? null;
     }
 
-    private function assertConfigured(): void
+    private function assertConfigured(bool $credentialsOnly = false): void
     {
         if (! $this->isEnabled()) {
             throw new NimbusPostNotConfigured('NimbusPost is disabled (NIMBUSPOST_ENABLED=false).');
         }
 
         $missing = $this->missingConfiguration();
+
+        if ($credentialsOnly) {
+            $missing = array_values(array_filter($missing, fn ($name) => ! str_starts_with($name, 'NIMBUSPOST_WAREHOUSE_ID') && ! str_starts_with($name, 'NIMBUSPOST_PICKUP_PINCODE')));
+        }
 
         if ($missing !== []) {
             throw new NimbusPostNotConfigured('NimbusPost is not configured. Missing: '.implode(', ', $missing).'.');
