@@ -182,7 +182,34 @@
                           </div>
                         @endif
 
-                        <p class="font-body--sm-400" style="margin-top:12px;color:#666666;">Shipping Partner: Velocity</p>
+                        {{-- Customer-safe shipment tracking: only once a courier booking exists. Never shows provider
+                             errors, raw responses, label/manifest links or any credential. --}}
+                        @php
+                          $trackedShipment = $order->activeShipment ?? $order->shipments->first(fn ($s) => $s->isVisibleToCustomer());
+                        @endphp
+                        @if ($trackedShipment && $trackedShipment->isVisibleToCustomer())
+                          <div class="order-tracking" style="margin-top:16px;padding-top:12px;border-top:1px solid #e6e6e6;">
+                            <p class="font-body--md-500" style="margin-bottom:6px;">Shipment: {{ $trackedShipment->customerStatusLabel() }}</p>
+                            <p class="font-body--sm-400" style="margin:0;color:#666666;">
+                              @if ($trackedShipment->courier_name)
+                                Courier: {{ $trackedShipment->courier_name }} ·
+                              @endif
+                              Tracking number (AWB): <strong>{{ $trackedShipment->awb_number }}</strong>
+                            </p>
+                            @if ($trackedShipment->status === \App\Models\Shipment::EXCEPTION)
+                              <p class="font-body--sm-400" style="margin:6px 0 0;color:#666666;">The courier reported a delivery issue and will try again. Please keep your phone reachable.</p>
+                            @endif
+                            @if (! empty($trackedShipment->tracking_history))
+                              <ul class="font-body--sm-400" style="margin:8px 0 0;padding-left:18px;color:#666666;">
+                                @foreach (array_slice(array_reverse($trackedShipment->tracking_history), 0, 5) as $event)
+                                  <li>{{ $event['event_time'] ?? '' }} — {{ $event['message'] ?? '' }}{{ ! empty($event['location']) ? ' ('.$event['location'].')' : '' }}</li>
+                                @endforeach
+                              </ul>
+                            @endif
+                          </div>
+                        @elseif (! in_array($order->order_status, ['delivered', 'cancelled'], true))
+                          <p class="font-body--sm-400" style="margin-top:12px;color:#666666;">Tracking details will appear here once your order is dispatched.</p>
+                        @endif
                       </div>
                     </div>
                   </div>

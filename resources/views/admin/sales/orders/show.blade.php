@@ -54,6 +54,9 @@
                                 <button type="submit" class="btn btn-primary">Update</button>
                             </form>
                             <p class="text-muted small mb-0 mt-2">Marking an order Delivered unlocks customer reviews and, for orders that qualify, issues the earned voucher.</p>
+                            @if ($order->payment_method !== 'cod' && $order->fulfilmentBlockedReason())
+                                <div class="alert alert-warning small mb-0 mt-2">Payment gate: {{ $order->fulfilmentBlockedReason() }} Status changes are blocked until then.</div>
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -161,19 +164,9 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h5>Shipment Details</h5>
-                            </div>
-
-                            <div class="card-body">
-                                <p class="text-muted mb-0">Not available — no shipment tracking is recorded for orders in this system yet.</p>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
+
+                @include('admin.sales.orders._fulfilment')
 
                 <div class="card mb-4">
                     <div class="card-header">
@@ -317,10 +310,17 @@
                                 Packing Slip <small>(not available yet)</small>
                             </button>
 
-                            <button class="btn btn-light-secondary" disabled aria-disabled="true" title="Not available yet — courier (Velocity) integration is pending its API documentation">
-                                <i class="ph ph-truck me-1"></i>
-                                Shipping Label <small>(courier integration pending)</small>
-                            </button>
+                            @if ($order->activeShipment?->label_url)
+                                <a href="{{ $order->activeShipment->label_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-light-primary">
+                                    <i class="ph ph-truck me-1"></i>
+                                    Shipping Label (NimbusPost)
+                                </a>
+                            @else
+                                <button class="btn btn-light-secondary" disabled aria-disabled="true" title="Available once a NimbusPost shipment is booked">
+                                    <i class="ph ph-truck me-1"></i>
+                                    Shipping Label <small>(book a shipment first)</small>
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>

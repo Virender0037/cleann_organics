@@ -27,7 +27,10 @@ class UpdateProductVariantRequest extends FormRequest
             'barcode' => ['nullable', 'string', 'max:255', Rule::unique(ProductVariant::class)->ignore($this->route('variant'))],
             'unit' => ['nullable', 'in:kg,gram,litre,piece,pack'],
             'size' => ['nullable', 'string', 'max:255'],
-            'weight' => ['nullable', 'numeric', 'min:0'],
+            'weight' => ['nullable', 'numeric', 'min:0'],                 // kg
+            'length_cm' => ['nullable', 'numeric', 'min:0.1', 'max:500'], // cm — used for NimbusPost parcels
+            'width_cm' => ['nullable', 'numeric', 'min:0.1', 'max:500'],
+            'height_cm' => ['nullable', 'numeric', 'min:0.1', 'max:500'],
             'color' => ['nullable', 'string', 'max:255'],
             'pack_quantity' => ['nullable', 'string', 'max:255'],
             'sort_order' => ['nullable', 'integer', 'min:0'],

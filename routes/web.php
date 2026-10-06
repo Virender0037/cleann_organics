@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\HomeBannerController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InventoryReportController;
+use App\Http\Controllers\Admin\OrderShipmentController;
 use App\Http\Controllers\Admin\OrdersReportController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PaymentsReportController;
@@ -48,11 +49,12 @@ use App\Http\Controllers\Storefront\BlogController as StorefrontBlogController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\CategoryController as StorefrontCategoryController;
 use App\Http\Controllers\Storefront\CheckoutController;
+use App\Http\Controllers\Storefront\ContactController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\ManualUpiPaymentController;
+use App\Http\Controllers\Storefront\MarketplaceRedirectController;
 use App\Http\Controllers\Storefront\OrderController as StorefrontOrderController;
 use App\Http\Controllers\Storefront\ProductController as StorefrontProductController;
-use App\Http\Controllers\Storefront\MarketplaceRedirectController;
 use App\Http\Controllers\Storefront\ProductReviewController as StorefrontProductReviewController;
 use App\Http\Controllers\Storefront\RazorpayPaymentController;
 use App\Http\Controllers\Storefront\ShopController;
@@ -92,7 +94,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // /cleann_organics/public) — redirect()->route() builds the destination via
 // the url() helper instead, so it resolves correctly under any base path.
 Route::get('/contact-us', [PublicPageController::class, 'contact'])->name('contact');
-Route::post('/contact-us', [\App\Http\Controllers\Storefront\ContactController::class, 'store'])
+Route::post('/contact-us', [ContactController::class, 'store'])
     ->middleware('throttle:5,1')
     ->name('contact.store');
 Route::get('/contact', fn () => redirect()->route('contact', [], 301));
@@ -406,6 +408,11 @@ Route::prefix('admin')
             Route::get('/orders/{order}', [SalesOrderController::class, 'show'])->name('orders.show');
             Route::get('/orders/{order}/print', [SalesOrderController::class, 'print'])->name('orders.print');
             Route::patch('/orders/{order}/status', [SalesOrderController::class, 'updateStatus'])->name('orders.status.update');
+            // Shipping / fulfilment (NimbusPost). Each action re-checks that the shipment belongs to the order.
+            Route::post('/orders/{order}/shipments', [OrderShipmentController::class, 'store'])->name('orders.shipments.store');
+            Route::post('/orders/{order}/shipments/{shipment}/refresh', [OrderShipmentController::class, 'refresh'])->name('orders.shipments.refresh');
+            Route::post('/orders/{order}/shipments/{shipment}/cancel', [OrderShipmentController::class, 'cancel'])->name('orders.shipments.cancel');
+            Route::post('/orders/{order}/shipments/{shipment}/release', [OrderShipmentController::class, 'release'])->name('orders.shipments.release');
             Route::get('/payments', [SalesPaymentController::class, 'index'])->name('payments.index');
             Route::get('/payments/export', [SalesPaymentController::class, 'export'])->name('payments.export');
             Route::get('/payments/{payment}', [SalesPaymentController::class, 'show'])->name('payments.show');

@@ -16,7 +16,10 @@ class ProductVariant extends Model
         'barcode',
         'unit',
         'size',
-        'weight',
+        'weight',      // kilograms
+        'length_cm',   // package dimensions in centimetres (shipping)
+        'width_cm',
+        'height_cm',
         'color',
         'pack_quantity',
         'enable_tiered_pricing',

@@ -21,8 +21,11 @@
     var gallery = root.querySelector('#vmmGallery');
     var emptyState = root.querySelector('#vmmEmptyState');
     var errorBox = root.querySelector('#vmmError');
-    var imageCountEl = root.querySelector('#vmmImageCount');
-    var videoCountEl = root.querySelector('#vmmVideoCount');
+    // The counters live in the card header, outside `root` — looking them up inside `root` returned null, so render()
+    // threw on every call and the file input / hidden media-order fields were never synced.
+    var counterScope = root.closest('.card') || document;
+    var imageCountEl = counterScope.querySelector('#vmmImageCount');
+    var videoCountEl = counterScope.querySelector('#vmmVideoCount');
     var mediaOrderInput = root.querySelector('#vmmMediaOrder');
     var primarySelectorInput = root.querySelector('#vmmPrimarySelector');
     var form = root.closest('form');

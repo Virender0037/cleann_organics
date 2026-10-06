@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Models\Order;
+use App\Models\Setting;
 use App\Services\CsvExporter;
+use App\Services\Shipping\FulfilmentService;
+use App\Services\Shipping\NimbusPostService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -19,7 +23,7 @@ class SalesOrderController extends Controller
      * method) is listed unless the admin narrows it. Filters are validated against the known
      * values so a bad/foreign value simply matches nothing instead of silently doing nothing.
      */
-    private function filtered(Request $request): \Illuminate\Database\Eloquent\Builder
+    private function filtered(Request $request): Builder
     {
         return Order::with('user')
             ->when($request->filled('search'), function ($query) use ($request) {
@@ -77,9 +81,19 @@ class SalesOrderController extends Controller
     {
         $order->load(['user', 'address', 'items', 'payment', 'returns']);
 
-        $order->load('earnedVoucher');
+        $order->load(['earnedVoucher', 'shipments', 'activeShipment']);
 
-        return view('admin.sales.orders.show', compact('order'));
+        $fulfilment = app(FulfilmentService::class);
+        $nimbus = app(NimbusPostService::class);
+
+        return view('admin.sales.orders.show', [
+            'order' => $order,
+            'shipmentBlockers' => $fulfilment->blockers($order),
+            'packageSuggestion' => $fulfilment->packageSuggestion($order),
+            'nimbusConfigured' => $nimbus->isConfigured(),
+            // Setting NAMES only (never values) so the admin knows what to fill in .env.
+            'nimbusMissing' => $nimbus->isEnabled() ? $nimbus->missingConfiguration() : ['NIMBUSPOST_ENABLED=true'],
+        ]);
     }
 
     /**
@@ -93,7 +107,7 @@ class SalesOrderController extends Controller
 
         return view('admin.sales.orders.print', [
             'order' => $order,
-            'company' => \App\Models\Setting::cached('general'),
+            'company' => Setting::cached('general'),
         ]);
     }
 
@@ -112,6 +126,13 @@ class SalesOrderController extends Controller
 
         if ($currentIndex === false || array_search($target, $sequence, true) <= $currentIndex) {
             return back()->with('error', 'That order cannot be moved to "'.$target.'" from "'.$order->order_status.'".');
+        }
+
+        // Payment gate: a prepaid order (Razorpay / Manual UPI / Bank Transfer) cannot be confirmed, packed, shipped or
+        // delivered until its payment is verified. COD is collected on delivery, so its flow is unchanged. Existing
+        // orders are never rewritten — this only refuses new moves.
+        if ($order->payment_method !== 'cod' && ($blocked = $order->fulfilmentBlockedReason())) {
+            return back()->with('error', 'This order cannot be marked "'.$target.'" yet: '.$blocked);
         }
 
         $order->update([

@@ -12,6 +12,7 @@ use App\Models\ShippingRate;
 use App\Models\ShippingZone;
 use App\Models\TaxRate;
 use App\Services\Payment\RazorpayPaymentService;
+use App\Services\Shipping\FulfilmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,7 @@ class CheckoutService
         private readonly Request $request,
         private readonly RazorpayPaymentService $razorpayPayment,
         private readonly StorefrontSettings $settings,
+        private readonly FulfilmentService $fulfilment,
     ) {}
 
     /** @return Collection<int, array<string, mixed>> */
@@ -395,6 +397,21 @@ class CheckoutService
         $tax = $this->taxAmount();
         $lineTaxes = $this->includedTaxByLine();
         $grandTotal = round($subtotal - $discount + $shipping, 2);
+
+        // NimbusPost serviceability (only when NimbusPost is configured). An explicit "no courier for this pincode"
+        // stops the order; an unknown answer (disabled, timeout, API error) never does — the order stays valid and
+        // the admin sees serviceability again when booking the shipment.
+        $weightGrams = (int) $lines->sum(fn (array $line) => (int) round(((float) ($line['variant']->weight ?? 0)) * 1000) * $line['quantity']);
+        $serviceable = $this->fulfilment->checkoutServiceability(
+            (string) $address->pincode,
+            $paymentMethod === 'cod' ? 'cod' : 'prepaid',
+            $grandTotal,
+            $weightGrams > 0 ? $weightGrams : 500, // NimbusPost's documented default when weight is unknown
+        );
+
+        if ($serviceable === false) {
+            return ['success' => false, 'message' => 'Sorry, we can\'t deliver to PIN code '.$address->pincode.' yet. Please choose a different delivery address.'];
+        }
 
         try {
             $order = $this->createOrderInTransaction($lines, $address, $paymentMethod, $subtotal, $coupon, $discount, $shipping, $shippingZoneName, $tax, $grandTotal, $lineTaxes);

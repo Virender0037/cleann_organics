@@ -34,6 +34,8 @@ class OrderController extends Controller
             'payment',
             'coupon',
             'earnedVoucher',
+            'shipments',
+            'activeShipment',
         ]);
 
         $productIds = $order->items->pluck('product_id')->filter()->unique();

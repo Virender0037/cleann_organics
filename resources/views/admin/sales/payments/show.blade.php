@@ -165,6 +165,50 @@
                             @endif
                         </div>
                     </div>
+                @elseif ($payment->payment_method === 'bank_transfer')
+                    {{-- Bank transfers have no customer proof upload: an admin checks the bank statement, then verifies.
+                         Verification is what makes the order eligible for shipping (see FulfilmentService). --}}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Bank Transfer Verification</h5>
+                        </div>
+
+                        <div class="card-body">
+                            @if (in_array($payment->status, ['pending', 'rejected'], true))
+                                <p class="text-muted">Check your bank statement for ₹{{ number_format((float) $payment->amount, 2) }} against order {{ $payment->order->order_number ?? '' }} before verifying. The order cannot be shipped until this payment is verified.</p>
+
+                                <form action="{{ route('admin.sales.payments.verify', $payment) }}" method="POST" class="mb-3">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="mb-2">
+                                        <label class="form-label">Note (optional)</label>
+                                        <input type="text" name="admin_note" class="form-control" maxlength="500" placeholder="e.g. Received via NEFT, bank ref 12345">
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="ph ph-check-circle me-1"></i>
+                                        Verify &amp; Mark Paid
+                                    </button>
+                                </form>
+
+                                @if ($payment->status === 'pending')
+                                    <form action="{{ route('admin.sales.payments.reject', $payment) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <div class="mb-2">
+                                            <label class="form-label">Reason for rejection</label>
+                                            <input type="text" name="admin_note" class="form-control" maxlength="500" required placeholder="e.g. No matching transfer received">
+                                        </div>
+                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                            <i class="ph ph-x-circle me-1"></i>
+                                            Reject
+                                        </button>
+                                    </form>
+                                @endif
+                            @else
+                                <p class="text-muted mb-0">This bank transfer has been verified.</p>
+                            @endif
+                        </div>
+                    </div>
                 @else
                     <div class="card mb-4">
                         <div class="card-header">

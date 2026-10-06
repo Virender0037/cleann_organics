@@ -98,6 +98,45 @@ class Order extends Model
         return $this->hasOne(Payment::class);
     }
 
+    public function shipments()
+    {
+        return $this->hasMany(Shipment::class)->latest('id');
+    }
+
+    /** The live courier booking (not failed/cancelled), if any. */
+    public function activeShipment()
+    {
+        return $this->hasOne(Shipment::class, 'active_order_id');
+    }
+
+    /**
+     * Payment gate for fulfilment (packing, shipping, delivering, booking a courier):
+     *  - COD: the order must be confirmed (collected on delivery);
+     *  - everything else (Razorpay, Manual UPI, Bank Transfer, legacy UPI): the payment must be verified/paid.
+     * Returns null when allowed, otherwise the reason (shown to admins).
+     */
+    public function fulfilmentBlockedReason(): ?string
+    {
+        if ($this->order_status === 'cancelled') {
+            return 'This order is cancelled.';
+        }
+
+        if ($this->payment_method === 'cod') {
+            return $this->order_status === 'pending' ? 'Confirm this Cash on Delivery order first.' : null;
+        }
+
+        if ($this->payment_status !== 'paid') {
+            return match ($this->payment_method) {
+                'manual_upi' => 'The Manual UPI payment has not been verified yet (Sales → Payments).',
+                'bank_transfer' => 'The bank transfer has not been verified yet (Sales → Payments).',
+                'razorpay' => 'The Razorpay payment has not been received.',
+                default => 'The payment has not been received.',
+            };
+        }
+
+        return null;
+    }
+
     public function returns()
     {
         return $this->hasMany(ReturnRequest::class, 'order_id');

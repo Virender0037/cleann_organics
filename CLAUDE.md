@@ -87,7 +87,7 @@ Status below reflects this repo's actual git state (verify with `git log`/`grep 
 
 **Administration** (admin audit 2026-09-20): only the admin **Users list** is real (read-only). Users create/edit, Roles, Permissions and Activity Logs are static `Route::view` mock-ups with sample data — they now show a `<x-admin.not-implemented>` banner and disabled forms. Spatie roles/permissions are installed but **unused**: admin access is the `superadmin` middleware on `users.role`.
 
-**Known gaps found by the admin audit (not built, not faked):** no order-cancel path (admin status flow is confirmed→packed→shipped→delivered only; `cancelled_at`/`cancellation_reason` are never written, so no stock-restore-on-cancel); Returns are approve/reject flags only — nothing in the storefront creates a `ReturnRequest`, and approving neither refunds nor restocks; Payment refunds, Packing Slip and Shipping Label buttons are disabled with a "not available yet" label; `ShippingMethod` is not connected to checkout; Settings → Payment toggles/currency/Razorpay+Stripe keys are stored but **not read by checkout** (only `upi_id` is live; Razorpay reads `.env`; all four checkout methods always show; Stripe not integrated) — the page carries a warning saying so; there is a single site logo (no separate footer logo setting).
+**Known gaps found by the admin audit (not built, not faked):** no order-cancel path (admin status flow is confirmed→packed→shipped→delivered only; `cancelled_at`/`cancellation_reason` are never written, so no stock-restore-on-cancel); Returns are approve/reject flags only — nothing in the storefront creates a `ReturnRequest`, and approving neither refunds nor restocks; Payment refunds and Packing Slip are disabled with a "not available yet" label (Shipping Label now links to the NimbusPost label once a shipment is booked); `ShippingMethod` is not connected to checkout; Settings → Payment toggles/currency/Razorpay+Stripe keys are stored but **not read by checkout** (only `upi_id` is live; Razorpay reads `.env`; all four checkout methods always show; Stripe not integrated) — the page carries a warning saying so; there is a single site logo (no separate footer logo setting).
 
 Update this list as work lands — don't rely on chat history to track this.
 
@@ -103,7 +103,7 @@ Verified, tested state as of this phase — supersedes any earlier assumption th
 
 Payment-proof screenshots are stored on the **private `local` disk** (`storage/app/private/manual-upi-proofs/`), never `public` — there is no direct public URL. They're served only through authorized, authenticated controller routes (`orders.manual-upi.proof` re-checks order ownership; `admin.sales.payments.proof` sits inside the `superadmin`-gated admin route group) via `ManualUpiPaymentService::streamProof()`. Uploads are validated with Laravel's `image` + `mimes:jpeg,jpg,png,webp` + `max:2048` rules (rejects anything whose actual bytes aren't a real image, regardless of extension/claimed MIME type — blocks disguised executable uploads); stored filenames are server-generated UUIDs, the client's original filename/extension is never trusted or persisted. A resubmitted screenshot deletes the previous file from disk so retries never leave orphans.
 
-**Bank Transfer** — unchanged: a real, working manual payment method (order placed `pending`, admin marks paid manually later) with no proof-submission/verification flow of its own. The legacy `upi` value is still accepted by `PlaceOrderRequest`/`CheckoutService` for backward compatibility but is **no longer offered as a checkout option** — superseded by both Manual UPI and Razorpay-powered UPI to avoid duplicate "UPI" choices on the checkout page.
+**Bank Transfer** — unchanged: a real, working manual payment method (order placed `pending`, admin marks paid manually later) with no customer proof upload; since 2026-10-06 an admin verifies or rejects it on Sales → Payments → detail (same actions as Manual UPI), and it cannot be fulfilled until verified. The legacy `upi` value is still accepted by `PlaceOrderRequest`/`CheckoutService` for backward compatibility but is **no longer offered as a checkout option** — superseded by both Manual UPI and Razorpay-powered UPI to avoid duplicate "UPI" choices on the checkout page.
 
 **Razorpay** — code-complete, not yet configured:
 - Server-side order creation (`App\Services\Payment\RazorpayService::createOrder()`), client-side Checkout.js (`resources/views/orders/pay.blade.php`), server-side payment-signature verification, and a signed webhook (`POST /api/webhooks/razorpay`, `App\Http\Controllers\Api\RazorpayWebhookController`) subscribed to `payment.captured`/`payment.failed`.
@@ -158,7 +158,7 @@ Business rules live in **one place**: `App\Services\Storefront\StorefrontSetting
 - **Reels** (`reels` table, Admin → CMS → Reels): each ties to a real product/variant; "Add to Cart" uses the normal cart endpoint. Videos are either an upload (≤30 MB) or a URL — the original 112 MB source video has **not** been optimised/used (no `ffmpeg` locally); the section stays empty until a reel is added in admin.
 - **Newsletter removed** everywhere (sections + popup). **Contact Us**: `Storefront\ContactController` saves a `ContactMessage` (validation, honeypot, `throttle:5,1`); address/email/phone come from Admin → Settings → General company fields, hidden when unset. About Us no longer uses the stock farmer photo.
 - **Storefront CSS**: still no build step — this phase's styles are in `public/scss/components/_storefront-offers.scss`, mirrored verbatim at the end of `public/css/style.css` (the served file). Edit both.
-- **Velocity**: checkout/order pages only show the text "Shipping Partner: Velocity" — there is still **no** Velocity integration (see below).
+- **Shipping provider**: NimbusPost only — see "Shipping — NimbusPost only" below (the old "Shipping Partner: Velocity" labels were removed).
 - **Local dev gotcha**: local `APP_URL=http://localhost` does not include the `/cleann_organics/public` subfolder, so `Storage::url()` image URLs 404 in a browser (existing product images too). Not a code bug — production `APP_URL` is correct. To eyeball locally: `APP_URL=http://127.0.0.1:8000 php artisan serve`.
 
 **Production gotchas learned the hard way (2026-09-20/21)**:
@@ -205,30 +205,69 @@ Real-browser QA (puppeteer + Chrome) against the imported local DB; regression t
 
 `public/js/main.js` now loads through `admin_asset()` (filemtime `?v=`), like `style.css`/`cart.js`, so a deploy busts browser caches. It still has to be copied to `public_html`.
 
-## Shipping — Velocity Integration: PENDING / BLOCKED BY API DOCUMENTATION (added 2026-09-12)
+## Shipping — NimbusPost only (added 2026-10-06)
 
-**Status: on hold. No Velocity-specific code exists in this repo — none should be added until real API documentation is supplied.** The current flat-rate `ShippingZone`/`ShippingRate` checkout flow (see below) is untouched and must stay untouched until this is unblocked.
+**NimbusPost is the only external shipping provider.** No other courier integration exists or should be added (Velocity was only ever three text labels, now removed).
 
-**Why it's blocked**: a repo-wide search found zero references to a "Velocity" shipping/logistics API anywhere in this codebase (the only two hits for the word are unrelated — inside the Swiper carousel and parallax-scroll third-party JS libraries). There are multiple logistics companies with similar names; guessing endpoints, auth headers, or payload shapes would mean shipping fabricated integration code, which was explicitly ruled out.
+**Internal shipping vs. courier — keep them separate:**
+- **Customer shipping charge** = storefront business rules only, unchanged. Admin → Settings → Storefront & Offers: `free_shipping_threshold` (₹399) and `flat_shipping_charge` (₹60 below the threshold). An active matching `ShippingZone`/`ShippingRate` overrides the flat charge. NimbusPost's courier rates are internal and never charged to customers.
+- **Fulfilment** = NimbusPost, via the `shipments` table (`App\Models\Shipment`). `payment_status`, `order_status` and `shipments.status` are three separate tracks. Shipping code never writes `payment_status`. A tracked delivery may set `order_status = delivered`, which fires the existing voucher hook.
 
-**What's needed before implementation can start** — official Velocity documentation (link, PDF, or Postman collection) covering:
-- API base URL (and whether test/sandbox vs. production use different hosts)
-- Authentication method (API key header, OAuth, HMAC-signed requests, etc.)
-- Serviceability API (check if a PIN/postal code is deliverable)
-- Shipping rate API (request/response shape, what inputs it needs — weight, dimensions, COD vs. prepaid, zone)
-- Shipment/order creation API (exact payload fields expected for customer, address, order items, package)
-- AWB generation (is it returned by the shipment-creation call, or a separate step?)
-- Tracking API (poll-based, or webhook-only?)
-- Cancellation API (when it's allowed, what it returns)
-- Webhook documentation: payload shape for status updates, and their **signature/authentication verification method** — must be verified server-side before trusting any webhook payload, matching the pattern already established for the Razorpay webhook (`RazorpayWebhookController`)
-- Required package weight/dimension units (kg vs. g, cm vs. inches, etc.) — relevant because `product_variants.weight` currently has no enforced unit (admin form just labels it "Weight," a code comment elsewhere *assumes* kg but nothing validates that), and no dimension (length/width/height) fields exist on `product_variants` at all yet
-- COD vs. prepaid payload requirements (how the collectable COD amount is communicated, and that it must be zero for prepaid/Razorpay orders)
+**API contract source:** NimbusPost's published Postman collection **"Nimbuspost Partners API"** (https://documenter.getpostman.com/view/9692837/TW6wHnoz), base `https://api.nimbuspost.com/v1`.
+- Auth: `POST users/login {email, password}` returns `data` (a token), sent as `Authorization: Bearer`. The token is cached encrypted and re-fetched once on a 401; its lifetime is undocumented.
+- Endpoints used: `POST courier/serviceability`, `POST shipments`, `GET shipments/track/{awb}`, `POST shipments/cancel {awb}`.
+- Failures come back as `{"status": false, "message": …}`.
+- Units: weight in **grams**, dimensions in **cm** (they call width "breadth"), `payment_type` is `cod` or `prepaid`.
+- NimbusPost also publishes an older "Nimbuspost API" collection (`ship.nimbuspost.com/api`, `NP-API-KEY` header). It is **not used**: it lacks serviceability, rates and NDR.
+- **Not documented, so not implemented:** webhooks, a public tracking URL, estimated delivery dates, the order-items field list (taken from the example body: `name`, `qty`, `price`, `sku`), and NDR actions.
 
-**Credentials**: once documentation is available, all Velocity credentials (API keys, client ID, secret, tokens, warehouse IDs, account credentials) will be supplied via `.env` by the project owner and read through a dedicated `config/services.php` (or `config/velocity.php`) entry — never hardcoded, never read via bare `env()` calls outside config files, matching the existing Razorpay pattern.
+**Code:**
+- `config/nimbuspost.php` reads env and is cache-safe.
+- `App\Services\Shipping\NimbusPostService` is the only HTTP client. Typed exceptions under `Exceptions\`:
+  - `NotConfigured`
+  - `Unavailable` (timeout / connection / 5xx: outcome unknown)
+  - `Rejected` (`status:false`)
+  - `AuthenticationFailed`
+  - `MalformedResponse`
+- `App\Services\Shipping\FulfilmentService` holds the business rules: payment gate, package prefill, duplicate-safe booking, tracking mapping, cancel, checkout serviceability.
+- Admin: `Admin\OrderShipmentController` (create / refresh / cancel / release) and the partial `admin/sales/orders/_fulfilment.blade.php`.
+- Customer: tracking block on `orders/show.blade.php`.
+- Command: `nimbuspost:sync-tracking`, scheduled hourly in `routes/console.php`. It only runs if the server has the `schedule:run` cron; otherwise admins refresh tracking per order.
 
-**Current shipping architecture (unchanged, for reference when this unblocks)**: `ShippingZone` (name/state/city/pincode/zone_type) has many `ShippingRate` (weight-bracket flat charges, free-shipping threshold). `CheckoutService::resolveShippingZone()`/`resolveShippingRate()`/`shippingAmount()` do a local, non-API flat-rate lookup at checkout, matched by address specificity (pincode → city → state → catch-all) then cart weight bracket. The result is frozen onto `orders.shipping_amount` + `orders.shipping_zone_name` (a string snapshot, not an FK) at order placement. `ShippingMethod` (separate model/admin CRUD) is **not connected to this flow at all** — confirmed via grep, it's referenced nowhere outside its own admin controller/requests; this is pre-existing, not something introduced by the Velocity investigation. No `shipments` table or AWB/tracking/courier columns exist on `orders` yet — those would need to be added (a dedicated `Shipment` model/table was proposed over adding many one-off columns to `orders`) once Velocity work actually starts.
+**Rules:**
+- **Payment gate** (`Order::fulfilmentBlockedReason()`):
+  - COD can ship once the order is confirmed.
+  - Razorpay, Manual UPI, Bank Transfer and legacy UPI can ship only once `payment_status = paid`.
+  - The same gate also blocks admin status moves (confirmed/packed/shipped/delivered) for unverified prepaid orders. Historical rows are never rewritten.
+  - Bank Transfer is verified on Sales → Payments → detail; it now has the same Verify/Reject as Manual UPI.
+- **Manual creation only**, from the admin order page. There is no automatic booking at checkout.
+- **One live shipment per order:** `shipments.active_order_id` is UNIQUE and is claimed *before* the API call.
+  - A NimbusPost refusal → `failed`, slot released, retry allowed.
+  - A **timeout** → `creation_unconfirmed`, slot kept, because NimbusPost may have booked it. An admin checks the NimbusPost panel, then "releases" it before retrying, so a timeout can never create two AWBs.
+- **Checkout serviceability:**
+  - Runs at Place Order only when NimbusPost is configured, cached per pincode + payment type.
+  - NimbusPost's explicit "no courier" (`data: []`) blocks the order.
+  - A timeout/error/disabled state never blocks it.
+- **Status map:** `Shipment::NIMBUSPOST_TRACKING_CODES`, using the documented codes `PP IT EX OFD DL RT RT-IT RT-DL`; `booked` comes from the create response.
+  - Unknown codes are stored raw in `provider_status` and leave the internal status unchanged.
+  - `EX` = exception/NDR, with its message stored in `ndr_reason`.
+- **Cancel** is offered only for `booked` / `pending_pickup`.
+- **Package:**
+  - Weight is prefilled from `order_items.weight` (kg → g).
+  - Dimensions are prefilled only for single-unit orders whose variant has `length_cm`/`width_cm`/`height_cm` (new nullable columns, never auto-filled). Otherwise the packer measures them.
 
-**Open architectural question to resolve before implementation starts**: should Velocity *replace* the flat-rate checkout calculation with a live serviceability/rate call, or *layer in after payment* for shipment creation/tracking only while keeping the existing flat-rate charge as-is? These have different scopes and risk profiles — needs an explicit decision, not an assumption.
+**Env** (blank placeholders in `.env.example`; real values only in `.env`):
+- Required to enable: `NIMBUSPOST_ENABLED=true`, `NIMBUSPOST_EMAIL`, `NIMBUSPOST_PASSWORD`, and `NIMBUSPOST_PICKUP_` `WAREHOUSE_NAME`, `NAME`, `ADDRESS`, `CITY`, `STATE`, `PINCODE`, `PHONE`.
+- Optional: `NIMBUSPOST_BASE_URL` (defaults to v1), `NIMBUSPOST_AUTO_PICKUP`, `NIMBUSPOST_PICKUP_ADDRESS_2`, `NIMBUSPOST_PICKUP_GST_NUMBER`, `NIMBUSPOST_TIMEOUT`, `NIMBUSPOST_TOKEN_CACHE_MINUTES`, `NIMBUSPOST_SERVICEABILITY_CACHE_MINUTES`.
+- The admin page shows only the *names* of missing settings.
+
+**Not done / limitations:**
+- No webhook (not documented).
+- NDR actions not implemented.
+- Reverse shipments are not connected: the Returns module is approve/reject only.
+- No real NimbusPost call has been made yet. Everything is tested with `Http::fake()`, and browser QA used a local stand-in replaying the documented example responses.
+- Do the first live test with one real low-value order.
+- `ShippingMethod` admin CRUD is still unconnected to anything (pre-existing).
 
 ## Workflow: implementing a module
 

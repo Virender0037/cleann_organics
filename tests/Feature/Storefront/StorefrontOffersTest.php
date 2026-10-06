@@ -8,6 +8,7 @@ use App\Models\ContactMessage;
 use App\Models\Coupon;
 use App\Models\HomeBanner;
 use App\Models\Order;
+use App\Models\Page;
 use App\Models\Product;
 use App\Models\ProductReview;
 use App\Models\ProductVariant;
@@ -129,7 +130,8 @@ class StorefrontOffersTest extends TestCase
         $this->addToCart($variant);
 
         $this->get('/shopping-cart')->assertOk()->assertSee('Inclusive of all taxes');
-        $this->get('/checkout')->assertOk()->assertSee('Inclusive of all taxes')->assertSee('Shipping Partner: Velocity');
+        // NimbusPost is the only courier and is not advertised at checkout; the old Velocity label must be gone.
+        $this->get('/checkout')->assertOk()->assertSee('Inclusive of all taxes')->assertDontSee('Velocity');
     }
 
     // ------------------------------------------------------------------
@@ -445,7 +447,7 @@ class StorefrontOffersTest extends TestCase
 
     public function test_contact_page_uses_company_settings_and_saves_messages(): void
     {
-        \App\Models\Page::create(['title' => 'Contact Us', 'slug' => 'contact-us', 'content' => 'x', 'status' => 'active']);
+        Page::create(['title' => 'Contact Us', 'slug' => 'contact-us', 'content' => 'x', 'status' => 'active']);
         Setting::setMany('general', ['company_email' => 'hello@cleann.test', 'company_phone' => '+91 99999 11111', 'company_address' => '12 Green Street, Delhi']);
         Setting::forget('general');
 
@@ -474,7 +476,7 @@ class StorefrontOffersTest extends TestCase
 
     public function test_about_page_no_longer_shows_the_stock_farmer_photo(): void
     {
-        \App\Models\Page::create(['title' => 'About Us', 'slug' => 'about-us', 'content' => 'x', 'status' => 'active']);
+        Page::create(['title' => 'About Us', 'slug' => 'about-us', 'content' => 'x', 'status' => 'active']);
 
         $this->get('/about-us')->assertOk()->assertDontSee('members/img-08.png', false);
     }

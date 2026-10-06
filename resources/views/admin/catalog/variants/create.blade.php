@@ -79,9 +79,27 @@
                     </div>
 
                     <div class="col-md-4 mb-3">
-                        <label class="form-label">Weight</label>
+                        <label class="form-label">Weight (kg)</label>
                         <input type="number" step="0.01" name="weight" class="form-control @error('weight') is-invalid @enderror" value="{{ old('weight') }}" placeholder="0.50">
                         @error('weight') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Length (cm)</label>
+                        <input type="number" step="0.1" min="0.1" name="length_cm" class="form-control @error('length_cm') is-invalid @enderror" value="{{ old('length_cm') }}" placeholder="Packed size">
+                        @error('length_cm') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Width (cm)</label>
+                        <input type="number" step="0.1" min="0.1" name="width_cm" class="form-control @error('width_cm') is-invalid @enderror" value="{{ old('width_cm') }}" placeholder="Packed size">
+                        @error('width_cm') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Height (cm)</label>
+                        <input type="number" step="0.1" min="0.1" name="height_cm" class="form-control @error('height_cm') is-invalid @enderror" value="{{ old('height_cm') }}" placeholder="Packed size">
+                        @error('height_cm') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="col-md-4 mb-3">

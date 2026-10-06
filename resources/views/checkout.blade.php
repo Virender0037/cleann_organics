@@ -230,7 +230,6 @@
                       </div>
                       <p class="bill-card__tax-note font-body--sm-400">
                         Inclusive of all taxes{{ $taxAmount > 0 ? " (includes GST ₹".number_format($taxAmount, 2).")" : "" }}.
-                        Shipping Partner: Velocity.
                       </p>
                     </div>
 

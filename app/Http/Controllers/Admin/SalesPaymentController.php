@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SalesPaymentController extends Controller
 {
+    /** Offline payments an admin confirms by hand (bank statement / UPI reference). Verification gates shipping. */
+    private const ADMIN_VERIFIED_METHODS = ['manual_upi', 'bank_transfer'];
+
     public function __construct(private readonly ManualUpiPaymentService $manualUpi) {}
 
     public function index(Request $request): View
@@ -93,7 +96,7 @@ class SalesPaymentController extends Controller
 
     public function verify(Request $request, Payment $payment): RedirectResponse
     {
-        if ($payment->payment_method !== 'manual_upi') {
+        if (! in_array($payment->payment_method, self::ADMIN_VERIFIED_METHODS, true)) {
             abort(404);
         }
 
@@ -110,7 +113,7 @@ class SalesPaymentController extends Controller
 
     public function reject(Request $request, Payment $payment): RedirectResponse
     {
-        if ($payment->payment_method !== 'manual_upi') {
+        if (! in_array($payment->payment_method, self::ADMIN_VERIFIED_METHODS, true)) {
             abort(404);
         }
 
