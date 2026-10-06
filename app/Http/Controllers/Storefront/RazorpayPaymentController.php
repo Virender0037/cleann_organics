@@ -56,7 +56,7 @@ class RazorpayPaymentController extends Controller
             'payment' => $payment,
             'gatewayError' => $gatewayError,
             'razorpayKeyId' => $this->razorpay->keyId(),
-            'amountInPaise' => (int) round(((float) $payment->amount) * 100),
+            'amountInPaise' => $this->paymentService->expectedAmountInPaise($payment),
             'customerName' => $user->name,
             'customerEmail' => $user->email,
             'customerPhone' => $order->shipping_phone,
@@ -103,12 +103,39 @@ class RazorpayPaymentController extends Controller
             return redirect()->route('orders.pay', $order)->with('error', 'We could not verify this payment. Please try again or choose another payment method.');
         }
 
-        $this->paymentService->markCaptured(
+        // The signature proves order_id|payment_id only — not the amount. Read the amount from Razorpay itself.
+        try {
+            $gatewayPayment = $this->razorpay->fetchPayment($validated['razorpay_payment_id']);
+        } catch (\Throwable $e) {
+            // Nothing is marked paid without a confirmed amount; the payment.captured webhook will settle it.
+            return redirect()->route('orders.show', $order)->with('success', 'Thank you! We are confirming your payment with Razorpay — this page will show it as paid within a few minutes. Please do not pay again.');
+        }
+
+        $sameOrder = ($gatewayPayment['order_id'] ?? null) === $validated['razorpay_order_id'];
+        $settled = in_array($gatewayPayment['status'] ?? null, ['captured', 'authorized'], true);
+
+        if (! $sameOrder || ! $settled) {
+            Log::warning('razorpay.verify_gateway_state_unexpected', [
+                'order_id' => $order->id,
+                'gateway_status' => $gatewayPayment['status'] ?? null,
+                'gateway_order_matches' => $sameOrder,
+            ]);
+
+            return redirect()->route('orders.pay', $order)->with('error', 'We could not confirm this payment yet. If money was deducted, please contact support instead of paying again.');
+        }
+
+        $result = $this->paymentService->markCaptured(
             $order,
             $validated['razorpay_payment_id'],
             $validated['razorpay_order_id'],
             $validated['razorpay_signature'],
+            is_numeric($gatewayPayment['amount'] ?? null) ? (int) $gatewayPayment['amount'] : -1,
+            (string) ($gatewayPayment['currency'] ?? ''),
         );
+
+        if (! in_array($result, [RazorpayPaymentService::CAPTURE_OK, RazorpayPaymentService::CAPTURE_ALREADY_PAID], true)) {
+            return redirect()->route('orders.show', $order)->with('error', 'We could not confirm the amount of this payment. Our team will review it — please contact support and do not pay again.');
+        }
 
         return redirect()->route('orders.show', $order)->with('success', 'Payment successful! Order #'.$order->order_number);
     }

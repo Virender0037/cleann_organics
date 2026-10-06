@@ -11,7 +11,6 @@ use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
@@ -27,7 +26,11 @@ class RazorpayOrderAdminVisibilityTest extends TestCase
     private function placePaidRazorpayOrder(string $gatewayPaymentId = 'pay_admin123'): Order
     {
         config(['services.razorpay.key' => 'rzp_test_key', 'services.razorpay.secret' => 'test_secret', 'services.razorpay.webhook_secret' => 'wh_secret']);
-        Http::fake(['https://api.razorpay.com/v1/orders' => Http::response(['id' => 'order_admin123', 'amount' => 120800, 'currency' => 'INR'], 200)]);
+        Http::fake([
+            'https://api.razorpay.com/v1/orders' => Http::response(['id' => 'order_admin123', 'amount' => 120800, 'currency' => 'INR'], 200),
+            // Razorpay's own record of the payment: the browser callback's amount is always confirmed against this.
+            'https://api.razorpay.com/v1/payments/*' => Http::response(['id' => $gatewayPaymentId, 'order_id' => 'order_admin123', 'amount' => 120800, 'currency' => 'INR', 'status' => 'captured'], 200),
+        ]);
 
         $customer = User::factory()->create(['name' => 'Razor Customer', 'email' => 'razor@example.test']);
         $category = Category::create(['name' => 'Bottles', 'slug' => 'bottles-'.uniqid(), 'status' => 'active']);
@@ -108,7 +111,7 @@ class RazorpayOrderAdminVisibilityTest extends TestCase
 
         $matching = [
             '' => '',
-            'search=' . $order->order_number => '',
+            'search='.$order->order_number => '',
             'search='.substr($order->order_number, -5) => '',
             'search=Razor+Customer' => '',
             'search=razor@example.test' => '',

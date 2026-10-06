@@ -19,6 +19,16 @@ use RuntimeException;
  */
 class RazorpayPaymentService
 {
+    public const CURRENCY = 'INR';
+
+    public const CAPTURE_OK = 'captured';
+
+    public const CAPTURE_ALREADY_PAID = 'already_paid';
+
+    public const CAPTURE_ORDER_MISMATCH = 'order_mismatch';
+
+    public const CAPTURE_AMOUNT_MISMATCH = 'amount_mismatch';
+
     public function __construct(private readonly RazorpayService $razorpay) {}
 
     /**
@@ -41,7 +51,7 @@ class RazorpayPaymentService
 
         $gatewayOrder = $this->razorpay->createOrder(
             receipt: $order->order_number,
-            amountInPaise: (int) round(((float) $payment->amount) * 100),
+            amountInPaise: $this->expectedAmountInPaise($payment),
         );
 
         $payment->update(['gateway_order_id' => $gatewayOrder['id']]);
@@ -49,19 +59,30 @@ class RazorpayPaymentService
         return $payment->fresh();
     }
 
-    /**
-     * @param  array<string, mixed>  $meta  Raw gateway payload, kept for support/audit — never anything secret.
-     */
-    public function markCaptured(Order $order, string $gatewayPaymentId, ?string $gatewayOrderId, ?string $signature, array $meta = []): void
+    /** What we charge for this payment, in paise — always derived from our stored amount, never from a request. */
+    public function expectedAmountInPaise(Payment $payment): int
     {
-        DB::transaction(function () use ($order, $gatewayPaymentId, $gatewayOrderId, $signature, $meta) {
+        return (int) round(((float) $payment->amount) * 100);
+    }
+
+    /**
+     * Marks the payment paid only when Razorpay's reported amount (in paise) and currency exactly match what we
+     * charged. The amount comes from the signed webhook payload or from Razorpay's API — never from the browser.
+     *
+     * @param  int  $paidAmountInPaise  As reported by Razorpay (smallest currency unit).
+     * @param  array<string, mixed>  $meta  Raw gateway payload, kept for support/audit — never anything secret.
+     * @return string One of the CAPTURE_* constants.
+     */
+    public function markCaptured(Order $order, string $gatewayPaymentId, ?string $gatewayOrderId, ?string $signature, int $paidAmountInPaise, string $currency, array $meta = []): string
+    {
+        return DB::transaction(function () use ($order, $gatewayPaymentId, $gatewayOrderId, $signature, $paidAmountInPaise, $currency, $meta) {
             /** @var Payment $payment */
             $payment = $order->payment()->lockForUpdate()->firstOrFail();
 
             if ($payment->status === 'paid') {
                 // Already captured by an earlier call (browser callback,
                 // webhook, or a retried webhook delivery) — no-op.
-                return;
+                return self::CAPTURE_ALREADY_PAID;
             }
 
             if ($gatewayOrderId && $payment->gateway_order_id && $payment->gateway_order_id !== $gatewayOrderId) {
@@ -71,7 +92,28 @@ class RazorpayPaymentService
                     'received_gateway_order_id' => $gatewayOrderId,
                 ]);
 
-                return;
+                return self::CAPTURE_ORDER_MISMATCH;
+            }
+
+            $expected = $this->expectedAmountInPaise($payment);
+
+            if ($paidAmountInPaise !== $expected || strtoupper($currency) !== self::CURRENCY) {
+                // Never mark paid on a mismatch. Left pending (not failed) so it stays visible for a manual review —
+                // money may have moved, and only a person should decide on a refund or a top-up.
+                Log::error('razorpay.amount_mismatch', [
+                    'order_id' => $order->id,
+                    'gateway_payment_id' => $gatewayPaymentId,
+                    'expected_paise' => $expected,
+                    'received_paise' => $paidAmountInPaise,
+                    'received_currency' => $currency,
+                ]);
+
+                $payment->update([
+                    'failure_reason' => "Amount mismatch on Razorpay payment {$gatewayPaymentId}: received {$paidAmountInPaise} paise {$currency}, expected {$expected} paise ".self::CURRENCY.'. Needs manual review.',
+                    'meta' => $meta ?: $payment->meta,
+                ]);
+
+                return self::CAPTURE_AMOUNT_MISMATCH;
             }
 
             $payment->update([
@@ -97,6 +139,8 @@ class RazorpayPaymentService
                 'order_id' => $order->id,
                 'gateway_payment_id' => $gatewayPaymentId,
             ]);
+
+            return self::CAPTURE_OK;
         });
     }
 

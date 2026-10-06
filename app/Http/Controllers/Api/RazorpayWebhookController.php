@@ -63,11 +63,15 @@ class RazorpayWebhookController extends Controller
         $order = $payment->order;
 
         match ($event) {
+            // The amount/currency come from this signed payload (verified above). A missing amount is treated as a
+            // mismatch, so a payment is never marked paid without Razorpay confirming exactly what was charged.
             'payment.captured' => $this->paymentService->markCaptured(
                 $order,
                 $paymentEntity['id'],
                 $paymentEntity['order_id'],
                 null,
+                is_numeric($paymentEntity['amount'] ?? null) ? (int) $paymentEntity['amount'] : -1,
+                (string) ($paymentEntity['currency'] ?? ''),
                 $data,
             ),
             'payment.failed' => $this->paymentService->markFailed(

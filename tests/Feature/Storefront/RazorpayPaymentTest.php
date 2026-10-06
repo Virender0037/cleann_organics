@@ -5,6 +5,7 @@ namespace Tests\Feature\Storefront;
 use App\Models\Address;
 use App\Models\Category;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
@@ -79,7 +80,11 @@ class RazorpayPaymentTest extends TestCase
         ]);
     }
 
-    private function fakeGatewayOrder(string $gatewayOrderId = 'order_test123'): void
+    /**
+     * Fakes Razorpay's order creation, and its "fetch payment" API reporting a captured payment for exactly the
+     * amount we stored (or $paidPaise when given — to simulate an under/over payment).
+     */
+    private function fakeGatewayOrder(string $gatewayOrderId = 'order_test123', ?int $paidPaise = null, string $currency = 'INR', string $status = 'captured'): void
     {
         Http::fake([
             'https://api.razorpay.com/v1/orders' => Http::response([
@@ -87,7 +92,125 @@ class RazorpayPaymentTest extends TestCase
                 'amount' => 10000,
                 'currency' => 'INR',
             ], 200),
+            'https://api.razorpay.com/v1/payments/*' => function ($request) use ($gatewayOrderId, $paidPaise, $currency, $status) {
+                $payment = Payment::where('gateway_order_id', $gatewayOrderId)->firstOrFail();
+
+                return Http::response([
+                    'id' => basename(parse_url($request->url(), PHP_URL_PATH)),
+                    'order_id' => $gatewayOrderId,
+                    'amount' => $paidPaise ?? (int) round(((float) $payment->amount) * 100),
+                    'currency' => $currency,
+                    'status' => $status,
+                ], 200);
+            },
         ]);
+    }
+
+    private function signedVerifyPayload(string $gatewayOrderId, string $paymentId): array
+    {
+        return [
+            'razorpay_payment_id' => $paymentId,
+            'razorpay_order_id' => $gatewayOrderId,
+            'razorpay_signature' => hash_hmac('sha256', $gatewayOrderId.'|'.$paymentId, 'test_secret'),
+        ];
+    }
+
+    public function test_verify_marks_paid_only_when_razorpay_reports_the_exact_order_amount(): void
+    {
+        $this->configureRazorpay();
+        $this->fakeGatewayOrder('order_exact1');
+        $order = $this->placeRazorpayOrder(User::factory()->create());
+
+        $this->post(route('orders.pay.verify', $order), $this->signedVerifyPayload('order_exact1', 'pay_exact1'))
+            ->assertRedirect(route('orders.show', $order))
+            ->assertSessionHas('success');
+
+        $this->assertSame('paid', $order->fresh()->payment_status);
+        Http::assertSent(fn ($request) => $request->method() === 'GET' && str_ends_with($request->url(), '/v1/payments/pay_exact1'));
+    }
+
+    public function test_verify_does_not_mark_paid_when_razorpay_reports_a_lower_amount(): void
+    {
+        $this->configureRazorpay();
+        $this->fakeGatewayOrder('order_low1', paidPaise: 100); // ₹1
+        $order = $this->placeRazorpayOrder(User::factory()->create());
+
+        $this->post(route('orders.pay.verify', $order), $this->signedVerifyPayload('order_low1', 'pay_low1'))
+            ->assertSessionHas('error');
+
+        $order->refresh();
+        $this->assertSame('pending', $order->payment_status);
+        $this->assertSame('pending', $order->order_status);
+        $this->assertSame('pending', $order->payment->status);
+        $this->assertNull($order->payment->paid_at);
+        $this->assertStringContainsString('Amount mismatch', $order->payment->failure_reason);
+    }
+
+    public function test_verify_does_not_mark_paid_when_razorpay_reports_a_higher_amount(): void
+    {
+        $this->configureRazorpay();
+        $this->fakeGatewayOrder('order_high1', paidPaise: 99999999);
+        $order = $this->placeRazorpayOrder(User::factory()->create());
+
+        $this->post(route('orders.pay.verify', $order), $this->signedVerifyPayload('order_high1', 'pay_high1'))->assertSessionHas('error');
+
+        $this->assertSame('pending', $order->fresh()->payment_status);
+        $this->assertStringContainsString('Amount mismatch', $order->fresh()->payment->failure_reason);
+    }
+
+    public function test_verify_does_not_mark_paid_for_the_right_number_in_another_currency(): void
+    {
+        $this->configureRazorpay();
+        $this->fakeGatewayOrder('order_usd1', currency: 'USD');
+        $order = $this->placeRazorpayOrder(User::factory()->create());
+
+        $this->post(route('orders.pay.verify', $order), $this->signedVerifyPayload('order_usd1', 'pay_usd1'))->assertSessionHas('error');
+
+        $this->assertSame('pending', $order->fresh()->payment_status);
+    }
+
+    public function test_browser_supplied_amount_fields_are_ignored(): void
+    {
+        $this->configureRazorpay();
+        $this->fakeGatewayOrder('order_tamper1', paidPaise: 100);
+        $order = $this->placeRazorpayOrder(User::factory()->create());
+        $expected = (int) round(((float) $order->payment->amount) * 100);
+
+        // The browser claims the "right" amount, but Razorpay says ₹1 was paid: Razorpay wins.
+        $this->post(route('orders.pay.verify', $order), $this->signedVerifyPayload('order_tamper1', 'pay_tamper1') + ['amount' => $expected, 'currency' => 'INR'])
+            ->assertSessionHas('error');
+
+        $this->assertSame('pending', $order->fresh()->payment_status);
+    }
+
+    public function test_verify_marks_nothing_paid_when_razorpay_cannot_be_reached(): void
+    {
+        $this->configureRazorpay();
+        Http::fake([
+            'https://api.razorpay.com/v1/orders' => Http::response(['id' => 'order_down1', 'amount' => 10000, 'currency' => 'INR'], 200),
+            'https://api.razorpay.com/v1/payments/*' => Http::response([], 503),
+        ]);
+        $order = $this->placeRazorpayOrder(User::factory()->create());
+
+        $this->post(route('orders.pay.verify', $order), $this->signedVerifyPayload('order_down1', 'pay_down1'))
+            ->assertRedirect(route('orders.show', $order));
+
+        $order->refresh();
+        $this->assertSame('pending', $order->payment_status);
+        $this->assertSame('pending', $order->payment->status);
+    }
+
+    public function test_verify_refuses_a_payment_razorpay_reports_as_failed(): void
+    {
+        $this->configureRazorpay();
+        $this->fakeGatewayOrder('order_failed1', status: 'failed');
+        $order = $this->placeRazorpayOrder(User::factory()->create());
+
+        $this->post(route('orders.pay.verify', $order), $this->signedVerifyPayload('order_failed1', 'pay_failed1'))
+            ->assertRedirect(route('orders.pay', $order))
+            ->assertSessionHas('error');
+
+        $this->assertSame('pending', $order->fresh()->payment_status);
     }
 
     /** Places a razorpay order for the given user via a fresh cart + address, returns the Order. */

@@ -198,6 +198,11 @@ Real-browser QA (puppeteer + Chrome) against the imported local DB; regression t
 - Security: the blog body renders through `App\Support\SafeHtml::clean()` (allowlist) instead of raw `{!! !!}`. Variant media accepts exact `image/jpeg|png|webp` only (an SVG renamed `.jpg` used to pass). `APP_DEBUG` defaults to false.
 - `main.js` Swiper sections are guarded, so pages without the Swiper library (checkout/account/order) no longer throw.
 
+**Payment/security hardening (2026-10-06, after the QA pass):**
+- Razorpay: a payment is marked paid **only when Razorpay's reported amount (paise) and currency exactly match our stored `payments.amount`**. This check lives in `RazorpayPaymentService::markCaptured()`, under the existing row lock. The webhook uses its signed payload's `amount`/`currency`. The browser callback fetches the payment from Razorpay (`RazorpayService::fetchPayment()`, `GET /v1/payments/{id}`) because its signature doesn't cover the amount; browser-sent amounts are ignored. On a mismatch the payment stays pending, `failure_reason` says "Amount mismatch… Needs manual review" and `razorpay.amount_mismatch` is logged. If Razorpay can't be reached, nothing is marked paid and the webhook settles it. An already-paid payment is still a no-op.
+- Shipping config for production: Admin → Settings → Storefront & Offers (`storefront` group): `free_shipping_threshold` = 399, `flat_shipping_charge` = 60. An active matching Shipping Zone/Rate takes precedence over the flat charge below the threshold.
+- Search rate limit: the named limiter `storefront-search` (AppServiceProvider) is applied to `/shop`, `/category/{slug}` and `/bloglist`. Only requests with `?search=` count: 120/min per IP.
+
 `public/js/main.js` now loads through `admin_asset()` (filemtime `?v=`), like `style.css`/`cart.js`, so a deploy busts browser caches. It still has to be copied to `public_html`.
 
 ## Shipping — Velocity Integration: PENDING / BLOCKED BY API DOCUMENTATION (added 2026-09-12)

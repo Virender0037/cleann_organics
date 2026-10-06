@@ -110,7 +110,7 @@ Route::get('/aboutus', fn () => redirect()->route('aboutus', [], 301));
 // BlogController::show() rather than via {blog:slug} implicit binding, same
 // convention as CategoryController::show()/ProductController::show() — the
 // admin catalog routes already bind a numeric {blog} for edit/update/destroy.
-Route::get('/bloglist', [StorefrontBlogController::class, 'index'])->name('bloglist');
+Route::get('/bloglist', [StorefrontBlogController::class, 'index'])->middleware('throttle:storefront-search')->name('bloglist');
 Route::get('/singleblog/{slug}', [StorefrontBlogController::class, 'show'])->name('singleblog');
 
 // Customer-only storefront pages. Grouped under auth so a guest is redirected
@@ -276,13 +276,13 @@ Route::get('/404', function () {
     return view('404');
 })->name('404');
 
-Route::get('/shop', [ShopController::class, 'index'])->name('shop');
+Route::get('/shop', [ShopController::class, 'index'])->middleware('throttle:storefront-search')->name('shop');
 
 // Canonical category browsing URL. Category navigation/filters must link
 // here directly rather than to /shop?category=slug, so a category never has
 // two indexable URLs. Looked up manually inside the controller (not via
 // {category:slug} implicit binding) — see CategoryController::show().
-Route::get('/category/{slug}', [StorefrontCategoryController::class, 'show'])->name('category.show');
+Route::get('/category/{slug}', [StorefrontCategoryController::class, 'show'])->middleware('throttle:storefront-search')->name('category.show');
 
 // Looked up manually inside the controller (not via {product:slug} implicit
 // binding) — see StorefrontProductController::show().

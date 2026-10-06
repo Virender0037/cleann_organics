@@ -83,6 +83,36 @@ class RazorpayService
     }
 
     /**
+     * Razorpay's own record of a payment (amount in paise, currency, status, order_id), read server-to-server.
+     * The browser callback only proves "order_id|payment_id" via its signature — never how much was paid — so the
+     * amount we compare against our order always comes from here (or from the signed webhook payload).
+     *
+     * @return array<string, mixed>
+     *
+     * @throws RuntimeException when Razorpay isn't configured or the API call fails
+     */
+    public function fetchPayment(string $paymentId): array
+    {
+        if (! $this->isConfigured()) {
+            throw new RuntimeException('Razorpay is not configured.');
+        }
+
+        try {
+            $response = Http::withBasicAuth($this->keyId, $this->keySecret)
+                ->acceptJson()
+                ->timeout(15)
+                ->get(self::BASE_URL.'/payments/'.rawurlencode($paymentId))
+                ->throw();
+        } catch (\Throwable $e) {
+            Log::error('razorpay.fetch_payment_failed', ['gateway_payment_id' => $paymentId, 'error' => $e->getMessage()]);
+
+            throw new RuntimeException('Could not fetch Razorpay payment.', previous: $e);
+        }
+
+        return (array) $response->json();
+    }
+
+    /**
      * The signature Razorpay Checkout hands back to the browser after a
      * successful payment: HMAC-SHA256 of "order_id|payment_id", keyed with
      * the account's Key Secret. Verifying this server-side is what proves

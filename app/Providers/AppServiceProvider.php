@@ -11,8 +11,11 @@ use App\Services\Storefront\StorefrontSettings;
 use App\Services\Storefront\VoucherService;
 use App\Services\Storefront\WishlistService;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -39,6 +42,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::defaultView('pagination::bootstrap-5');
+
+        // Public product/blog search (`?search=` on /shop, /category/{slug}, /bloglist). Only requests that actually
+        // carry a search term count, so browsing, filtering and pagination are never limited. 120/min per IP is far
+        // above what a person types, while still capping scripted LIKE-query floods; shared (carrier-NAT) IPs fit.
+        RateLimiter::for('storefront-search', function (Request $request) {
+            return $request->filled('search')
+                ? Limit::perMinute(120)->by('search:'.$request->ip())
+                : Limit::none();
+        });
 
         // Shared once per request (not per include) across the storefront's
         // header/footer, which both render on every page — cached across

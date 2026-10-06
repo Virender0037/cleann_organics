@@ -82,7 +82,7 @@ class RazorpayWebhookTest extends TestCase
 
         $response = $this->postJson('/api/webhooks/razorpay', [
             'event' => 'payment.captured',
-            'payload' => ['payment' => ['entity' => ['id' => 'pay_wh1', 'order_id' => 'order_wh1']]],
+            'payload' => ['payment' => ['entity' => ['id' => 'pay_wh1', 'order_id' => 'order_wh1', 'amount' => 10000, 'currency' => 'INR']]],
         ], ['X-Razorpay-Signature' => 'totally-wrong']);
 
         $response->assertStatus(400);
@@ -101,6 +101,8 @@ class RazorpayWebhookTest extends TestCase
                         'id' => 'pay_wh2',
                         'order_id' => 'order_wh2',
                         'status' => 'captured',
+                        'amount' => 10000,
+                        'currency' => 'INR',
                     ],
                 ],
             ],
@@ -123,7 +125,7 @@ class RazorpayWebhookTest extends TestCase
             'event' => 'payment.captured',
             'payload' => [
                 'payment' => [
-                    'entity' => ['id' => 'pay_wh3', 'order_id' => 'order_wh3'],
+                    'entity' => ['id' => 'pay_wh3', 'order_id' => 'order_wh3', 'amount' => 10000, 'currency' => 'INR'],
                 ],
             ],
         ];
@@ -172,7 +174,7 @@ class RazorpayWebhookTest extends TestCase
 
         $this->postWebhook([
             'event' => 'payment.captured',
-            'payload' => ['payment' => ['entity' => ['id' => 'pay_wh5', 'order_id' => 'order_wh5']]],
+            'payload' => ['payment' => ['entity' => ['id' => 'pay_wh5', 'order_id' => 'order_wh5', 'amount' => 10000, 'currency' => 'INR']]],
         ])->assertOk();
 
         // A late/duplicate "failed" notification for the same payment must
@@ -191,9 +193,87 @@ class RazorpayWebhookTest extends TestCase
     {
         $response = $this->postWebhook([
             'event' => 'payment.captured',
-            'payload' => ['payment' => ['entity' => ['id' => 'pay_unknown', 'order_id' => 'order_does_not_exist']]],
+            'payload' => ['payment' => ['entity' => ['id' => 'pay_unknown', 'order_id' => 'order_does_not_exist', 'amount' => 10000, 'currency' => 'INR']]],
         ]);
 
         $response->assertOk();
+    }
+
+    private function capturedEvent(string $gatewayOrderId, string $paymentId, mixed $amount = 10000, string $currency = 'INR'): array
+    {
+        $entity = ['id' => $paymentId, 'order_id' => $gatewayOrderId, 'status' => 'captured', 'currency' => $currency];
+        if ($amount !== null) {
+            $entity['amount'] = $amount;
+        }
+
+        return ['event' => 'payment.captured', 'payload' => ['payment' => ['entity' => $entity]]];
+    }
+
+    public function test_captured_webhook_with_the_exact_amount_marks_paid(): void
+    {
+        $order = $this->orderWithRazorpayPayment('order_amt_ok'); // payment amount ₹100 = 10000 paise
+
+        $this->postWebhook($this->capturedEvent('order_amt_ok', 'pay_amt_ok', 10000))->assertOk();
+
+        $this->assertSame('paid', $order->fresh()->payment_status);
+    }
+
+    public function test_captured_webhook_with_a_lower_amount_is_not_marked_paid(): void
+    {
+        $order = $this->orderWithRazorpayPayment('order_amt_low');
+
+        $this->postWebhook($this->capturedEvent('order_amt_low', 'pay_amt_low', 9999))->assertOk();
+
+        $order->refresh();
+        $this->assertSame('pending', $order->payment_status);
+        $this->assertSame('pending', $order->order_status);
+        $this->assertSame('pending', $order->payment->status);
+        $this->assertNull($order->payment->paid_at);
+        $this->assertStringContainsString('Amount mismatch', $order->payment->failure_reason);
+    }
+
+    public function test_captured_webhook_with_a_higher_amount_is_not_marked_paid(): void
+    {
+        $order = $this->orderWithRazorpayPayment('order_amt_high');
+
+        $this->postWebhook($this->capturedEvent('order_amt_high', 'pay_amt_high', 10001))->assertOk();
+
+        $this->assertSame('pending', $order->fresh()->payment_status);
+    }
+
+    public function test_captured_webhook_without_an_amount_or_in_another_currency_is_not_marked_paid(): void
+    {
+        $missing = $this->orderWithRazorpayPayment('order_amt_none');
+        $this->postWebhook($this->capturedEvent('order_amt_none', 'pay_amt_none', null))->assertOk();
+        $this->assertSame('pending', $missing->fresh()->payment_status);
+
+        $usd = $this->orderWithRazorpayPayment('order_amt_usd');
+        $this->postWebhook($this->capturedEvent('order_amt_usd', 'pay_amt_usd', 10000, 'USD'))->assertOk();
+        $this->assertSame('pending', $usd->fresh()->payment_status);
+    }
+
+    public function test_duplicate_captured_webhook_after_payment_is_a_no_op_even_with_a_different_amount(): void
+    {
+        $order = $this->orderWithRazorpayPayment('order_amt_dup');
+        $this->postWebhook($this->capturedEvent('order_amt_dup', 'pay_amt_dup', 10000))->assertOk();
+        $paidAt = $order->fresh()->payment->paid_at;
+
+        $this->postWebhook($this->capturedEvent('order_amt_dup', 'pay_amt_dup', 10000))->assertOk();
+        $this->postWebhook($this->capturedEvent('order_amt_dup', 'pay_amt_dup', 1))->assertOk();
+
+        $payment = $order->fresh()->payment;
+        $this->assertSame('paid', $payment->status);
+        $this->assertNull($payment->failure_reason);
+        $this->assertEquals($paidAt, $payment->paid_at);
+        $this->assertSame(1, Payment::where('order_id', $order->id)->count());
+    }
+
+    public function test_captured_webhook_with_the_right_amount_but_an_invalid_signature_changes_nothing(): void
+    {
+        $order = $this->orderWithRazorpayPayment('order_amt_sig');
+
+        $this->postWebhook($this->capturedEvent('order_amt_sig', 'pay_amt_sig', 10000), 'wrong_secret')->assertStatus(400);
+
+        $this->assertSame('pending', $order->fresh()->payment_status);
     }
 }
