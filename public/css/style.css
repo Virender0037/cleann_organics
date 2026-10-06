@@ -11809,9 +11809,13 @@ select:focus-visible,
 .header__brand { min-width: 0; }
 .header__logo-link { display: inline-flex; align-items: center; min-width: 0; }
 .header__logo { height: auto; width: auto; min-width: 0; max-height: 72px; max-width: min(260px, 100%); object-fit: contain; object-position: left center; }
-@media (max-width: 991px) { .header__logo { max-height: 52px; max-width: min(190px, 100%); } }
-.footer__brand-info-logo a { display: inline-block; }
-.footer__brand-info-logo img { height: auto; width: auto; max-height: 72px; max-width: min(240px, 100%); object-fit: contain; object-position: left center; }
+/* !important: the <img> also carries an inline max-height/max-width guard (protection against stale CSS after a
+   deploy), and inline styles beat stylesheet rules — without it these phone sizes never applied (live: 72px tall). */
+@media (max-width: 991px) { .header__logo { max-height: 44px !important; max-width: min(190px, 100%) !important; } }
+@media (max-width: 380px) { .header__logo { max-height: 38px !important; max-width: min(165px, 100%) !important; } }
+/* Light backing: the logo's wordmark is dark and the footer is dark, so without it "CLEANN" is unreadable. */
+.footer__brand-info-logo a { display: inline-block; max-width: 100%; line-height: 0; }
+.footer__brand-info-logo img { height: auto; width: auto; max-height: 72px; max-width: min(240px, 100%); object-fit: contain; object-position: left center; box-sizing: border-box; background: #fff; padding: 8px 12px; border-radius: 8px; }
 
 /* ---------- Layout fixes found in the responsive audit ---------- */
 /* Testimonial avatars: the 56px flex item was shrinking in narrow cards, turning the circle into an oval. */

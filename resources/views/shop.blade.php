@@ -481,25 +481,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- banner  -->
-                                <div class="shop-item">
-                                    <div class="shop-img-banner">
-                                        <img src="{{ asset('images/banner/banner-sm-19.jpg') }}" alt="banner-sm" />
-                                        <div class="text-content">
-                                            <h5><span>79%</span> Discount</h5>
-                                            <p>on Your Fast Order</p>
-                                            <a href="{{ route('shop') }}" class="button button--md">
-                                                Shop now
-                                                <span>
-                                                    <svg width="17" height="15" viewBox="0 0 17 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M16 7.50049H1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                                        <path d="M9.95001 1.47559L16 7.49959L9.95001 13.5246" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                                    </svg>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
+                                {{-- The template's "79% Discount on Your Fast Order" promo banner was removed: it was static
+                                     template text, not a real offer (no such discount exists). Real discounts only come
+                                     from product/marketplace pricing. --}}
                                 <!-- Sales Products  -->
                                 <div class="shop-item">
                                     <h2 class="font-body--xxl-500" style="margin-bottom: 12px;">Sale Products</h2>

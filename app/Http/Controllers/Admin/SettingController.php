@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdatePaymentSettingsRequest;
 use App\Http\Requests\Admin\UpdateSeoSettingsRequest;
 use App\Http\Requests\Admin\UpdateStorefrontSettingsRequest;
 use App\Models\Setting;
+use App\Support\LogoTrimmer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
@@ -39,6 +40,13 @@ class SettingController extends Controller
                 }
 
                 $data[$field] = $request->file($field)->store('settings', 'public');
+
+                // Logos are often exported on a big padded canvas, which makes the artwork tiny in the height-capped
+                // header/footer. Trim the empty margins (no-op if already tight or GD is missing). Not the favicon,
+                // which must stay square.
+                if ($field === 'logo') {
+                    LogoTrimmer::trim(Storage::disk('public')->path($data[$field]));
+                }
             }
         }
 
