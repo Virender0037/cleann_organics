@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * One courier booking for an order (provider: NimbusPost). Shipment status is its own track — it never writes
@@ -39,16 +40,14 @@ class Shipment extends Model
 
     public const CANCELLED = 'cancelled';
 
-    /** NimbusPost tracking status codes (documented on "Track Single Shipment") → internal status. */
-    public const NIMBUSPOST_TRACKING_CODES = [
-        'PP' => self::PENDING_PICKUP,
-        'IT' => self::IN_TRANSIT,
-        'EX' => self::EXCEPTION,
-        'OFD' => self::OUT_FOR_DELIVERY,
-        'DL' => self::DELIVERED,
-        'RT' => self::RTO,
-        'RT-IT' => self::RTO_IN_TRANSIT,
-        'RT-DL' => self::RTO_DELIVERED,
+    /**
+     * NimbusPost v2 order statuses that the official reference documents (tracking `orderStatus`, booking/cancel
+     * `order_status`) → internal status. v2 publishes no full status/code list, so nothing else is mapped: any other
+     * value is kept raw in provider_status and shown as NimbusPost's own text, never guessed into a status.
+     */
+    public const NIMBUSPOST_ORDER_STATUSES = [
+        'booked' => self::BOOKED,
+        'cancelled' => self::CANCELLED,
     ];
 
     /** Statuses that no longer hold the one-live-shipment-per-order guard. */
@@ -81,7 +80,7 @@ class Shipment extends Model
         'provider_order_id', 'provider_shipment_id', 'awb_number', 'courier_id', 'courier_name', 'label_url',
         'manifest_url', 'pickup_requested', 'package_weight_grams', 'package_length_cm', 'package_width_cm',
         'package_height_cm', 'tracking_history', 'rto_awb', 'ndr_reason', 'failure_reason', 'booked_at',
-        'delivered_at', 'cancelled_at', 'last_synced_at',
+        'delivered_at', 'cancelled_at', 'last_synced_at', 'tracking_url', 'estimated_delivery_at', 'pickup_id',
     ];
 
     protected $casts = [
@@ -96,7 +95,38 @@ class Shipment extends Model
         'delivered_at' => 'datetime',
         'cancelled_at' => 'datetime',
         'last_synced_at' => 'datetime',
+        'estimated_delivery_at' => 'datetime',
     ];
+
+    /** NimbusPost's own text for the most recent tracking event (e.g. "in transit"), if any. */
+    public function latestUpdate(): ?array
+    {
+        $history = $this->tracking_history ?? [];
+
+        return $history === [] ? null : end($history);
+    }
+
+    /** A tracking event time (ISO 8601 from v2) as "13 Jun 2026, 4:00 PM" in the app timezone; raw text if unparsable. */
+    public static function eventTime(?string $value): string
+    {
+        if (blank($value)) {
+            return '';
+        }
+
+        try {
+            return Carbon::parse($value)->timezone(config('app.timezone'))->format('d M Y, g:i A');
+        } catch (\Throwable) {
+            return (string) $value;
+        }
+    }
+
+    /** The official NimbusPost tracking page, only if it is a well-formed https URL. */
+    public function safeTrackingUrl(): ?string
+    {
+        $url = trim((string) $this->tracking_url);
+
+        return $url !== '' && str_starts_with(strtolower($url), 'https://') && filter_var($url, FILTER_VALIDATE_URL) ? $url : null;
+    }
 
     public function order()
     {

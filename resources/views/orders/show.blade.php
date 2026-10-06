@@ -196,13 +196,19 @@
                               @endif
                               Tracking number (AWB): <strong>{{ $trackedShipment->awb_number }}</strong>
                             </p>
+                            @if ($trackedShipment->estimated_delivery_at && $trackedShipment->status !== \App\Models\Shipment::CANCELLED)
+                              <p class="font-body--sm-400" style="margin:4px 0 0;color:#666666;">Expected delivery: {{ $trackedShipment->estimated_delivery_at->format('d M Y') }}</p>
+                            @endif
+                            @if ($trackedShipment->safeTrackingUrl() && $trackedShipment->status !== \App\Models\Shipment::CANCELLED)
+                              <a href="{{ $trackedShipment->safeTrackingUrl() }}" target="_blank" rel="noopener noreferrer" class="font-body--sm-500" style="display:inline-block;margin-top:6px;color:#00B307;">Track your shipment &rarr;</a>
+                            @endif
                             @if ($trackedShipment->status === \App\Models\Shipment::EXCEPTION)
                               <p class="font-body--sm-400" style="margin:6px 0 0;color:#666666;">The courier reported a delivery issue and will try again. Please keep your phone reachable.</p>
                             @endif
                             @if (! empty($trackedShipment->tracking_history))
                               <ul class="font-body--sm-400" style="margin:8px 0 0;padding-left:18px;color:#666666;">
                                 @foreach (array_slice(array_reverse($trackedShipment->tracking_history), 0, 5) as $event)
-                                  <li>{{ $event['event_time'] ?? '' }} — {{ $event['message'] ?? '' }}{{ ! empty($event['location']) ? ' ('.$event['location'].')' : '' }}</li>
+                                  <li>{{ \App\Models\Shipment::eventTime($event['event_time'] ?? null) }} — {{ $event['message'] ?? '' }}{{ ! empty($event['location']) ? ' ('.$event['location'].')' : '' }}</li>
                                 @endforeach
                               </ul>
                             @endif

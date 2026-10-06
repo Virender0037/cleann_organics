@@ -49,7 +49,22 @@
                 </div>
                 <div class="col-sm-6 mb-3">
                     <label class="text-muted small d-block">Pickup</label>
-                    {{ $live->pickup_requested ? 'Auto pickup requested' : 'Pickup not requested automatically — schedule it in NimbusPost' }}
+                    {{ $live->pickup_requested ? 'Pickup scheduled with the courier' : 'Pickup not scheduled automatically — schedule it in NimbusPost' }}{{ $live->pickup_id ? ' · '.$live->pickup_id : '' }}
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <label class="text-muted small d-block">Estimated delivery</label>
+                    {{ $live->estimated_delivery_at?->format('d M Y') ?? '—' }}
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <label class="text-muted small d-block">Tracking</label>
+                    @if ($live->safeTrackingUrl())
+                        <a href="{{ $live->safeTrackingUrl() }}" target="_blank" rel="noopener noreferrer">NimbusPost tracking page</a>
+                    @else
+                        —
+                    @endif
+                    @if ($live->latestUpdate())
+                        <small class="text-muted d-block">Latest: {{ $live->latestUpdate()['status'] ?: $live->latestUpdate()['message'] }} {{ $live->latestUpdate()['location'] ? '('.$live->latestUpdate()['location'].')' : '' }}</small>
+                    @endif
                 </div>
                 <div class="col-sm-6 mb-3">
                     <label class="text-muted small d-block">Booked / last synced</label>
@@ -104,7 +119,7 @@
                         <tbody>
                             @foreach (array_reverse($live->tracking_history) as $event)
                                 <tr>
-                                    <td class="text-nowrap">{{ $event['event_time'] ?? '' }}</td>
+                                    <td class="text-nowrap">{{ \App\Models\Shipment::eventTime($event['event_time'] ?? null) }}</td>
                                     <td>{{ $event['status_code'] ?? '' }}</td>
                                     <td>{{ $event['location'] ?? '' }}</td>
                                     <td>{{ $event['message'] ?? '' }}</td>
@@ -136,16 +151,16 @@
                     <input type="number" name="package_weight_grams" min="1" step="1" class="form-control" required value="{{ old('package_weight_grams', $packageSuggestion['weight_grams']) }}">
                 </div>
                 <div class="col-sm-2">
-                    <label class="form-label small">Length (cm)</label>
-                    <input type="number" name="package_length_cm" min="0.1" step="0.1" class="form-control" value="{{ old('package_length_cm', $packageSuggestion['length_cm']) }}">
+                    <label class="form-label small">Length (cm) *</label>
+                    <input type="number" name="package_length_cm" min="0.1" step="0.1" class="form-control" required value="{{ old('package_length_cm', $packageSuggestion['length_cm']) }}">
                 </div>
                 <div class="col-sm-2">
-                    <label class="form-label small">Width (cm)</label>
-                    <input type="number" name="package_width_cm" min="0.1" step="0.1" class="form-control" value="{{ old('package_width_cm', $packageSuggestion['width_cm']) }}">
+                    <label class="form-label small">Width (cm) *</label>
+                    <input type="number" name="package_width_cm" min="0.1" step="0.1" class="form-control" required value="{{ old('package_width_cm', $packageSuggestion['width_cm']) }}">
                 </div>
                 <div class="col-sm-2">
-                    <label class="form-label small">Height (cm)</label>
-                    <input type="number" name="package_height_cm" min="0.1" step="0.1" class="form-control" value="{{ old('package_height_cm', $packageSuggestion['height_cm']) }}">
+                    <label class="form-label small">Height (cm) *</label>
+                    <input type="number" name="package_height_cm" min="0.1" step="0.1" class="form-control" required value="{{ old('package_height_cm', $packageSuggestion['height_cm']) }}">
                 </div>
                 <div class="col-sm-3 d-grid">
                     <button type="submit" class="btn btn-primary" @if ($shipmentBlockers !== []) disabled aria-disabled="true" title="{{ implode(' ', $shipmentBlockers) }}" @endif>

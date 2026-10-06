@@ -25,9 +25,9 @@ class OrderShipmentController extends Controller
         try {
             $shipment = $this->fulfilment->createShipment($order, [
                 'weight_grams' => (int) $request->validated('package_weight_grams'),
-                'length_cm' => $request->filled('package_length_cm') ? (float) $request->validated('package_length_cm') : null,
-                'width_cm' => $request->filled('package_width_cm') ? (float) $request->validated('package_width_cm') : null,
-                'height_cm' => $request->filled('package_height_cm') ? (float) $request->validated('package_height_cm') : null,
+                'length_cm' => (float) $request->validated('package_length_cm'),
+                'width_cm' => (float) $request->validated('package_width_cm'),
+                'height_cm' => (float) $request->validated('package_height_cm'),
             ]);
         } catch (FulfilmentNotAllowed $e) {
             return $this->back($order)->with('error', $e->getMessage());

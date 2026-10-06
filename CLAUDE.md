@@ -205,69 +205,73 @@ Real-browser QA (puppeteer + Chrome) against the imported local DB; regression t
 
 `public/js/main.js` now loads through `admin_asset()` (filemtime `?v=`), like `style.css`/`cart.js`, so a deploy busts browser caches. It still has to be copied to `public_html`.
 
-## Shipping — NimbusPost only (added 2026-10-06)
+## Shipping — NimbusPost only, Partner API v2 (added 2026-10-06, moved to v2 on 2026-10-07)
 
-**NimbusPost is the only external shipping provider.** No other courier integration exists or should be added (Velocity was only ever three text labels, now removed).
+**NimbusPost is the only external shipping provider.** No other courier integration exists or should be added. Velocity was only ever three text labels, and they have been removed.
 
 **Internal shipping vs. courier — keep them separate:**
-- **Customer shipping charge** = storefront business rules only, unchanged. Admin → Settings → Storefront & Offers: `free_shipping_threshold` (₹399) and `flat_shipping_charge` (₹60 below the threshold). An active matching `ShippingZone`/`ShippingRate` overrides the flat charge. NimbusPost's courier rates are internal and never charged to customers.
-- **Fulfilment** = NimbusPost, via the `shipments` table (`App\Models\Shipment`). `payment_status`, `order_status` and `shipments.status` are three separate tracks. Shipping code never writes `payment_status`. A tracked delivery may set `order_status = delivered`, which fires the existing voucher hook.
+- **Customer shipping charge** = storefront business rules only, unchanged. Admin → Settings → Storefront & Offers: `free_shipping_threshold` (₹399) and `flat_shipping_charge` (₹60 below it). An active matching `ShippingZone`/`ShippingRate` overrides the flat charge. NimbusPost's courier price (`price.total` from the booking) is never charged to customers.
+- **Fulfilment** = NimbusPost, via the `shipments` table (`App\Models\Shipment`). `payment_status`, `order_status` and `shipments.status` are three separate tracks. Shipping code never writes `payment_status`.
 
-**API contract source:** NimbusPost's published Postman collection **"Nimbuspost Partners API"** (https://documenter.getpostman.com/view/9692837/TW6wHnoz), base `https://api.nimbuspost.com/v1`.
-- Auth: `POST users/login {email, password}` returns `data` (a token), sent as `Authorization: Bearer`. The token is cached encrypted and re-fetched once on a 401; its lifetime is undocumented.
-- Endpoints used: `POST courier/serviceability`, `POST shipments`, `GET shipments/track/{awb}`, `POST shipments/cancel {awb}`.
-- Failures come back as `{"status": false, "message": …}`.
-- Units: weight in **grams**, dimensions in **cm** (they call width "breadth"), `payment_type` is `cod` or `prepaid`.
-- NimbusPost also publishes an older "Nimbuspost API" collection (`ship.nimbuspost.com/api`, `NP-API-KEY` header). It is **not used**: it lacks serviceability, rates and NDR.
-- **Not documented, so not implemented:** webhooks, a public tracking URL, estimated delivery dates, the order-items field list (taken from the example body: `name`, `qty`, `price`, `sku`), and NDR actions.
+**API contract source:** the official reference https://api-v2.nimbuspost.com/docs/reference/v2 (OpenAPI "NimbusPost — Partner API v2", 2.0.0). Base URL `https://api-v2.nimbuspost.com`, paths `/v2/...`.
+- The older v1 flow (`api.nimbuspost.com/v1`, email/password login, then a Bearer token) is **no longer used**. It was rejected live with the dashboard's new API keys.
+- **Auth:** headers `x-api-key` (key id, `npk_…`) **and** `x-api-secret` on **every** request. There is no token, signing, timestamp or nonce.
+- **Key settings:** keys come from Dashboard → Settings → API Keys.
+  - Role must be **`admin`**; a `viewer` key gets 401 on create, book and cancel.
+  - `piiAccess` only unmasks PII in *responses*, so it is not needed for creating shipments.
+  - An IP allowlist takes exact IPs only; a request from an IP not on the list gets 401.
+  - The key stops working at `expiresAt`.
+  - Rate limit is 60 requests per minute per key.
+- **Envelopes:** success is `{success:true, data, meta.requestId}`; failure is `{success:false, error:{code, detail, status}}`. Branch on `error.code` (`UNAUTHORIZED`, `VALIDATION_FAILED`, `NOT_FOUND`, `RATE_LIMITED`).
+- **Endpoints used:**
+  - `POST /v2/serviceability`: packages with weight in **grams** and **required** L/W/H in cm, plus `orderValuePaise` for COD. `data.available[]` empty means not serviceable.
+  - `POST /v2/orders`: creates the order without booking and returns `order_id`. Fields are `warehouse_id`, `shipping_address` (numeric `phone`/`pincode`), `items[{name, qty, price, sku}]`, `package` (weight in **kg**, plus required L/W/H), `payment_mode`, and `order_collectable_amount` for COD.
+  - `POST /v2/shipments/book {order_id}`: returns `awb`, `courier_name`, `pickup_id`, `edd`, `label_url`, `tracking_url`.
+  - `POST /v2/shipments/pickup {order_id}`: optional.
+  - `GET /v2/tracking/{awb}`: returns the **latest event only**.
+  - `POST /v2/shipments/cancel {awb, reason}`.
+  - `GET /v2/warehouses`: used by `nimbuspost:check`.
+- **Not used yet:** NDR (`/v2/ndr`) and webhooks (`/v2/webhooks`, HMAC-SHA256 `x-nimbus-signature`, dedupe on `x-nimbus-delivery`, events `order.created|order.updated|tracking.updated`). Both are documented and are a possible next phase.
 
 **Code:**
 - `config/nimbuspost.php` reads env and is cache-safe.
-- `App\Services\Shipping\NimbusPostService` is the only HTTP client. Typed exceptions under `Exceptions\`:
+- `App\Services\Shipping\NimbusPostService` is the only HTTP client. Credentials go into headers only; headers and request bodies (PII) are never logged. Typed exceptions:
   - `NotConfigured`
-  - `Unavailable` (timeout / connection / 5xx: outcome unknown)
-  - `Rejected` (`status:false`)
-  - `AuthenticationFailed`
+  - `Unavailable` (timeout, 5xx or 429: outcome unknown)
+  - `Rejected` (with `error.detail`)
+  - `AuthenticationFailed` (shows the fixed message "NimbusPost authentication failed. Please verify API credentials.")
   - `MalformedResponse`
-- `App\Services\Shipping\FulfilmentService` holds the business rules: payment gate, package prefill, duplicate-safe booking, tracking mapping, cancel, checkout serviceability.
-- Admin: `Admin\OrderShipmentController` (create / refresh / cancel / release) and the partial `admin/sales/orders/_fulfilment.blade.php`.
-- Customer: tracking block on `orders/show.blade.php`.
-- Command: `nimbuspost:sync-tracking`, scheduled hourly in `routes/console.php`. It only runs if the server has the `schedule:run` cron; otherwise admins refresh tracking per order.
+- `App\Services\Shipping\FulfilmentService` holds the business rules.
+- Admin: `Admin\OrderShipmentController` and the partial `admin/sales/orders/_fulfilment.blade.php`.
+- Customer: tracking block on `orders/show.blade.php`, showing NimbusPost's official tracking link and the expected delivery date.
+- Commands:
+  - `nimbuspost:check`: read-only. Shows each setting as set or missing, then calls `GET /v2/warehouses` to prove auth and to match `NIMBUSPOST_WAREHOUSE_ID`.
+  - `nimbuspost:sync-tracking`: hourly via `routes/console.php`, which needs the `schedule:run` cron.
 
 **Rules:**
-- **Payment gate** (`Order::fulfilmentBlockedReason()`):
-  - COD can ship once the order is confirmed.
-  - Razorpay, Manual UPI, Bank Transfer and legacy UPI can ship only once `payment_status = paid`.
-  - The same gate also blocks admin status moves (confirmed/packed/shipped/delivered) for unverified prepaid orders. Historical rows are never rewritten.
-  - Bank Transfer is verified on Sales → Payments → detail; it now has the same Verify/Reject as Manual UPI.
-- **Manual creation only**, from the admin order page. There is no automatic booking at checkout.
-- **One live shipment per order:** `shipments.active_order_id` is UNIQUE and is claimed *before* the API call.
-  - A NimbusPost refusal → `failed`, slot released, retry allowed.
-  - A **timeout** → `creation_unconfirmed`, slot kept, because NimbusPost may have booked it. An admin checks the NimbusPost panel, then "releases" it before retrying, so a timeout can never create two AWBs.
+- **Payment gate:** `Order::fulfilmentBlockedReason()`.
+  - COD can ship once confirmed.
+  - Razorpay, Manual UPI and Bank Transfer can ship only once `payment_status = paid`. Manual UPI and Bank Transfer are verified in Sales → Payments.
+  - The same gate also blocks admin status moves for unverified prepaid orders.
+- **Manual booking only**, from the admin order page. The admin must enter the packed parcel's **length, width and height**, which v2 requires.
+- **No duplicates:**
+  - `shipments.active_order_id` is UNIQUE and is claimed before any API call.
+  - The NimbusPost `order_id` is stored as soon as `POST /v2/orders` returns. A failed booking (for example "No serviceable courier") keeps it, so the **retry re-books the same NimbusPost order on the same shipment row**.
+  - A retry also reuses the latest failed row instead of adding a new one.
+  - A timeout → `creation_unconfirmed`, slot kept. The admin checks the panel, then releases it.
+- **Tracking:**
+  - v2 documents no full status list, so internal status changes only for the documented order statuses `booked` and `cancelled`, or when `shipment.pickedAt` is set (→ `in_transit`, no longer cancellable).
+  - Everything else is stored raw: `provider_status` = `latest.statusCode`, history = latest events. It is shown as NimbusPost's own text.
+  - **Delivery is not inferred** from tracking; admins mark orders delivered as before.
 - **Checkout serviceability:**
-  - Runs at Place Order only when NimbusPost is configured, cached per pincode + payment type.
-  - NimbusPost's explicit "no courier" (`data: []`) blocks the order.
-  - A timeout/error/disabled state never blocks it.
-- **Status map:** `Shipment::NIMBUSPOST_TRACKING_CODES`, using the documented codes `PP IT EX OFD DL RT RT-IT RT-DL`; `booked` comes from the create response.
-  - Unknown codes are stored raw in `provider_status` and leave the internal status unchanged.
-  - `EX` = exception/NDR, with its message stored in `ndr_reason`.
-- **Cancel** is offered only for `booked` / `pending_pickup`.
-- **Package:**
-  - Weight is prefilled from `order_items.weight` (kg → g).
-  - Dimensions are prefilled only for single-unit orders whose variant has `length_cm`/`width_cm`/`height_cm` (new nullable columns, never auto-filled). Otherwise the packer measures them.
+  - Runs only when NimbusPost is configured.
+  - Uses `NIMBUSPOST_SERVICEABILITY_PACKAGE_CM` (default 10,10,10, the docs' example) because a cart has no parcel size. This size is never used for a booking.
+  - "No courier" blocks the order; a timeout or error never does.
 
-**Env** (blank placeholders in `.env.example`; real values only in `.env`):
-- Required to enable: `NIMBUSPOST_ENABLED=true`, `NIMBUSPOST_EMAIL`, `NIMBUSPOST_PASSWORD`, and `NIMBUSPOST_PICKUP_` `WAREHOUSE_NAME`, `NAME`, `ADDRESS`, `CITY`, `STATE`, `PINCODE`, `PHONE`.
-- Optional: `NIMBUSPOST_BASE_URL` (defaults to v1), `NIMBUSPOST_AUTO_PICKUP`, `NIMBUSPOST_PICKUP_ADDRESS_2`, `NIMBUSPOST_PICKUP_GST_NUMBER`, `NIMBUSPOST_TIMEOUT`, `NIMBUSPOST_TOKEN_CACHE_MINUTES`, `NIMBUSPOST_SERVICEABILITY_CACHE_MINUTES`.
-- The admin page shows only the *names* of missing settings.
-
-**Not done / limitations:**
-- No webhook (not documented).
-- NDR actions not implemented.
-- Reverse shipments are not connected: the Returns module is approve/reject only.
-- No real NimbusPost call has been made yet. Everything is tested with `Http::fake()`, and browser QA used a local stand-in replaying the documented example responses.
-- Do the first live test with one real low-value order.
-- `ShippingMethod` admin CRUD is still unconnected to anything (pre-existing).
+**Env** (placeholders in `.env.example`; real values only in `.env`):
+- Required: `NIMBUSPOST_ENABLED=true`, `NIMBUSPOST_API_KEY`, `NIMBUSPOST_API_SECRET`, `NIMBUSPOST_WAREHOUSE_ID`, `NIMBUSPOST_PICKUP_PINCODE`. `NIMBUSPOST_BASE_URL` must be the v2 host or be omitted; a leftover v1 URL is reported as a configuration error.
+- Optional: `NIMBUSPOST_AUTO_PICKUP`, `NIMBUSPOST_SERVICEABILITY_PACKAGE_CM`, `NIMBUSPOST_TIMEOUT`, `NIMBUSPOST_SERVICEABILITY_CACHE_MINUTES`.
+- Legacy and unused, kept for rollback only: `NIMBUSPOST_EMAIL`, `NIMBUSPOST_PASSWORD`, and the old `NIMBUSPOST_PICKUP_*` address fields except `PINCODE`.
 
 ## Workflow: implementing a module
 

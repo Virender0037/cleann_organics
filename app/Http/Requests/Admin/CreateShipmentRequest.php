@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * The packed parcel, as measured by the admin. Units match NimbusPost's create-shipment API: grams and centimetres.
- * Dimensions are optional there, but all three or none are accepted (a partial box size is meaningless).
+ * NimbusPost v2 requires all three dimensions to book, so they are required here.
  */
 class CreateShipmentRequest extends FormRequest
 {
@@ -16,9 +16,9 @@ class CreateShipmentRequest extends FormRequest
     {
         return [
             'package_weight_grams' => ['required', 'integer', 'min:1', 'max:100000'],
-            'package_length_cm' => ['nullable', 'numeric', 'min:0.1', 'max:500', 'required_with:package_width_cm,package_height_cm'],
-            'package_width_cm' => ['nullable', 'numeric', 'min:0.1', 'max:500', 'required_with:package_length_cm,package_height_cm'],
-            'package_height_cm' => ['nullable', 'numeric', 'min:0.1', 'max:500', 'required_with:package_length_cm,package_width_cm'],
+            'package_length_cm' => ['required', 'numeric', 'min:0.1', 'max:500'],
+            'package_width_cm' => ['required', 'numeric', 'min:0.1', 'max:500'],
+            'package_height_cm' => ['required', 'numeric', 'min:0.1', 'max:500'],
         ];
     }
 
