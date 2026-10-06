@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Services\Storefront\MarketplaceComparison;
 use App\Services\Storefront\ReviewEligibility;
 use App\Services\Storefront\WishlistService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -21,7 +22,7 @@ class ProductController extends Controller
      * the same `{product}` parameter name to a numeric id, and a model-level
      * resolveRouteBinding() override would break those.
      */
-    public function show(string $slug): View
+    public function show(Request $request, string $slug): View
     {
         $product = Product::query()
             ->public()
@@ -33,7 +34,7 @@ class ProductController extends Controller
                 'variants' => fn ($q) => $q->where('status', 'active')->orderByDesc('is_default')->orderBy('sort_order'),
                 'variants.images',
                 'visibleMarketplacePrices',
-                'reviews' =>fn ($q) => $q->where('status', 'approved')->latest()->with('user:id,name'),
+                'reviews' => fn ($q) => $q->where('status', 'approved')->latest()->with('user:id,name'),
             ])
             ->where('slug', $slug)
             ->firstOrFail();
@@ -41,7 +42,10 @@ class ProductController extends Controller
         // Already ordered is_default desc, sort_order asc — first() is the
         // variant to show initially, or null if the product has none (it
         // then renders as not purchasable rather than crashing/faking one).
-        $defaultVariant = $product->variants->first();
+        // ?variant=ID (cart / mini-cart links) preselects that variant, but
+        // only when it is one of this product's own active variants.
+        $defaultVariant = $product->variants->firstWhere('id', (int) $request->query('variant'))
+            ?? $product->variants->first();
 
         $approvedReviews = $product->reviews;
         $reviewCount = $approvedReviews->count();

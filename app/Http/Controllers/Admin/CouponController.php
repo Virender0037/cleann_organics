@@ -24,7 +24,7 @@ class CouponController extends Controller
             ->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))
             ->when($request->filled('status'), function ($query) use ($request) {
                 if ($request->string('status') === 'expired') {
-                    $query->where('end_date', '<', now());
+                    $query->expired();
                 } else {
                     $query->where('status', $request->string('status'));
                 }
@@ -43,7 +43,7 @@ class CouponController extends Controller
             ->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))
             ->when($request->filled('status'), function ($query) use ($request) {
                 if ($request->string('status') === 'expired') {
-                    $query->where('end_date', '<', now());
+                    $query->expired();
                 } else {
                     $query->where('status', $request->string('status'));
                 }

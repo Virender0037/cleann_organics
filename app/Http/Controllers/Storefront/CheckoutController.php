@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Storefront\ApplyCouponRequest;
 use App\Http\Requests\Storefront\PlaceOrderRequest;
 use App\Models\Address;
+use App\Models\Order;
 use App\Services\Storefront\CheckoutService;
 use App\Services\Storefront\StorefrontSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 /**
@@ -79,14 +81,40 @@ class CheckoutController extends Controller
     {
         $address = Address::findOrFail($request->validated('address_id'));
 
-        $result = $this->checkout->placeOrder($address, $request->validated('payment_method'));
+        // One Place Order at a time per customer. A double-click (or a retry while the first request is still
+        // running) waits here instead of racing it: both requests would otherwise read the same cart and create
+        // two orders, decrement stock twice and spend a single-use coupon twice.
+        $lock = Cache::lock('checkout:place-order:'.$request->user()->id, 30);
+
+        if (! $lock->block(20)) {
+            return redirect()->route('checkout')->with('error', 'Your order is still being placed. Please check your order history before trying again.');
+        }
+
+        try {
+            $result = $this->checkout->placeOrder($address, $request->validated('payment_method'));
+        } finally {
+            $lock->release();
+        }
 
         if (! $result['success']) {
+            // The duplicate submit of an order that has just gone through: the browser shows THIS response, so send
+            // the shopper to that order rather than to an "empty cart" error.
+            $justPlaced = ($result['reason'] ?? null) === 'empty_cart'
+                ? $request->user()->orders()->where('created_at', '>=', now()->subMinutes(2))->latest('id')->first()
+                : null;
+
+            if ($justPlaced) {
+                return $this->redirectToOrder($justPlaced);
+            }
+
             return back()->with('error', $result['message']);
         }
 
-        $order = $result['order'];
+        return $this->redirectToOrder($result['order']);
+    }
 
+    private function redirectToOrder(Order $order): RedirectResponse
+    {
         if ($order->payment_method === 'razorpay') {
             return redirect()->route('orders.pay', $order);
         }

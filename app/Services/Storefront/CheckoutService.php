@@ -133,6 +133,11 @@ class CheckoutService
      */
     public function estimatedShippingAmount(): float
     {
+        // Nothing to ship: an empty cart must not show a shipping charge (or a "total" made only of it).
+        if ($this->subtotal() <= 0) {
+            return 0.0;
+        }
+
         if ($this->eligibleAmount() >= $this->settings->freeShippingThreshold()) {
             return 0.0;
         }
@@ -277,7 +282,7 @@ class CheckoutService
     {
         return $coupon->status === 'active'
             && $this->couponBelongsToShopper($coupon)
-            && now()->between($coupon->start_date, $coupon->end_date)
+            && $coupon->isWithinValidity()
             && ($coupon->usage_limit === null || $coupon->used_count < $coupon->usage_limit)
             && $subtotal >= (float) $coupon->minimum_order_amount;
     }
@@ -302,7 +307,7 @@ class CheckoutService
             return 'This voucher belongs to a different account.';
         }
 
-        if (! now()->between($coupon->start_date, $coupon->end_date)) {
+        if (! $coupon->isWithinValidity()) {
             return 'This coupon is not currently valid.';
         }
 
@@ -362,7 +367,7 @@ class CheckoutService
         $lines = $this->lines();
 
         if ($lines->isEmpty()) {
-            return ['success' => false, 'message' => 'Your cart is empty.'];
+            return ['success' => false, 'message' => 'Your cart is empty.', 'reason' => 'empty_cart'];
         }
 
         if ($lines->contains(fn (array $line) => ! $line['available'])) {
@@ -394,6 +399,12 @@ class CheckoutService
         try {
             $order = $this->createOrderInTransaction($lines, $address, $paymentMethod, $subtotal, $coupon, $discount, $shipping, $shippingZoneName, $tax, $grandTotal, $lineTaxes);
         } catch (\RuntimeException $e) {
+            if ($e->getMessage() === 'coupon_exhausted') {
+                $this->removeCoupon();
+
+                return ['success' => false, 'message' => 'That coupon has just reached its usage limit and was removed. Please review your total and place the order again.'];
+            }
+
             if ($e->getMessage() !== 'insufficient_stock') {
                 throw $e;
             }
@@ -500,7 +511,15 @@ class CheckoutService
             ]);
 
             if ($coupon) {
-                $coupon->increment('used_count');
+                // Re-checked under a row lock: the earlier validity check ran outside this transaction, so two
+                // concurrent orders could otherwise both spend the last use of a usage-limited coupon.
+                $locked = Coupon::lockForUpdate()->find($coupon->id);
+
+                if (! $locked || ($locked->usage_limit !== null && $locked->used_count >= $locked->usage_limit)) {
+                    throw new \RuntimeException('coupon_exhausted');
+                }
+
+                $locked->increment('used_count');
             }
 
             return $order;

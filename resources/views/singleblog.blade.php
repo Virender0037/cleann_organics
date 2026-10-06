@@ -186,7 +186,8 @@
 
             <!-- Text Contents of Blogs  -->
             <div class="single-blog__inner-content">
-                {!! $blog->content !!}
+                {{-- Admin-authored HTML: rendered through an allowlist sanitizer, never raw. --}}
+                {!! \App\Support\SafeHtml::clean($blog->content) !!}
             </div>
 
             @if ($blog->tags->isNotEmpty())
@@ -378,7 +379,7 @@
     <script src="{{ asset('lib/js/swiper-bundle.min.js') }}"></script>
     <script src="{{ asset('lib/js/bvselect.js') }}"></script>
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ admin_asset('js/main.js') }}"></script>
         <!-- Purchase Button -->
         <!-- <div class="templatecookie-btn">
             <a href="https://1.envato.market/kjkaBN" target="_blank" class="purchase-btn">

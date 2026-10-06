@@ -26,7 +26,9 @@ class VariantMediaFile implements ValidationRule
         $mime = (string) $value->getMimeType();
 
         if (in_array($extension, $config['image_mimes'], true)) {
-            if (! str_starts_with($mime, 'image/')) {
+            // Exact raster types only: a bare "image/" prefix check let an SVG renamed .jpg through, and
+            // store() would then save it as .svg on the public disk (scriptable, same origin).
+            if (! in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
                 $fail('The :attribute does not appear to be a genuine image file.');
 
                 return;

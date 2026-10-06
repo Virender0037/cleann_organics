@@ -77,6 +77,18 @@ class SaveMarketplacePriceRequest extends FormRequest
                 $validator->errors()->add('marketplace', Marketplaces::label($marketplace).' already has a listing for '.($variantId ? 'that variant' : 'this product (product-level)').'. Edit it instead.');
             }
 
+            // An active listing is shown to customers with a "View Deal" link, so it needs a price above zero and
+            // somewhere to send them (without a URL the outbound redirect can only 404).
+            if ($this->boolean('is_active')) {
+                if (is_numeric($this->input('selling_price')) && (float) $this->input('selling_price') <= 0 && ! $validator->errors()->has('selling_price')) {
+                    $validator->errors()->add('selling_price', 'The selling price must be greater than zero while the listing is active.');
+                }
+
+                if (! $this->filled('product_url') && ! $this->filled('affiliate_url')) {
+                    $validator->errors()->add('product_url', 'A product URL (or an affiliate URL) is required while the listing is active.');
+                }
+            }
+
             // A product URL should be on the marketplace it is filed under. (The affiliate URL is exempt: affiliate
             // networks use their own tracking domains.)
             $url = trim((string) $this->input('product_url'));

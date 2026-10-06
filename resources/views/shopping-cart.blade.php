@@ -202,13 +202,18 @@
               @forelse ($lines as $line)
               <div class="shoping-card" data-cart-line data-item-key="{{ $line['key'] }}">
                 <div class="shoping-card__img-wrapper">
-                  <img
-                    src="{{ $line['thumbnail_url'] ?? asset('images/products/img-01.png') }}"
-                    alt="{{ $line['product']->name ?? 'product-item' }}"
-                  />
+                  <a href="{{ $line['product_url'] ?? '#' }}" style="display:block;">
+                    <img
+                      src="{{ $line['thumbnail_url'] ?? asset('images/products/img-01.png') }}"
+                      alt="{{ $line['product']->name ?? 'product-item' }}"
+                    />
+                  </a>
                 </div>
                 <h5 class="shoping-card__product-caption font-body--lg-400">
-                  {{ $line['product']->name ?? 'Product' }}
+                  <a href="{{ $line['product_url'] ?? '#' }}" style="color:inherit;">{{ $line['product']->name ?? 'Product' }}</a>
+                  @if ($line['variant_label'])
+                    <span class="font-body--md-400" style="display:block; color:#666666;">{{ $line['variant_label'] }}</span>
+                  @endif
                 </h5>
 
                 <h6 class="shoping-card__product-price font-body--lg-400">
@@ -410,7 +415,7 @@
     <script src="{{ asset('lib/js/swiper-bundle.min.js') }}"></script>
     <script src="{{ asset('lib/js/bvselect.js') }}"></script>
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ admin_asset('js/main.js') }}"></script>
     <script src="{{ admin_asset('js/cart.js') }}"></script>
   </body>
 </html>

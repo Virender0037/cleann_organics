@@ -570,7 +570,7 @@
         <script src="{{ asset('lib/js/swiper-bundle.min.js') }}"></script>
         <script src="{{ asset('lib/js/bvselect.js') }}"></script>
         <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
-        <script src="{{ asset('js/main.js') }}"></script>
+        <script src="{{ admin_asset('js/main.js') }}"></script>
         <script src="{{ admin_asset('js/cart.js') }}"></script>
         <script src="{{ asset('js/wishlist.js') }}"></script>
         <script>

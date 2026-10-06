@@ -67,7 +67,7 @@
 
             @forelse ($coupons as $coupon)
                 @php
-                    $isExpired = $coupon->end_date->isPast();
+                    $isExpired = $coupon->isExpired();
                     $displayStatus = $isExpired ? 'expired' : $coupon->status;
                 @endphp
                 <tr>

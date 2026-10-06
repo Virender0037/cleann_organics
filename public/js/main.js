@@ -254,7 +254,6 @@ function menuClick(current) {
     7. Shopping Cart 
 ======================== */
 let cartBtn = document.querySelector('#cart-bag');
-let closeBtn = document.querySelector('.shopping-cart .close');
 const shoppingCart = document.querySelector('.shopping-cart');
 
 // Event Click Popup cart open
@@ -270,24 +269,52 @@ cartBtn.addEventListener('click', function () {
 });
 
 // Event Click Popup Close
-closeBtn.addEventListener('click', function () {
-  const body = document.querySelector('body');
-  body.classList.remove('overlay');
+// Delegated, not bound to the button: cart.js replaces the drawer's markup
+// (X button included) after every add/remove, and a listener bound once at
+// page load would leave the new X dead — trapping the shopper in the drawer.
+function closeShoppingCart() {
+  if (!shoppingCart || !shoppingCart.classList.contains('active')) {
+    return;
+  }
   shoppingCart.classList.remove('active');
+  document.querySelector('body').classList.remove('overlay');
+  var opener = document.querySelector('#cart-bag .cart-bag');
+  if (opener) {
+    opener.focus();
+  }
+}
+
+document.addEventListener('click', function (event) {
+  if (!shoppingCart || !shoppingCart.classList.contains('active')) {
+    return;
+  }
+  // The X, or a tap on the dimmed backdrop outside the drawer.
+  if (event.target.closest('.shopping-cart .close') || (!shoppingCart.contains(event.target) && !event.target.closest('#cart-bag'))) {
+    closeShoppingCart();
+  }
+});
+
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Escape') {
+    closeShoppingCart();
+  }
 });
 
 // 8. Product Image Change
-$galleryItem = $('.gallery-item');
-$galleryItem.on('click', function () {
-  $('.gallery-item.active').removeClass('active');
-  $(this).addClass('active');
-  let element = $(this).find('img');
-  if (element) {
-    let imgSource = element.attr('src');
+// Guarded: some pages (e.g. Contact) don't load jQuery, and the bare call threw and stopped everything below.
+if (window.jQuery) {
+  $galleryItem = $('.gallery-item');
+  $galleryItem.on('click', function () {
+    $('.gallery-item.active').removeClass('active');
+    $(this).addClass('active');
+    let element = $(this).find('img');
+    if (element) {
+      let imgSource = element.attr('src');
 
-    $('.product-main-image').attr('src', imgSource);
-  }
-});
+      $('.product-main-image').attr('src', imgSource);
+    }
+  });
+}
 
 /* 
     9. Cart Quantity
@@ -389,25 +416,29 @@ if (document.getElementsByClassName('venobox')[0]) {
 /* 
     13. Swiper Slider
 ======================== */
-var swiper = new Swiper('.mySwiper', {
-  spaceBetween: 10,
-  slidesPerView: 4,
-  freeMode: true,
-  watchSlidesVisibility: true,
-  watchSlidesProgress: true,
-});
+// Checkout/account pages do not load the Swiper library; without this guard the error here stopped every
+// handler below (order-history filter, sidebar toggles, password show/hide) from being bound.
+if (typeof Swiper !== 'undefined') {
+  var swiper = new Swiper('.mySwiper', {
+    spaceBetween: 10,
+    slidesPerView: 4,
+    freeMode: true,
+    watchSlidesVisibility: true,
+    watchSlidesProgress: true,
+  });
 
-var swiper2 = new Swiper('.mySwiper2', {
-  spaceBetween: 10,
-  direction: 'vertical',
-  navigation: {
-    nextEl: '.swiper-button-next',
-    prevEl: '.swiper-button-prev',
-  },
-  thumbs: {
-    swiper: swiper,
-  },
-});
+  var swiper2 = new Swiper('.mySwiper2', {
+    spaceBetween: 10,
+    direction: 'vertical',
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    thumbs: {
+      swiper: swiper,
+    },
+  });
+}
 
 /* 
     14. Filter 
@@ -480,6 +511,8 @@ function showPassword(id, el) {
     16. Slider
 ======================== */
 // 16.1    Banner Slider
+// Same guard as section 13: pages without the Swiper library (checkout, account, order pages) skip the sliders.
+if (typeof Swiper !== 'undefined') {
 var bannerOne = new Swiper('.banner-slider--one', {
   spaceBetween: 15,
   loop: true,
@@ -1269,6 +1302,8 @@ var blogs = new Swiper('.blog-list--slider', {
   },
 });
 
+
+} // end: typeof Swiper guard
 
 // upload image
 function readURL(input) {

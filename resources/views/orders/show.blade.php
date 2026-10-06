@@ -299,7 +299,7 @@
 
     <script src="{{ asset('lib/js/jquery.min.js') }}"></script>
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ admin_asset('js/main.js') }}"></script>
   </body>
 </html>
 </x-layouts.app>

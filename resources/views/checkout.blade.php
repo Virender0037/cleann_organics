@@ -257,7 +257,27 @@
 
     <script src="{{ asset('lib/js/jquery.min.js') }}"></script>
     <script src="{{ asset('lib/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ admin_asset('js/main.js') }}"></script>
+    <script>
+      // Place Order submits once: the button is disabled the moment the form is sent, so a double-click can't
+      // fire a second request (the server also serialises Place Order per customer).
+      (function () {
+        var form = document.getElementById('place-order-form');
+        if (!form) { return; }
+        form.addEventListener('submit', function (event) {
+          if (form.dataset.submitting === '1') { event.preventDefault(); return; }
+          form.dataset.submitting = '1';
+          document.querySelectorAll('button[form="place-order-form"], #place-order-form button[type="submit"]').forEach(function (button) {
+            button.disabled = true;
+            button.textContent = 'Placing order…';
+          });
+        });
+        // Coming back via the browser's Back button restores the page from cache: re-enable it.
+        window.addEventListener('pageshow', function (event) {
+          if (event.persisted) { window.location.reload(); }
+        });
+      })();
+    </script>
   </body>
 </html>
 </x-layouts.app>

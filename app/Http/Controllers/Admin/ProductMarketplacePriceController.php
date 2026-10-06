@@ -58,6 +58,10 @@ class ProductMarketplacePriceController extends Controller
             return $this->back($product)->with('error', 'Add a selling price before enabling this listing.');
         }
 
+        if (! $marketplacePrice->is_active && $marketplacePrice->displayUrl() === null) {
+            return $this->back($product)->with('error', 'Add a product URL before enabling this listing.');
+        }
+
         $marketplacePrice->update(['is_active' => ! $marketplacePrice->is_active]);
 
         return $this->back($product)->with('success', Marketplaces::label($marketplacePrice->marketplace).($marketplacePrice->is_active ? ' listing enabled.' : ' listing disabled.'));

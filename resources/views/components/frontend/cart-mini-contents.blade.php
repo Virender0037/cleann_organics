@@ -57,8 +57,10 @@
             </form>
         </div>
     @empty
-        <div class="shopping-cart__product-content">
+        <div class="shopping-cart__product-content" style="display:block;">
             <p class="font-body--md-400" style="padding: 16px 0;">Your cart is empty.</p>
+            {{-- Never a dead end: an empty drawer always offers a way back to the products. --}}
+            <a href="{{ route('shop') }}" class="button button--md">Continue Shopping</a>
         </div>
     @endforelse
 </div>
@@ -71,8 +73,6 @@
 
     @if ($itemCount > 0)
         <a href="{{ route('checkout') }}" class="button button--lg w-100" style="display:block; text-align:center;">Checkout</a>
-    @else
-        <button class="button button--lg w-100" disabled aria-disabled="true">Checkout</button>
     @endif
     <a href="{{ route('shopping-cart') }}" class="button button--lg button--disable w-100" style="display:block; text-align:center;">
         Go to Cart

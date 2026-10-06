@@ -186,6 +186,20 @@ Optional "Compare prices" beside our own price. Prices are **typed in by an admi
 - **Admin**: "Marketplace Pricing" card on Catalog → Products → Edit (`admin/catalog/products/_marketplace-pricing.blade.php`), **outside** the product `<form>`; add/edit in a native `<dialog>`, enable/disable and delete are their own requests (`ProductMarketplacePriceController`, `SaveMarketplacePriceRequest`, error bag `marketplace`; form field `display_order` deliberately differs from the product form's `sort_order` so old-input can't collide). Product URL must be on the marketplace's domains; affiliate URL may be any http(s) URL; selling price required only while active; price above MRP saves with a warning and shows no discount; `last_checked_at` is stamped on create or price change; admin-only "Price may be outdated" after 30 days. Product list shows a small "N Active" chip.
 - **Assets to sync to `public_html`**: `public/css/style.css`, `public/js/compare-prices.js`, `public/assets/css/admin-custom.css`, and `public/images/marketplaces/*` if logos are added.
 
+## Commerce QA pass (2026-10-06)
+
+Real-browser QA (puppeteer + Chrome) against the imported local DB; regression tests in `tests/Feature/Storefront/CommerceQaRegressionTest.php`. Fixed:
+- **Mobile cart drawer trap**: `main.js` bound the drawer X once at load, but `cart.js` re-renders `#mini-cart` after every AJAX add/remove, so the X went dead. Close is now a delegated listener (X, Escape, backdrop tap, focus back to the cart icon). The empty drawer shows **Continue Shopping** (→ `/shop`) and no dead Checkout button.
+- **Coupon end date is inclusive** (`Coupon::expiresAt()/isExpired()/isWithinValidity()/scopeExpired()`). Admin dates are date-only (stored 00:00), so coupons used to die at the start of their last day, and one-day coupons never worked. Use these helpers, never `now()->between(start, end)`.
+- **Duplicate Place Order**: `CheckoutController::store` holds a per-customer `Cache::lock`. A repeat submit that finds the cart already consumed is redirected to the just-placed order. The coupon usage limit is re-checked under `lockForUpdate` inside the order transaction. Place Order disables itself on submit.
+- Cart lines link to `products.show?variant=ID`; `ProductController::show` preselects `?variant=` (own active variants only). The mobile cart cards are now clickable and show the variant.
+- Empty cart no longer shows a shipping charge (`estimatedShippingAmount()` is 0 for an empty cart).
+- Marketplace: an active listing needs a URL (product or affiliate) and a price > 0. `isDisplayable()` also requires a safe URL, so legacy URL-less rows never render a dead "View Deal".
+- Security: the blog body renders through `App\Support\SafeHtml::clean()` (allowlist) instead of raw `{!! !!}`. Variant media accepts exact `image/jpeg|png|webp` only (an SVG renamed `.jpg` used to pass). `APP_DEBUG` defaults to false.
+- `main.js` Swiper sections are guarded, so pages without the Swiper library (checkout/account/order) no longer throw.
+
+`public/js/main.js` now loads through `admin_asset()` (filemtime `?v=`), like `style.css`/`cart.js`, so a deploy busts browser caches. It still has to be copied to `public_html`.
+
 ## Shipping — Velocity Integration: PENDING / BLOCKED BY API DOCUMENTATION (added 2026-09-12)
 
 **Status: on hold. No Velocity-specific code exists in this repo — none should be added until real API documentation is supplied.** The current flat-rate `ShippingZone`/`ShippingRate` checkout flow (see below) is untouched and must stay untouched until this is unblocked.

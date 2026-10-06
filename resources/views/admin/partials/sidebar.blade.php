@@ -620,13 +620,8 @@
  </div>
 </header>
 <!-- [ Header ] end -->
-    <!-- [Page Specific JS] start -->
-    <!-- apexcharts js -->
-    <script src="{{ asset('assets/js/plugins/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('assets/js/plugins/jsvectormap.min.js') }}"></script>
-    <script src="{{ asset('assets/js/plugins/world.js') }}"></script>
-    <script src="{{ asset('assets/js/dashboard/dashboard-default.js') }}"></script>
-    <!-- [Page Specific JS] end -->
+    {{-- The template's demo dashboard charts (apexcharts/jsvectormap + dashboard-default.js) used to load on every
+         admin page and threw "Element not found": no admin page renders those demo chart elements. --}}
     <!-- Required Js -->
     <script src="{{ asset('assets/js/plugins/popper.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/simplebar.min.js') }}"></script>

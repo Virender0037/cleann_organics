@@ -510,7 +510,8 @@ class CartService
             'stock_label' => $available ? $variant->stockLabel() : 'Unavailable',
             'variant_label' => $variant->displayLabel(),
             'thumbnail_url' => storage_image_url($image?->image, asset('images/products/img-01.png')),
-            'product_url' => $product ? route('products.show', $product->slug) : null,
+            // Opens the product page on this line's own variant, not the product's default one.
+            'product_url' => $product ? route('products.show', ['slug' => $product->slug, 'variant' => $variant->id]) : null,
         ];
     }
 

@@ -85,7 +85,9 @@ class ProductMarketplacePrice extends Model
         return $this->is_active
             && $this->selling_price !== null
             && (float) $this->selling_price > 0
-            && Marketplaces::isEnabled($this->marketplace);
+            && Marketplaces::isEnabled($this->marketplace)
+            // No safe destination means no "View Deal" button that could only lead to a 404.
+            && $this->displayUrl() !== null;
     }
 
     /**

@@ -138,7 +138,7 @@ class CouponsReportController extends Controller
             return 'upcoming';
         }
 
-        if ($coupon->end_date && $coupon->end_date->isBefore($now)) {
+        if ($coupon->end_date && $coupon->isExpired($now)) {
             return 'expired';
         }
 
